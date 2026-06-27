@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lynceus — The galaxy atlas</title>
+<meta name="description" content="Fly through a self-supervised embedding of thousands of real JWST galaxies. A SimCLR encoder learned what galaxies look like with no labels; colour the map by Galaxy Zoo morphology.">
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+  .barrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0 12px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--panel2);
+    border:none;padding:8px 13px;cursor:pointer;border-left:1px solid var(--line)}
+  .seg button:first-child{border-left:none}
+  .seg button.on{color:#06070d;background:var(--cyan);font-weight:700}
+  .seg.on-amber button.on{background:var(--amber)} .seg.on-rose button.on{background:var(--rose)}
+  .hint{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .stage{position:relative;width:100%;height:600px;border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;background:radial-gradient(900px 600px at 50% 30%,#0b1020,#04050a 70%);cursor:grab}
+  .stage.drag{cursor:grabbing}
+  #atlas{display:block;width:100%;height:100%}
+  .tip{position:absolute;pointer-events:none;z-index:5;background:#0a0e1aee;border:1px solid var(--line);
+    border-radius:10px;padding:8px;opacity:0;transition:opacity .08s;box-shadow:0 18px 40px -18px #000;width:150px}
+  .tip img{width:100%;border-radius:6px;display:block;background:#04050a;image-rendering:auto}
+  .tip .meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px;line-height:1.5}
+  .tip .meta b{color:var(--ink)}
+  .reset{position:absolute;top:12px;right:12px;z-index:6}
+  #count{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">&larr; Lynceus</a>
+  <header>
+    <div class="badge">Lynceus · Demo B</div>
+    <h1 class="grad">The galaxy atlas.</h1>
+    <p class="sub">A self-supervised map of thousands of real JWST galaxies.</p>
+    <p class="lede" style="margin-top:14px">
+      A <b>SimCLR</b> encoder was shown thousands of JWST cutouts with <b>no labels</b> and learned
+      to place galaxies that <b>look alike</b> near each other. Here is its 2-D map (UMAP). Drag to
+      fly, scroll to zoom — thumbnails appear as you dive in. The <b>colours are Galaxy Zoo votes</b>,
+      never seen during training: if structure separates by colour, the encoder discovered morphology
+      on its own. <span id="status">loading atlas…</span>
+    </p>
+  </header>
+
+  <div class="barrow">
+    <span class="hint">colour by</span>
+    <div class="seg" id="colorseg">
+      <button data-mode="morph" class="on">morphology</button>
+      <button data-mode="featured">featured</button>
+      <button data-mode="merger">merger</button>
+    </div>
+    <span id="count"></span>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="stage" id="stage" style="margin-top:12px">
+    <canvas id="atlas"></canvas>
+    <button class="ghost reset" id="reset">reset view</button>
+    <div class="tip" id="tip"></div>
+  </div>
+
+  <p class="note">
+    <b>What you're seeing.</b> Each point is a real JWST/NIRCam galaxy (GOODS-S, COSMOS, UDS), pulled
+    from the <a href="https://dawn-cph.github.io/dja/">DAWN JWST Archive</a>. A ResNet-18 trained by
+    <b>self-supervised contrastive learning</b> (SimCLR, NT-Xent) maps each cutout to a vector; UMAP
+    flattens those vectors to this 2-D layout. Morphology labels from
+    <a href="https://data.galaxyzoo.org/">Galaxy Zoo</a> only <b>colour</b> the map — the geometry is
+    the encoder's alone. Next: scoring every galaxy by how unusual it is, to surface the
+    <b>Little Red Dots</b>.
+  </p>
+
+  <footer>
+    <b>Lynceus</b> — the keenest-sighted of the Argonauts.
+    Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
+  </footer>
+</div>
+<script src="app.js?v=2"></script>
+</body>
+</html>

@@ -19,8 +19,8 @@ Plutus (quantitative finance).
 
 | | | |
 |---|---|---|
-| **[Morphology](web/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST/CEERS** cutout in your browser — disk / spheroid / compact — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
-| **Atlas** | Self-supervised | Fly through a 2-D embedding of thousands of real JWST galaxies, coloured by morphology or redshift. *Planned (M2).* |
+| **[Morphology](web/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser — featured / smooth / merger (Galaxy Zoo labels) — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
+| **[Atlas](web/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of ~2,400 real JWST galaxies; colour by morphology and watch structure the encoder found with **no labels** emerge. **Built.** |
 | **Anomaly hunt** | Discovery | Score every galaxy by how unusual it is, and surface the **Little Red Dots**. *Planned (M3).* |
 | **Dropout hunter** | Cosmic dawn | Find galaxies at z>10 as they vanish from the bluer filters. *Planned (M4).* |
 
@@ -55,15 +55,21 @@ core/                 # reusable package
   models.py           #   timm ViT + attention-rollout heatmaps
   train.py            #   device-agnostic train loop + stratified k-fold CV
   morphology.py       #   label schema + metrics
+  ssl.py              #   M2: SimCLR self-supervised contrastive training
+  embed.py            #   M2: encoder embeddings -> UMAP 2-D layout
 experiments/
-  fetch_gz.py         #   REAL data: Galaxy Zoo visual labels + DJA JWST cutouts
-  fetch_ceers.py      #   alt: Sersic-fit labels (CEERS) + DJA cutout service
-  fetch_data.py       #   synthetic Sersic fallback / local-mosaic Cutout2D path
-  train_vit.py        #   CV metrics + final model + metrics.json
+  fetch_gz.py         #   M1: Galaxy Zoo visual labels + DJA JWST cutouts
+  fetch_ceers.py      #   M1 alt: Sersic-fit labels (CEERS) + DJA cutout service
+  fetch_data.py       #   M1: synthetic Sersic fallback / local-mosaic Cutout2D
+  fetch_atlas.py      #   M2: ~2.4k unlabelled JWST cutouts for the atlas
+  train_vit.py        #   M1: CV metrics + final model + metrics.json
+  train_atlas.py      #   M2: SimCLR encoder
+  build_atlas.py      #   M2: embed -> UMAP -> sprite sheet + atlas.json
   export_onnx.py      #   -> INT8 web/morphology/model.onnx
   build_web_assets.py #   gallery PNGs + attention maps + json
 web/
-  morphology/         #   Demo A (onnxruntime-web, no build step)
+  morphology/         #   Demo A: classifier (onnxruntime-web, no build step)
+  atlas/              #   Demo B: self-supervised fly-through (canvas + sprite sheet)
   index.html          #   landing page
 tests/                #   data + model unit tests
 ```
@@ -83,6 +89,11 @@ python -m experiments.train_vit  --folds 5 --epochs 10
 python -m experiments.export_onnx
 python -m experiments.build_web_assets --per-class 6
 pytest -q                                           # data + model tests
+
+# M2 — the self-supervised atlas
+python -m experiments.fetch_atlas  --n 2550         # unlabelled JWST cutouts
+python -m experiments.train_atlas  --epochs 80      # SimCLR encoder (MPS)
+python -m experiments.build_atlas                   # embed -> UMAP -> atlas assets
 
 cd web && python3 -m http.server                    # open http://localhost:8000
 ```

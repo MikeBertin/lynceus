@@ -10,13 +10,16 @@ import torch
 # ---------------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
-CUTOUTS_DIR = DATA_DIR / "cutouts"          # cached .npy cutouts + manifest.csv
+CUTOUTS_DIR = DATA_DIR / "cutouts"          # M1: labelled cutouts + manifest.csv
 MOSAIC_DIR = DATA_DIR / "mosaics"           # user-supplied real NIRCam FITS mosaics
+ATLAS_DIR = DATA_DIR / "atlas"              # M2: unlabelled atlas cutout cache
+ATLAS_CUTOUTS = ATLAS_DIR / "cutouts"
 MODELS_DIR = ROOT / "models"                # checkpoints + onnx (gitignored)
 WEB_DIR = ROOT / "web"
 WEB_MORPH_DIR = WEB_DIR / "morphology"
+WEB_ATLAS_DIR = WEB_DIR / "atlas"
 
-for _d in (DATA_DIR, CUTOUTS_DIR, MOSAIC_DIR, MODELS_DIR):
+for _d in (DATA_DIR, CUTOUTS_DIR, MOSAIC_DIR, ATLAS_CUTOUTS, MODELS_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------

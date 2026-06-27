@@ -14,10 +14,12 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   Sérsic-fit-labelled CEERS path, a synthetic generator and a local-mosaic `Cutout2D` path
   are retained as alternatives/fallbacks.
 
-- **M2 — The atlas (self-supervised).** _Next._
-  DINO/SimCLR-style encoder on unlabeled JADES cutouts → embeddings → UMAP. `web/atlas/`:
-  a precomputed-JSON + sprite-sheet fly-through coloured by morphology / redshift. The
-  M2-scale run is the one to move to Colab / a rented GPU.
+- **M2 — The atlas (self-supervised). _Built._**
+  SimCLR (ResNet-18, NT-Xent) trained on ~2,400 unlabelled JWST cutouts (Apple MPS); the
+  encoder's 512-d features → UMAP 2-D. `web/atlas/`: a precomputed-JSON + sprite-sheet
+  fly-through (pan/zoom canvas) coloured by Galaxy Zoo morphology. The labels were never used
+  in training, yet a kNN probe of the embeddings recovers the dominant class at **58.5% vs
+  33% baseline** — morphology emerges on its own.
 
 - **M3 — The anomaly hunt.** _Research._
   Latent-space outlier scoring (kNN density / isolation forest); surface **Little Red
