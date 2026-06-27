@@ -108,12 +108,13 @@
   </div>
 
   <p class="note">
-    <b>What you're seeing.</b> The classifier is real and runs client-side; the cutouts in this
-    on-ramp are a <b>physically-motivated synthetic set</b> (Sérsic light profiles — n≈1 disks,
-    n≈4 spheroids, clumpy irregulars, PSF point sources, two-body mergers) so the whole pipeline
-    is reproducible without multi-GB downloads. The <b>same code path</b> ingests real CEERS/JADES
-    NIRCam cutouts once their mosaics are supplied. Next milestone: a self-supervised embedding
-    <b>atlas</b> of real JWST galaxies you can fly through.
+    <b>What you're seeing.</b> Real <b>JWST/NIRCam</b> cutouts of CEERS galaxies (F200W+F356W+F444W),
+    pulled live from the <a href="https://dawn-cph.github.io/dja/">DAWN JWST Archive</a> cutout
+    service. The three classes — <b>disk</b> (late-type), <b>spheroid</b> (early-type) and
+    <b>compact</b> — are defined from single-<b>Sérsic</b> profile fits (van der Wel et&nbsp;al. 2025):
+    n&nbsp;&lt;&nbsp;1.2, n&nbsp;&gt;&nbsp;2.5, and effective radius below 0.09″. The ViT never sees
+    those numbers — it learns morphology straight from the pixels. The compact class is where the
+    mysterious <b>Little Red Dots</b> hide; surfacing them is the next milestone's anomaly hunt.
   </p>
 
   <footer>

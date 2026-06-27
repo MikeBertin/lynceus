@@ -4,11 +4,12 @@ from __future__ import annotations
 import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
 
-# Single dominant-class scheme for the M1 on-ramp. The real CEERS VISUAL
-# catalogue (Kartaltepe+ 2023) uses multi-flag classifications; collapsing to a
-# dominant class keeps the on-ramp simple and the demo legible. The labels and
-# their order are fixed here so training, export and the browser demo agree.
-CLASSES = ("disk", "spheroid", "irregular", "point_source", "merger")
+# Three structural classes derived from single-Sersic profile fits (DJA /
+# van der Wel et al. 2025) of real CEERS NIRCam galaxies: the classic
+# early/late dichotomy plus a compact/unresolved class. Labels and order are
+# fixed here so the data layer, training, export and the browser demo agree.
+# (The synthetic Sersic generator renders these same three classes.)
+CLASSES = ("disk", "spheroid", "compact")
 CLASS_TO_IDX = {c: i for i, c in enumerate(CLASSES)}
 IDX_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
 
@@ -16,16 +17,12 @@ IDX_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
 CLASS_LABELS = {
     "disk": "Disk",
     "spheroid": "Spheroid",
-    "irregular": "Irregular",
-    "point_source": "Point source",
-    "merger": "Merger",
+    "compact": "Compact",
 }
 CLASS_BLURB = {
-    "disk": "Rotation-supported, exponential light profile (Sersic n~1).",
-    "spheroid": "Centrally concentrated bulge/elliptical (Sersic n~4).",
-    "irregular": "Clumpy, asymmetric — common in the early universe.",
-    "point_source": "Unresolved: a star, quasar or compact source.",
-    "merger": "Two interacting components / tidal disturbance.",
+    "disk": "Late-type, rotation-supported — low Sersic index (n < 1.2).",
+    "spheroid": "Early-type bulge/elliptical — high Sersic index (n > 2.5).",
+    "compact": "Barely resolved (R_eff < 0.09'') — point-source-like; where the Little Red Dots hide.",
 }
 
 

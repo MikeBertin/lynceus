@@ -4,8 +4,7 @@
   --ink:#e9ecf6; --muted:#8893ab; --faint:#5a6480;
   --cyan:#5ad1e6; --accent:#5ad1e6; --amber:#e6b85a; --violet:#a98bff; --rose:#ff7a8a;
   /* morphology class colours (match core/morphology CLASSES order) */
-  --c-disk:#5ad1e6; --c-spheroid:#e6b85a; --c-irregular:#a98bff;
-  --c-point_source:#eef2ff; --c-merger:#ff7a8a;
+  --c-disk:#5ad1e6; --c-spheroid:#e6b85a; --c-compact:#ff7a8a;
   --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}

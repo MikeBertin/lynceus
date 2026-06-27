@@ -2,23 +2,17 @@
  "classes": [
   "disk",
   "spheroid",
-  "irregular",
-  "point_source",
-  "merger"
+  "compact"
  ],
  "names": {
   "disk": "Disk",
   "spheroid": "Spheroid",
-  "irregular": "Irregular",
-  "point_source": "Point source",
-  "merger": "Merger"
+  "compact": "Compact"
  },
  "blurbs": {
-  "disk": "Rotation-supported, exponential light profile (Sersic n~1).",
-  "spheroid": "Centrally concentrated bulge/elliptical (Sersic n~4).",
-  "irregular": "Clumpy, asymmetric \u2014 common in the early universe.",
-  "point_source": "Unresolved: a star, quasar or compact source.",
-  "merger": "Two interacting components / tidal disturbance."
+  "disk": "Late-type, rotation-supported \u2014 low Sersic index (n < 1.2).",
+  "spheroid": "Early-type bulge/elliptical \u2014 high Sersic index (n > 2.5).",
+  "compact": "Barely resolved (R_eff < 0.09'') \u2014 point-source-like; where the Little Red Dots hide."
  },
  "mean": [
   0.485,

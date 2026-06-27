@@ -1,85 +1,51 @@
 {
-  "n": 800,
-  "source": "synthetic",
-  "accuracy": 0.95125,
-  "majority_baseline": 0.2,
-  "macro_f1": 0.951039510203698,
+  "n": 896,
+  "source": "ceers",
+  "accuracy": 0.6316964285714286,
+  "majority_baseline": 0.33370535714285715,
+  "macro_f1": 0.6285827408855249,
   "per_class": {
     "disk": {
-      "precision": 0.975609756097561,
-      "recall": 1.0,
-      "f1-score": 0.9876543209876543,
-      "support": 160.0
+      "precision": 0.6666666666666666,
+      "recall": 0.5819397993311036,
+      "f1-score": 0.6214285714285714,
+      "support": 299.0
     },
     "spheroid": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1-score": 1.0,
-      "support": 160.0
+      "precision": 0.5821428571428572,
+      "recall": 0.5469798657718121,
+      "f1-score": 0.5640138408304498,
+      "support": 298.0
     },
-    "irregular": {
-      "precision": 0.9019607843137255,
-      "recall": 0.8625,
-      "f1-score": 0.8817891373801917,
-      "support": 160.0
-    },
-    "point_source": {
-      "precision": 1.0,
-      "recall": 0.99375,
-      "f1-score": 0.9968652037617555,
-      "support": 160.0
-    },
-    "merger": {
-      "precision": 0.8780487804878049,
-      "recall": 0.9,
-      "f1-score": 0.8888888888888888,
-      "support": 160.0
+    "compact": {
+      "precision": 0.6450704225352113,
+      "recall": 0.7658862876254181,
+      "f1-score": 0.7003058103975535,
+      "support": 299.0
     }
   },
   "confusion": [
     [
-      160,
-      0,
-      0,
-      0,
-      0
+      174,
+      73,
+      52
     ],
     [
-      0,
-      160,
-      0,
-      0,
-      0
+      61,
+      163,
+      74
     ],
     [
-      3,
-      0,
-      138,
-      0,
-      19
-    ],
-    [
-      0,
-      0,
-      0,
-      159,
-      1
-    ],
-    [
-      1,
-      0,
-      15,
-      0,
-      144
+      26,
+      44,
+      229
     ]
   ],
   "classes": [
     "disk",
     "spheroid",
-    "irregular",
-    "point_source",
-    "merger"
+    "compact"
   ],
   "folds": 5,
-  "epochs": 10
+  "epochs": 12
 }

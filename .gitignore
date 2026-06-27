@@ -3,11 +3,11 @@
 __pycache__/
 *.pyc
 
-# Data: raw mosaics (multi-GB) and the regenerable cutout cache
-data/mosaics/
-data/cutouts/
-data/montage.png
+# Data: the 375MB DJA catalogue, raw mosaics, regenerable cutout cache,
+# label CSV and montages — all large or regenerable, none committed.
+data/
 *.fits
+*.fits.gz
 
 # Model checkpoints + intermediate ONNX (regenerable). The *web* model is committed:
 models/

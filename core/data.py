@@ -18,6 +18,9 @@ Two ways to fill the cutout cache, both producing identical on-disk artefacts
 from __future__ import annotations
 
 import csv
+import io
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -25,6 +28,11 @@ import numpy as np
 
 from . import config
 from .morphology import CLASSES, CLASS_TO_IDX
+
+# DJA grizli cutout service — real JWST NIRCam cutouts by RA/Dec, no mosaic
+# download. One request returns a multi-extension FITS, one HDU per filter.
+CUTOUT_SERVICE = "https://grizli-cutout.herokuapp.com/thumb"
+SERVICE_FILTERS = "f444w-clear,f356w-clear,f200w-clear"   # (R, G, B) — match config.BANDS
 
 MANIFEST = config.CUTOUTS_DIR / "manifest.csv"
 _FIELDS = ("id", "label", "label_idx", "source", "ra", "dec", "redshift", "npy", "png")
@@ -155,6 +163,12 @@ def _render_galaxy(label: str, rng: np.random.Generator, px: int) -> np.ndarray:
                                   jit(0.22), jit(0.22),
                                   rng.uniform(0.1, 0.6), rng.uniform(0, np.pi))
         colour = (0.85, 1.0, 1.1)
+    elif label == "compact":
+        # barely-resolved: a small, round, fairly concentrated source
+        base = _sersic((px, px), 2.2, rng.uniform(0.025, 0.05) * px,
+                       rng.uniform(2.0, 4.0), jit(0.03), jit(0.03),
+                       rng.uniform(0.0, 0.2), rng.uniform(0, np.pi))
+        colour = (rng.uniform(1.0, 1.3), 1.0, rng.uniform(0.7, 1.0))  # often red
     elif label == "point_source":
         base = _sersic((px, px), 2.5, 0.6, 1.0, jit(0.03), jit(0.03), 0.0, 0.0)
         colour = (rng.uniform(0.8, 1.2), 1.0, rng.uniform(0.8, 1.2))
@@ -198,7 +212,7 @@ def _render_galaxy(label: str, rng: np.random.Generator, px: int) -> np.ndarray:
 def _synthetic_redshift(label: str, rng: np.random.Generator) -> float:
     """Plausible redshift for the demo readout (irregulars skew high)."""
     base = {"disk": 1.5, "spheroid": 1.0, "irregular": 4.0,
-            "point_source": 2.0, "merger": 2.5}[label]
+            "point_source": 2.0, "merger": 2.5, "compact": 3.5}.get(label, 2.0)
     return float(np.clip(rng.normal(base, 1.2), 0.2, 12.0))
 
 
@@ -276,5 +290,80 @@ def extract_real_cutouts(catalog_rows: list[dict],
             ra=float(row["ra"]), dec=float(row["dec"]),
             redshift=float(row.get("redshift", 0.0)), stretched=stretched)
         records.append(rec)
+    write_manifest(records)
+    return records
+
+
+# ---------------------------------------------------------------------------
+# Real CEERS cutouts via the DJA grizli service (no mosaic download)
+# ---------------------------------------------------------------------------
+def fetch_service_cube(ra: float, dec: float, size: float = 3.0,
+                       retries: int = 3, timeout: int = 30) -> np.ndarray | None:
+    """Fetch a (3, H, W) raw NIRCam cube (R=F444W, G=F356W, B=F200W) by RA/Dec.
+
+    Returns ``None`` if the position has no coverage or the service fails.
+    """
+    import requests
+    from astropy.io import fits
+
+    url = (f"{CUTOUT_SERVICE}?ra={ra:.6f}&dec={dec:.6f}&size={size}"
+           f"&filters={SERVICE_FILTERS}&output=fits")
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, timeout=timeout)
+            if r.status_code != 200 or not r.content:
+                raise IOError(f"status {r.status_code}")
+            with fits.open(io.BytesIO(r.content)) as hdul:
+                planes = [h.data for h in hdul if h.data is not None and h.data.ndim == 2]
+            if len(planes) < 3:
+                return None
+            shapes = {p.shape for p in planes[:3]}
+            if len(shapes) != 1:
+                return None
+            return np.stack(planes[:3]).astype(np.float32)
+        except Exception:
+            time.sleep(1.5 * (attempt + 1))
+    return None
+
+
+def build_dataset_from_service(catalog_rows: list[dict], *, size: float = 3.0,
+                               max_workers: int = 6, resume: bool = True) -> list[CutoutRecord]:
+    """Fill the cutout cache from the DJA service for a labelled catalogue.
+
+    ``catalog_rows`` need ``id``, ``ra``, ``dec``, ``label`` (and optionally
+    ``redshift``). Resumes by skipping ids already cached, so a flaky run can be
+    re-run. Writes the manifest over all successfully cached rows.
+    """
+    rows = [r for r in catalog_rows if r["label"] in CLASS_TO_IDX]
+
+    def _one(row):
+        rec_id = str(row["id"])
+        npy_path = config.CUTOUTS_DIR / f"{rec_id}.npy"
+        if resume and npy_path.exists():
+            return CutoutRecord(rec_id, row["label"], CLASS_TO_IDX[row["label"]],
+                                "ceers", float(row["ra"]), float(row["dec"]),
+                                float(row.get("redshift", 0.0) or 0.0),
+                                f"{rec_id}.npy", f"{rec_id}.png")
+        cube = fetch_service_cube(float(row["ra"]), float(row["dec"]), size=size)
+        if cube is None:
+            return None
+        stretched = asinh_stretch(np.nan_to_num(cube))
+        return _save_record(rec_id, row["label"], "ceers",
+                            float(row["ra"]), float(row["dec"]),
+                            float(row.get("redshift", 0.0) or 0.0), stretched)
+
+    records: list[CutoutRecord] = []
+    done = 0
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futs = {ex.submit(_one, r): r for r in rows}
+        for fut in as_completed(futs):
+            done += 1
+            rec = fut.result()
+            if rec is not None:
+                records.append(rec)
+            if done % 25 == 0:
+                print(f"  fetched {done}/{len(rows)} "
+                      f"({len(records)} cached)", flush=True)
+    records.sort(key=lambda r: r.id)
     write_manifest(records)
     return records
