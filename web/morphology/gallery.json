@@ -1,275 +1,275 @@
 [
  {
-  "id": "ceers_062122",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 1.59,
-  "img": "gallery/ceers_062122.png",
-  "attn": "gallery/ceers_062122_attn.png",
-  "probs": {
-   "disk": 0.2712,
-   "spheroid": 0.6524,
-   "compact": 0.0764
-  }
- },
- {
-  "id": "ceers_015065",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 1.67,
-  "img": "gallery/ceers_015065.png",
-  "attn": "gallery/ceers_015065_attn.png",
-  "probs": {
-   "disk": 0.4074,
-   "spheroid": 0.4452,
-   "compact": 0.1473
-  }
- },
- {
-  "id": "ceers_018112",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 0.93,
-  "img": "gallery/ceers_018112.png",
-  "attn": "gallery/ceers_018112_attn.png",
-  "probs": {
-   "disk": 0.7779,
-   "spheroid": 0.2137,
-   "compact": 0.0084
-  }
- },
- {
-  "id": "ceers_005796",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 0.34,
-  "img": "gallery/ceers_005796.png",
-  "attn": "gallery/ceers_005796_attn.png",
-  "probs": {
-   "disk": 0.7017,
-   "spheroid": 0.2934,
-   "compact": 0.0049
-  }
- },
- {
-  "id": "ceers_057296",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 0.57,
-  "img": "gallery/ceers_057296.png",
-  "attn": "gallery/ceers_057296_attn.png",
-  "probs": {
-   "disk": 0.9227,
-   "spheroid": 0.0731,
-   "compact": 0.0041
-  }
- },
- {
-  "id": "ceers_057147",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 1.31,
-  "img": "gallery/ceers_057147.png",
-  "attn": "gallery/ceers_057147_attn.png",
-  "probs": {
-   "disk": 0.8861,
-   "spheroid": 0.101,
-   "compact": 0.013
-  }
- },
- {
-  "id": "ceers_015113",
-  "label": "disk",
-  "label_name": "Disk",
-  "redshift": 1.59,
-  "img": "gallery/ceers_015113.png",
-  "attn": "gallery/ceers_015113_attn.png",
-  "probs": {
-   "disk": 0.4787,
-   "spheroid": 0.4367,
-   "compact": 0.0846
-  }
- },
- {
-  "id": "ceers_008334",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 1.51,
-  "img": "gallery/ceers_008334.png",
-  "attn": "gallery/ceers_008334_attn.png",
-  "probs": {
-   "disk": 0.1244,
-   "spheroid": 0.7934,
-   "compact": 0.0822
-  }
- },
- {
-  "id": "ceers_033742",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 2.1,
-  "img": "gallery/ceers_033742.png",
-  "attn": "gallery/ceers_033742_attn.png",
-  "probs": {
-   "disk": 0.3015,
-   "spheroid": 0.6554,
-   "compact": 0.0432
-  }
- },
- {
-  "id": "ceers_019660",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 3.61,
-  "img": "gallery/ceers_019660.png",
-  "attn": "gallery/ceers_019660_attn.png",
-  "probs": {
-   "disk": 0.337,
-   "spheroid": 0.6422,
-   "compact": 0.0209
-  }
- },
- {
-  "id": "ceers_002211",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 2.79,
-  "img": "gallery/ceers_002211.png",
-  "attn": "gallery/ceers_002211_attn.png",
-  "probs": {
-   "disk": 0.2166,
-   "spheroid": 0.7367,
-   "compact": 0.0467
-  }
- },
- {
-  "id": "ceers_057985",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 1.17,
-  "img": "gallery/ceers_057985.png",
-  "attn": "gallery/ceers_057985_attn.png",
-  "probs": {
-   "disk": 0.2706,
-   "spheroid": 0.6294,
-   "compact": 0.0999
-  }
- },
- {
-  "id": "ceers_012546",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 1.16,
-  "img": "gallery/ceers_012546.png",
-  "attn": "gallery/ceers_012546_attn.png",
-  "probs": {
-   "disk": 0.3255,
-   "spheroid": 0.6439,
-   "compact": 0.0306
-  }
- },
- {
-  "id": "ceers_054154",
-  "label": "spheroid",
-  "label_name": "Spheroid",
-  "redshift": 3.38,
-  "img": "gallery/ceers_054154.png",
-  "attn": "gallery/ceers_054154_attn.png",
-  "probs": {
-   "disk": 0.7167,
-   "spheroid": 0.2168,
-   "compact": 0.0665
-  }
- },
- {
-  "id": "ceers_050332",
-  "label": "compact",
-  "label_name": "Compact",
-  "redshift": 1.03,
-  "img": "gallery/ceers_050332.png",
-  "attn": "gallery/ceers_050332_attn.png",
-  "probs": {
-   "disk": 0.0879,
-   "spheroid": 0.1026,
-   "compact": 0.8095
-  }
- },
- {
-  "id": "ceers_074725",
-  "label": "compact",
-  "label_name": "Compact",
-  "redshift": 2.62,
-  "img": "gallery/ceers_074725.png",
-  "attn": "gallery/ceers_074725_attn.png",
-  "probs": {
-   "disk": 0.2343,
-   "spheroid": 0.266,
-   "compact": 0.4997
-  }
- },
- {
-  "id": "ceers_058086",
-  "label": "compact",
-  "label_name": "Compact",
+  "id": "gz040963",
+  "label": "featured",
+  "label_name": "Featured / disk",
   "redshift": 0.0,
-  "img": "gallery/ceers_058086.png",
-  "attn": "gallery/ceers_058086_attn.png",
+  "img": "gallery/gz040963.png",
+  "attn": "gallery/gz040963_attn.png",
   "probs": {
-   "disk": 0.0896,
-   "spheroid": 0.1093,
-   "compact": 0.801
+   "featured": 0.8843,
+   "smooth": 0.1054,
+   "merger": 0.0103
   }
  },
  {
-  "id": "ceers_014244",
-  "label": "compact",
-  "label_name": "Compact",
-  "redshift": 2.95,
-  "img": "gallery/ceers_014244.png",
-  "attn": "gallery/ceers_014244_attn.png",
+  "id": "gz007856",
+  "label": "featured",
+  "label_name": "Featured / disk",
+  "redshift": 0.0,
+  "img": "gallery/gz007856.png",
+  "attn": "gallery/gz007856_attn.png",
   "probs": {
-   "disk": 0.1556,
-   "spheroid": 0.4073,
-   "compact": 0.4372
+   "featured": 0.5826,
+   "smooth": 0.323,
+   "merger": 0.0944
   }
  },
  {
-  "id": "ceers_056313",
-  "label": "compact",
-  "label_name": "Compact",
-  "redshift": 1.55,
-  "img": "gallery/ceers_056313.png",
-  "attn": "gallery/ceers_056313_attn.png",
+  "id": "gz011324",
+  "label": "featured",
+  "label_name": "Featured / disk",
+  "redshift": 0.0,
+  "img": "gallery/gz011324.png",
+  "attn": "gallery/gz011324_attn.png",
   "probs": {
-   "disk": 0.0821,
-   "spheroid": 0.1014,
-   "compact": 0.8164
+   "featured": 0.9834,
+   "smooth": 0.0074,
+   "merger": 0.0092
   }
  },
  {
-  "id": "ceers_059412",
-  "label": "compact",
-  "label_name": "Compact",
-  "redshift": 2.14,
-  "img": "gallery/ceers_059412.png",
-  "attn": "gallery/ceers_059412_attn.png",
+  "id": "gz003557",
+  "label": "featured",
+  "label_name": "Featured / disk",
+  "redshift": 0.0,
+  "img": "gallery/gz003557.png",
+  "attn": "gallery/gz003557_attn.png",
   "probs": {
-   "disk": 0.264,
-   "spheroid": 0.488,
-   "compact": 0.248
+   "featured": 0.9845,
+   "smooth": 0.0106,
+   "merger": 0.0049
   }
  },
  {
-  "id": "ceers_043706",
-  "label": "compact",
-  "label_name": "Compact",
-  "redshift": 1.3,
-  "img": "gallery/ceers_043706.png",
-  "attn": "gallery/ceers_043706_attn.png",
+  "id": "gz036992",
+  "label": "featured",
+  "label_name": "Featured / disk",
+  "redshift": 0.0,
+  "img": "gallery/gz036992.png",
+  "attn": "gallery/gz036992_attn.png",
   "probs": {
-   "disk": 0.156,
-   "spheroid": 0.1835,
-   "compact": 0.6605
+   "featured": 0.9239,
+   "smooth": 0.0294,
+   "merger": 0.0466
+  }
+ },
+ {
+  "id": "gz036722",
+  "label": "featured",
+  "label_name": "Featured / disk",
+  "redshift": 0.0,
+  "img": "gallery/gz036722.png",
+  "attn": "gallery/gz036722_attn.png",
+  "probs": {
+   "featured": 0.9813,
+   "smooth": 0.0142,
+   "merger": 0.0046
+  }
+ },
+ {
+  "id": "gz007858",
+  "label": "featured",
+  "label_name": "Featured / disk",
+  "redshift": 0.0,
+  "img": "gallery/gz007858.png",
+  "attn": "gallery/gz007858_attn.png",
+  "probs": {
+   "featured": 0.7938,
+   "smooth": 0.1308,
+   "merger": 0.0754
+  }
+ },
+ {
+  "id": "gz004327",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz004327.png",
+  "attn": "gallery/gz004327_attn.png",
+  "probs": {
+   "featured": 0.0079,
+   "smooth": 0.9857,
+   "merger": 0.0064
+  }
+ },
+ {
+  "id": "gz023263",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz023263.png",
+  "attn": "gallery/gz023263_attn.png",
+  "probs": {
+   "featured": 0.0506,
+   "smooth": 0.9306,
+   "merger": 0.0188
+  }
+ },
+ {
+  "id": "gz012845",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz012845.png",
+  "attn": "gallery/gz012845_attn.png",
+  "probs": {
+   "featured": 0.044,
+   "smooth": 0.6698,
+   "merger": 0.2863
+  }
+ },
+ {
+  "id": "gz001276",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz001276.png",
+  "attn": "gallery/gz001276_attn.png",
+  "probs": {
+   "featured": 0.0033,
+   "smooth": 0.9783,
+   "merger": 0.0184
+  }
+ },
+ {
+  "id": "gz035851",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz035851.png",
+  "attn": "gallery/gz035851_attn.png",
+  "probs": {
+   "featured": 0.0083,
+   "smooth": 0.9863,
+   "merger": 0.0053
+  }
+ },
+ {
+  "id": "gz005903",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz005903.png",
+  "attn": "gallery/gz005903_attn.png",
+  "probs": {
+   "featured": 0.0658,
+   "smooth": 0.9225,
+   "merger": 0.0117
+  }
+ },
+ {
+  "id": "gz034336",
+  "label": "smooth",
+  "label_name": "Smooth",
+  "redshift": 0.0,
+  "img": "gallery/gz034336.png",
+  "attn": "gallery/gz034336_attn.png",
+  "probs": {
+   "featured": 0.0545,
+   "smooth": 0.4568,
+   "merger": 0.4887
+  }
+ },
+ {
+  "id": "gz031745",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz031745.png",
+  "attn": "gallery/gz031745_attn.png",
+  "probs": {
+   "featured": 0.3404,
+   "smooth": 0.0363,
+   "merger": 0.6233
+  }
+ },
+ {
+  "id": "gz046233",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz046233.png",
+  "attn": "gallery/gz046233_attn.png",
+  "probs": {
+   "featured": 0.0027,
+   "smooth": 0.3286,
+   "merger": 0.6688
+  }
+ },
+ {
+  "id": "gz036259",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz036259.png",
+  "attn": "gallery/gz036259_attn.png",
+  "probs": {
+   "featured": 0.045,
+   "smooth": 0.0291,
+   "merger": 0.9259
+  }
+ },
+ {
+  "id": "gz008767",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz008767.png",
+  "attn": "gallery/gz008767_attn.png",
+  "probs": {
+   "featured": 0.9182,
+   "smooth": 0.0698,
+   "merger": 0.0121
+  }
+ },
+ {
+  "id": "gz035234",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz035234.png",
+  "attn": "gallery/gz035234_attn.png",
+  "probs": {
+   "featured": 0.0017,
+   "smooth": 0.3092,
+   "merger": 0.6891
+  }
+ },
+ {
+  "id": "gz038377",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz038377.png",
+  "attn": "gallery/gz038377_attn.png",
+  "probs": {
+   "featured": 0.1068,
+   "smooth": 0.0215,
+   "merger": 0.8717
+  }
+ },
+ {
+  "id": "gz027498",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 0.0,
+  "img": "gallery/gz027498.png",
+  "attn": "gallery/gz027498_attn.png",
+  "probs": {
+   "featured": 0.0421,
+   "smooth": 0.1624,
+   "merger": 0.7955
   }
  }
 ]

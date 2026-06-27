@@ -108,13 +108,14 @@
   </div>
 
   <p class="note">
-    <b>What you're seeing.</b> Real <b>JWST/NIRCam</b> cutouts of CEERS galaxies (F200W+F356W+F444W),
-    pulled live from the <a href="https://dawn-cph.github.io/dja/">DAWN JWST Archive</a> cutout
-    service. The three classes — <b>disk</b> (late-type), <b>spheroid</b> (early-type) and
-    <b>compact</b> — are defined from single-<b>Sérsic</b> profile fits (van der Wel et&nbsp;al. 2025):
-    n&nbsp;&lt;&nbsp;1.2, n&nbsp;&gt;&nbsp;2.5, and effective radius below 0.09″. The ViT never sees
-    those numbers — it learns morphology straight from the pixels. The compact class is where the
-    mysterious <b>Little Red Dots</b> hide; surfacing them is the next milestone's anomaly hunt.
+    <b>What you're seeing.</b> Real <b>JWST/NIRCam</b> cutouts (F200W+F356W+F444W of GOODS-S, COSMOS
+    and UDS galaxies), pulled live from the <a href="https://dawn-cph.github.io/dja/">DAWN JWST
+    Archive</a> cutout service. The labels are <b>real human visual classifications</b> — the
+    canonical <a href="https://data.galaxyzoo.org/">Galaxy Zoo</a>: CANDELS split into
+    <b>featured/disk</b>, <b>smooth</b> and <b>merger</b> (majority volunteer vote, ≥20 classifiers).
+    Galaxy Zoo judged HST imaging; the ViT here is shown the <b>JWST</b> view of the same galaxies
+    and learns morphology straight from the pixels. Next milestone: a self-supervised <b>atlas</b> of
+    JWST galaxies you can fly through, and the hunt for the <b>Little Red Dots</b>.
   </p>
 
   <footer>

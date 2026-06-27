@@ -5,13 +5,14 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
 
 ## Milestones
 
-- **M1 — Morphology on-ramp (ViT). _Built, on real data._**
+- **M1 — Morphology on-ramp (ViT). _Built, on real data + real human labels._**
   A `vit_small_patch16_224` (timm, ImageNet-pretrained) fine-tuned to classify galaxy
-  morphology (disk / spheroid / compact) on **real JWST/CEERS NIRCam cutouts**, evaluated by
-  stratified k-fold cross-validation, exported to INT8 ONNX and shipped as a live in-browser
-  classifier with attention-rollout heatmaps. Cutouts come from the DJA grizli cutout
-  service; labels from single-Sérsic profile fits. A synthetic Sérsic generator and a
-  local-mosaic `Cutout2D` path are retained as fallbacks.
+  morphology (featured / smooth / merger) on **real JWST NIRCam cutouts** with **real Galaxy
+  Zoo visual labels**, evaluated by stratified k-fold cross-validation, exported to INT8 ONNX
+  and shipped as a live in-browser classifier with attention-rollout heatmaps. Cutouts come
+  from the DJA grizli cutout service; labels from Galaxy Zoo: CANDELS volunteer votes. A
+  Sérsic-fit-labelled CEERS path, a synthetic generator and a local-mosaic `Cutout2D` path
+  are retained as alternatives/fallbacks.
 
 - **M2 — The atlas (self-supervised).** _Next._
   DINO/SimCLR-style encoder on unlabeled JADES cutouts → embeddings → UMAP. `web/atlas/`:
@@ -27,13 +28,15 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
 
 ## Data provenance
 
-- **Imaging (M1):** real JWST/NIRCam CEERS cutouts (F200W/F356W/F444W) from the **DAWN JWST
-  Archive** grizli cutout service (`grizli-cutout.herokuapp.com`), fetched by RA/Dec — no
-  mosaic download.
-- **Labels (M1):** single-Sérsic profile fits from the **DJA morphology catalogue**
-  (van der Wel et al. 2025, arXiv:2505.21622; `ceers-full-grizli-v7.2_morpho-phot.fits.gz`).
-  Classes: disk (n < 1.2), spheroid (n > 2.5), compact (R_eff < 0.09″); F200W mag < 25,
-  good-fit flags only.
+- **Imaging (M1):** real JWST/NIRCam cutouts (F200W/F356W/F444W of GOODS-S, COSMOS, UDS) from
+  the **DAWN JWST Archive** grizli cutout service (`grizli-cutout.herokuapp.com`), fetched by
+  RA/Dec — no mosaic download.
+- **Labels (M1):** **Galaxy Zoo: CANDELS** volunteer visual classifications (Simmons et al.
+  2017; `gz_candels_table_2_main_release.fits`). Classes from the top of the decision tree:
+  featured (t00 features > 0.5), smooth (t00 smooth > 0.6), merger (t16 merging > 0.5);
+  ≥ 20 classifiers/galaxy. Galaxy Zoo judged HST imaging — cross-matched here to the JWST view.
+- *Alt labels (M1b):* single-Sérsic profile fits from the **DJA morphology catalogue**
+  (van der Wel et al. 2025, arXiv:2505.21622) via `fetch_ceers.py` — disk/spheroid/compact.
 - **Imaging (M2):** JADES DR5 NIRCam mosaics + photometric catalogue, MAST HLSP `jades`
   (Johnson et al. 2026, arXiv:2601.15954; Robertson et al. 2026, arXiv:2601.15956).
 - The 375 MB catalogue and the cutout cache are gitignored; only small web assets + the
@@ -50,7 +53,8 @@ mini (10-core GPU, 24 GB unified). M1 trains locally in minutes; M2 may want a c
 ## Pipeline
 
 ```
-experiments/fetch_ceers.py     # real CEERS cutouts (Sersic labels + DJA service)
+experiments/fetch_gz.py        # real JWST cutouts + Galaxy Zoo visual labels (primary)
+experiments/fetch_ceers.py     # alt: real cutouts + Sersic-fit labels (CEERS)
 experiments/fetch_data.py      # synthetic fallback OR local-mosaic Cutout2D cache
 experiments/train_vit.py       # k-fold CV metrics + final model + metrics.json
 experiments/export_onnx.py     # vit.pt -> INT8 web/morphology/model.onnx

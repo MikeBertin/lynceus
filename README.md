@@ -26,22 +26,24 @@ Plutus (quantitative finance).
 
 ## The data, honestly
 
-The demo trains on **real JWST/NIRCam cutouts of CEERS galaxies**. Two things are real and
-two are worth stating plainly:
+The demo trains on **real JWST/NIRCam cutouts with real human visual-morphology labels**:
 
-- **Imagery — real.** Cutouts (F200W + F356W + F444W) are pulled by RA/Dec from the
-  [DAWN JWST Archive](https://dawn-cph.github.io/dja/) grizli cutout service — actual JWST
-  pixels, no mosaic download. The RGB you see is our asinh composite of the three raw bands.
-- **Labels — real, profile-derived.** The three classes come from **single-Sérsic profile
-  fits** (van der Wel et al. 2025, the DJA morphology catalogue): `disk` (late-type,
-  n < 1.2), `spheroid` (early-type, n > 2.5), and `compact` (effective radius < 0.09″,
-  point-source-like). The ViT never sees those fit parameters — it learns morphology from
-  the pixels. This is a genuine, standard supervised-morphology task.
-- The **compact** class is deliberately the LRD-adjacent population; M3's anomaly hunt builds
-  on it.
+- **Imagery — real JWST.** Cutouts (F200W + F356W + F444W of GOODS-S, COSMOS and UDS galaxies)
+  are pulled by RA/Dec from the [DAWN JWST Archive](https://dawn-cph.github.io/dja/) grizli
+  cutout service — actual JWST pixels, no mosaic download. The RGB is our asinh composite of
+  the three raw bands.
+- **Labels — real human votes.** The three classes are the canonical
+  [Galaxy Zoo](https://data.galaxyzoo.org/): CANDELS split (Simmons et al. 2017):
+  `featured` (disk/structured), `smooth` (elliptical/early-type) and `merger`
+  (merging/disturbed), taken as the majority volunteer vote with ≥ 20 classifiers.
+- **One honest caveat.** Galaxy Zoo classified the *HST/CANDELS* imaging; the ViT is shown the
+  *JWST* view of the same galaxies (cross-matched by position). Morphology is largely
+  consistent across the two, but the labels and the pixels come from different telescopes —
+  stated plainly rather than hidden.
 - A **synthetic Sérsic generator** is retained as a no-download fallback (and for CI/tests):
-  `python -m experiments.fetch_data --synthetic 160`. A local-mosaic `Cutout2D` path also
-  exists (`fetch_data --real`). See [`plan.md`](plan.md) for provenance and the M2–M4 roadmap.
+  `python -m experiments.fetch_data --synthetic 160`. A Sérsic-fit-labelled CEERS path
+  (`fetch_ceers.py`) and a local-mosaic `Cutout2D` path (`fetch_data --real`) also exist.
+  See [`plan.md`](plan.md) for provenance and the M2–M4 roadmap.
 
 ## Architecture
 
@@ -54,7 +56,8 @@ core/                 # reusable package
   train.py            #   device-agnostic train loop + stratified k-fold CV
   morphology.py       #   label schema + metrics
 experiments/
-  fetch_ceers.py      #   REAL CEERS cutouts: Sersic-fit labels + DJA cutout service
+  fetch_gz.py         #   REAL data: Galaxy Zoo visual labels + DJA JWST cutouts
+  fetch_ceers.py      #   alt: Sersic-fit labels (CEERS) + DJA cutout service
   fetch_data.py       #   synthetic Sersic fallback / local-mosaic Cutout2D path
   train_vit.py        #   CV metrics + final model + metrics.json
   export_onnx.py      #   -> INT8 web/morphology/model.onnx
@@ -71,10 +74,10 @@ tests/                #   data + model unit tests
 python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# real CEERS data: download the morphology catalogue once (~375 MB, gitignored)
-curl -L -o data/ceers_morpho.fits.gz \
-  https://s3.amazonaws.com/aurelien-sepp/ceers-full-grizli-v7.2/catalog/ceers-full-grizli-v7.2_morpho-phot.fits.gz
-python -m experiments.fetch_ceers --per-class 300   # select + fetch real cutouts
+# real data: Galaxy Zoo visual labels + JWST cutouts (catalogue ~52 MB, gitignored)
+curl -L -o data/gz_candels.fits \
+  https://zooniverse-data.s3.amazonaws.com/galaxy-zoo-candels/gz_candels_table_2_main_release.fits
+python -m experiments.fetch_gz --per-class 300      # select + fetch real cutouts
 
 python -m experiments.train_vit  --folds 5 --epochs 10
 python -m experiments.export_onnx
@@ -89,7 +92,7 @@ No-download fallback (synthetic Sérsic galaxies): `python -m experiments.fetch_
 ## Credits & data
 
 Built with PyTorch, [timm](https://github.com/huggingface/pytorch-image-models) and
-[onnxruntime-web](https://onnxruntime.ai/). Real JWST cutouts + Sérsic-fit morphology labels
-from the [DAWN JWST Archive](https://dawn-cph.github.io/dja/) (CEERS; reductions by grizli;
-morphology catalogue van der Wel et al. 2025). M2 will use MAST HLSP
-[JADES](https://archive.stsci.edu/hlsp/jades). All data public.
+[onnxruntime-web](https://onnxruntime.ai/). Real JWST cutouts from the
+[DAWN JWST Archive](https://dawn-cph.github.io/dja/) (grizli reductions); visual-morphology
+labels from [Galaxy Zoo](https://data.galaxyzoo.org/): CANDELS (Simmons et al. 2017). M2 will
+use MAST HLSP [JADES](https://archive.stsci.edu/hlsp/jades). All data public.

@@ -1,18 +1,18 @@
 {
  "classes": [
-  "disk",
-  "spheroid",
-  "compact"
+  "featured",
+  "smooth",
+  "merger"
  ],
  "names": {
-  "disk": "Disk",
-  "spheroid": "Spheroid",
-  "compact": "Compact"
+  "featured": "Featured / disk",
+  "smooth": "Smooth",
+  "merger": "Merger"
  },
  "blurbs": {
-  "disk": "Late-type, rotation-supported \u2014 low Sersic index (n < 1.2).",
-  "spheroid": "Early-type bulge/elliptical \u2014 high Sersic index (n > 2.5).",
-  "compact": "Barely resolved (R_eff < 0.09'') \u2014 point-source-like; where the Little Red Dots hide."
+  "featured": "Disk-like \u2014 structure, clumps or spiral arms (Galaxy Zoo: featured).",
+  "smooth": "Smooth and rounded \u2014 elliptical / early-type, no features.",
+  "merger": "Merging or tidally disturbed \u2014 two bodies or tidal debris."
  },
  "mean": [
   0.485,

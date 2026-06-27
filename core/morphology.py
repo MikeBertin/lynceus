@@ -4,25 +4,25 @@ from __future__ import annotations
 import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
 
-# Three structural classes derived from single-Sersic profile fits (DJA /
-# van der Wel et al. 2025) of real CEERS NIRCam galaxies: the classic
-# early/late dichotomy plus a compact/unresolved class. Labels and order are
-# fixed here so the data layer, training, export and the browser demo agree.
-# (The synthetic Sersic generator renders these same three classes.)
-CLASSES = ("disk", "spheroid", "compact")
+# Three visual-morphology classes from real human Galaxy Zoo: CANDELS votes
+# (Simmons et al. 2017) — the canonical top-level split. Cross-matched to real
+# JWST NIRCam cutouts. Labels and order are fixed here so the data layer,
+# training, export and the browser demo agree. (The synthetic Sersic generator
+# renders these same three classes for tests / the no-download fallback.)
+CLASSES = ("featured", "smooth", "merger")
 CLASS_TO_IDX = {c: i for i, c in enumerate(CLASSES)}
 IDX_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
 
 # Human-friendly labels + one-line descriptions for the demo UI.
 CLASS_LABELS = {
-    "disk": "Disk",
-    "spheroid": "Spheroid",
-    "compact": "Compact",
+    "featured": "Featured / disk",
+    "smooth": "Smooth",
+    "merger": "Merger",
 }
 CLASS_BLURB = {
-    "disk": "Late-type, rotation-supported — low Sersic index (n < 1.2).",
-    "spheroid": "Early-type bulge/elliptical — high Sersic index (n > 2.5).",
-    "compact": "Barely resolved (R_eff < 0.09'') — point-source-like; where the Little Red Dots hide.",
+    "featured": "Disk-like — structure, clumps or spiral arms (Galaxy Zoo: featured).",
+    "smooth": "Smooth and rounded — elliptical / early-type, no features.",
+    "merger": "Merging or tidally disturbed — two bodies or tidal debris.",
 }
 
 

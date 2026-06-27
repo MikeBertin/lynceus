@@ -136,6 +136,8 @@ def _render_galaxy(label: str, rng: np.random.Generator, px: int) -> np.ndarray:
     jit = lambda s=0.08: c + rng.normal(0, s * px)  # small centroid jitter
     # PSF FWHM grows with wavelength: R broadest, B sharpest (realistic for JWST).
     psf_sigma = {0: 1.7, 1: 1.4, 2: 1.1}
+    # Galaxy Zoo class names map onto the synthetic render styles below.
+    label = {"featured": "disk", "smooth": "spheroid"}.get(label, label)
 
     # band amplitude multipliers encode colour (R, G, B)
     if label == "disk":
@@ -327,7 +329,8 @@ def fetch_service_cube(ra: float, dec: float, size: float = 3.0,
 
 
 def build_dataset_from_service(catalog_rows: list[dict], *, size: float = 3.0,
-                               max_workers: int = 6, resume: bool = True) -> list[CutoutRecord]:
+                               max_workers: int = 6, resume: bool = True,
+                               source: str = "jwst") -> list[CutoutRecord]:
     """Fill the cutout cache from the DJA service for a labelled catalogue.
 
     ``catalog_rows`` need ``id``, ``ra``, ``dec``, ``label`` (and optionally
@@ -341,14 +344,14 @@ def build_dataset_from_service(catalog_rows: list[dict], *, size: float = 3.0,
         npy_path = config.CUTOUTS_DIR / f"{rec_id}.npy"
         if resume and npy_path.exists():
             return CutoutRecord(rec_id, row["label"], CLASS_TO_IDX[row["label"]],
-                                "ceers", float(row["ra"]), float(row["dec"]),
+                                source, float(row["ra"]), float(row["dec"]),
                                 float(row.get("redshift", 0.0) or 0.0),
                                 f"{rec_id}.npy", f"{rec_id}.png")
         cube = fetch_service_cube(float(row["ra"]), float(row["dec"]), size=size)
         if cube is None:
             return None
         stretched = asinh_stretch(np.nan_to_num(cube))
-        return _save_record(rec_id, row["label"], "ceers",
+        return _save_record(rec_id, row["label"], source,
                             float(row["ra"]), float(row["dec"]),
                             float(row.get("redshift", 0.0) or 0.0), stretched)
 
