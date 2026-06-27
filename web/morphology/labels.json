@@ -1,0 +1,39 @@
+{
+ "classes": [
+  "disk",
+  "spheroid",
+  "irregular",
+  "point_source",
+  "merger"
+ ],
+ "names": {
+  "disk": "Disk",
+  "spheroid": "Spheroid",
+  "irregular": "Irregular",
+  "point_source": "Point source",
+  "merger": "Merger"
+ },
+ "blurbs": {
+  "disk": "Rotation-supported, exponential light profile (Sersic n~1).",
+  "spheroid": "Centrally concentrated bulge/elliptical (Sersic n~4).",
+  "irregular": "Clumpy, asymmetric \u2014 common in the early universe.",
+  "point_source": "Unresolved: a star, quasar or compact source.",
+  "merger": "Two interacting components / tidal disturbance."
+ },
+ "mean": [
+  0.485,
+  0.456,
+  0.406
+ ],
+ "std": [
+  0.229,
+  0.224,
+  0.225
+ ],
+ "model_px": 224,
+ "bands": [
+  "F444W",
+  "F356W",
+  "F200W"
+ ]
+}

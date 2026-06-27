@@ -1,0 +1,452 @@
+[
+ {
+  "id": "syn_disk_0013",
+  "label": "disk",
+  "label_name": "Disk",
+  "redshift": 1.2,
+  "img": "gallery/syn_disk_0013.png",
+  "attn": "gallery/syn_disk_0013_attn.png",
+  "probs": {
+   "disk": 0.9991,
+   "spheroid": 0.0001,
+   "irregular": 0.0007,
+   "point_source": 0.0,
+   "merger": 0.0001
+  }
+ },
+ {
+  "id": "syn_disk_0158",
+  "label": "disk",
+  "label_name": "Disk",
+  "redshift": 0.2,
+  "img": "gallery/syn_disk_0158.png",
+  "attn": "gallery/syn_disk_0158_attn.png",
+  "probs": {
+   "disk": 0.9984,
+   "spheroid": 0.0001,
+   "irregular": 0.0013,
+   "point_source": 0.0,
+   "merger": 0.0002
+  }
+ },
+ {
+  "id": "syn_disk_0037",
+  "label": "disk",
+  "label_name": "Disk",
+  "redshift": 2.76,
+  "img": "gallery/syn_disk_0037.png",
+  "attn": "gallery/syn_disk_0037_attn.png",
+  "probs": {
+   "disk": 0.9994,
+   "spheroid": 0.0001,
+   "irregular": 0.0004,
+   "point_source": 0.0,
+   "merger": 0.0001
+  }
+ },
+ {
+  "id": "syn_disk_0125",
+  "label": "disk",
+  "label_name": "Disk",
+  "redshift": 0.58,
+  "img": "gallery/syn_disk_0125.png",
+  "attn": "gallery/syn_disk_0125_attn.png",
+  "probs": {
+   "disk": 0.9995,
+   "spheroid": 0.0001,
+   "irregular": 0.0004,
+   "point_source": 0.0,
+   "merger": 0.0001
+  }
+ },
+ {
+  "id": "syn_disk_0028",
+  "label": "disk",
+  "label_name": "Disk",
+  "redshift": 0.2,
+  "img": "gallery/syn_disk_0028.png",
+  "attn": "gallery/syn_disk_0028_attn.png",
+  "probs": {
+   "disk": 0.9992,
+   "spheroid": 0.0001,
+   "irregular": 0.0005,
+   "point_source": 0.0,
+   "merger": 0.0001
+  }
+ },
+ {
+  "id": "syn_disk_0128",
+  "label": "disk",
+  "label_name": "Disk",
+  "redshift": 0.93,
+  "img": "gallery/syn_disk_0128.png",
+  "attn": "gallery/syn_disk_0128_attn.png",
+  "probs": {
+   "disk": 0.9996,
+   "spheroid": 0.0001,
+   "irregular": 0.0002,
+   "point_source": 0.0,
+   "merger": 0.0002
+  }
+ },
+ {
+  "id": "syn_spheroid_0075",
+  "label": "spheroid",
+  "label_name": "Spheroid",
+  "redshift": 0.59,
+  "img": "gallery/syn_spheroid_0075.png",
+  "attn": "gallery/syn_spheroid_0075_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.9997,
+   "irregular": 0.0,
+   "point_source": 0.0,
+   "merger": 0.0002
+  }
+ },
+ {
+  "id": "syn_spheroid_0041",
+  "label": "spheroid",
+  "label_name": "Spheroid",
+  "redshift": 2.11,
+  "img": "gallery/syn_spheroid_0041.png",
+  "attn": "gallery/syn_spheroid_0041_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.9989,
+   "irregular": 0.0,
+   "point_source": 0.0002,
+   "merger": 0.0008
+  }
+ },
+ {
+  "id": "syn_spheroid_0096",
+  "label": "spheroid",
+  "label_name": "Spheroid",
+  "redshift": 0.2,
+  "img": "gallery/syn_spheroid_0096.png",
+  "attn": "gallery/syn_spheroid_0096_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.9995,
+   "irregular": 0.0,
+   "point_source": 0.0001,
+   "merger": 0.0003
+  }
+ },
+ {
+  "id": "syn_spheroid_0110",
+  "label": "spheroid",
+  "label_name": "Spheroid",
+  "redshift": 0.2,
+  "img": "gallery/syn_spheroid_0110.png",
+  "attn": "gallery/syn_spheroid_0110_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.9997,
+   "irregular": 0.0,
+   "point_source": 0.0001,
+   "merger": 0.0002
+  }
+ },
+ {
+  "id": "syn_spheroid_0067",
+  "label": "spheroid",
+  "label_name": "Spheroid",
+  "redshift": 0.34,
+  "img": "gallery/syn_spheroid_0067.png",
+  "attn": "gallery/syn_spheroid_0067_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.9995,
+   "irregular": 0.0,
+   "point_source": 0.0,
+   "merger": 0.0004
+  }
+ },
+ {
+  "id": "syn_spheroid_0025",
+  "label": "spheroid",
+  "label_name": "Spheroid",
+  "redshift": 1.56,
+  "img": "gallery/syn_spheroid_0025.png",
+  "attn": "gallery/syn_spheroid_0025_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.9994,
+   "irregular": 0.0,
+   "point_source": 0.0001,
+   "merger": 0.0005
+  }
+ },
+ {
+  "id": "syn_irregular_0137",
+  "label": "irregular",
+  "label_name": "Irregular",
+  "redshift": 2.73,
+  "img": "gallery/syn_irregular_0137.png",
+  "attn": "gallery/syn_irregular_0137_attn.png",
+  "probs": {
+   "disk": 0.0004,
+   "spheroid": 0.0001,
+   "irregular": 0.9144,
+   "point_source": 0.0001,
+   "merger": 0.085
+  }
+ },
+ {
+  "id": "syn_irregular_0093",
+  "label": "irregular",
+  "label_name": "Irregular",
+  "redshift": 3.37,
+  "img": "gallery/syn_irregular_0093.png",
+  "attn": "gallery/syn_irregular_0093_attn.png",
+  "probs": {
+   "disk": 0.0007,
+   "spheroid": 0.0002,
+   "irregular": 0.8801,
+   "point_source": 0.0001,
+   "merger": 0.1189
+  }
+ },
+ {
+  "id": "syn_irregular_0065",
+  "label": "irregular",
+  "label_name": "Irregular",
+  "redshift": 4.93,
+  "img": "gallery/syn_irregular_0065.png",
+  "attn": "gallery/syn_irregular_0065_attn.png",
+  "probs": {
+   "disk": 0.0031,
+   "spheroid": 0.0003,
+   "irregular": 0.292,
+   "point_source": 0.0001,
+   "merger": 0.7046
+  }
+ },
+ {
+  "id": "syn_irregular_0105",
+  "label": "irregular",
+  "label_name": "Irregular",
+  "redshift": 4.19,
+  "img": "gallery/syn_irregular_0105.png",
+  "attn": "gallery/syn_irregular_0105_attn.png",
+  "probs": {
+   "disk": 0.0001,
+   "spheroid": 0.0,
+   "irregular": 0.9973,
+   "point_source": 0.0001,
+   "merger": 0.0025
+  }
+ },
+ {
+  "id": "syn_irregular_0068",
+  "label": "irregular",
+  "label_name": "Irregular",
+  "redshift": 2.48,
+  "img": "gallery/syn_irregular_0068.png",
+  "attn": "gallery/syn_irregular_0068_attn.png",
+  "probs": {
+   "disk": 0.0002,
+   "spheroid": 0.0001,
+   "irregular": 0.9928,
+   "point_source": 0.0001,
+   "merger": 0.0069
+  }
+ },
+ {
+  "id": "syn_irregular_0080",
+  "label": "irregular",
+  "label_name": "Irregular",
+  "redshift": 4.97,
+  "img": "gallery/syn_irregular_0080.png",
+  "attn": "gallery/syn_irregular_0080_attn.png",
+  "probs": {
+   "disk": 0.0001,
+   "spheroid": 0.0,
+   "irregular": 0.9934,
+   "point_source": 0.0001,
+   "merger": 0.0064
+  }
+ },
+ {
+  "id": "syn_point_source_0101",
+  "label": "point_source",
+  "label_name": "Point source",
+  "redshift": 0.92,
+  "img": "gallery/syn_point_source_0101.png",
+  "attn": "gallery/syn_point_source_0101_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0,
+   "irregular": 0.0,
+   "point_source": 0.9999,
+   "merger": 0.0
+  }
+ },
+ {
+  "id": "syn_point_source_0139",
+  "label": "point_source",
+  "label_name": "Point source",
+  "redshift": 1.76,
+  "img": "gallery/syn_point_source_0139.png",
+  "attn": "gallery/syn_point_source_0139_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0,
+   "irregular": 0.0001,
+   "point_source": 0.9998,
+   "merger": 0.0001
+  }
+ },
+ {
+  "id": "syn_point_source_0102",
+  "label": "point_source",
+  "label_name": "Point source",
+  "redshift": 0.23,
+  "img": "gallery/syn_point_source_0102.png",
+  "attn": "gallery/syn_point_source_0102_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0,
+   "irregular": 0.0,
+   "point_source": 0.9999,
+   "merger": 0.0
+  }
+ },
+ {
+  "id": "syn_point_source_0044",
+  "label": "point_source",
+  "label_name": "Point source",
+  "redshift": 3.3,
+  "img": "gallery/syn_point_source_0044.png",
+  "attn": "gallery/syn_point_source_0044_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0,
+   "irregular": 0.0,
+   "point_source": 1.0,
+   "merger": 0.0
+  }
+ },
+ {
+  "id": "syn_point_source_0110",
+  "label": "point_source",
+  "label_name": "Point source",
+  "redshift": 3.65,
+  "img": "gallery/syn_point_source_0110.png",
+  "attn": "gallery/syn_point_source_0110_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0,
+   "irregular": 0.0,
+   "point_source": 1.0,
+   "merger": 0.0
+  }
+ },
+ {
+  "id": "syn_point_source_0049",
+  "label": "point_source",
+  "label_name": "Point source",
+  "redshift": 2.05,
+  "img": "gallery/syn_point_source_0049.png",
+  "attn": "gallery/syn_point_source_0049_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0,
+   "irregular": 0.0,
+   "point_source": 1.0,
+   "merger": 0.0
+  }
+ },
+ {
+  "id": "syn_merger_0006",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 2.38,
+  "img": "gallery/syn_merger_0006.png",
+  "attn": "gallery/syn_merger_0006_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0001,
+   "irregular": 0.0013,
+   "point_source": 0.0,
+   "merger": 0.9986
+  }
+ },
+ {
+  "id": "syn_merger_0142",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 3.41,
+  "img": "gallery/syn_merger_0142.png",
+  "attn": "gallery/syn_merger_0142_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0013,
+   "irregular": 0.0079,
+   "point_source": 0.0011,
+   "merger": 0.9897
+  }
+ },
+ {
+  "id": "syn_merger_0046",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 2.8,
+  "img": "gallery/syn_merger_0046.png",
+  "attn": "gallery/syn_merger_0046_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0002,
+   "irregular": 0.0074,
+   "point_source": 0.0001,
+   "merger": 0.9923
+  }
+ },
+ {
+  "id": "syn_merger_0146",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 2.47,
+  "img": "gallery/syn_merger_0146.png",
+  "attn": "gallery/syn_merger_0146_attn.png",
+  "probs": {
+   "disk": 0.0007,
+   "spheroid": 0.0001,
+   "irregular": 0.0289,
+   "point_source": 0.0001,
+   "merger": 0.9703
+  }
+ },
+ {
+  "id": "syn_merger_0021",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 2.12,
+  "img": "gallery/syn_merger_0021.png",
+  "attn": "gallery/syn_merger_0021_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0005,
+   "irregular": 0.0088,
+   "point_source": 0.0,
+   "merger": 0.9907
+  }
+ },
+ {
+  "id": "syn_merger_0049",
+  "label": "merger",
+  "label_name": "Merger",
+  "redshift": 3.56,
+  "img": "gallery/syn_merger_0049.png",
+  "attn": "gallery/syn_merger_0049_attn.png",
+  "probs": {
+   "disk": 0.0,
+   "spheroid": 0.0041,
+   "irregular": 0.0049,
+   "point_source": 0.0001,
+   "merger": 0.9909
+  }
+ }
+]

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lynceus — Machine learning on the JWST deep sky</title>
+<meta name="description" content="The keenest-sighted of the Argonauts: machine learning on James Webb deep-field galaxies. A live in-browser morphology classifier today; a self-supervised atlas and anomaly hunt next.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lynceus — ML on the JWST deep sky">
+<meta property="og:description" content="A Vision Transformer that classifies galaxy morphology in your browser — and the road to a self-supervised atlas and a Little Red Dot anomaly hunt.">
+<link rel="stylesheet" href="shared/theme.css">
+<style>
+  h1{font-size:50px;margin:10px 0 6px}
+  .lede{font-size:15.5px;max-width:710px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:34px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr;max-width:440px;margin-inline:auto}}
+  a.card,.card{text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,border-color .15s,box-shadow .15s}
+  a.card:hover{transform:translateY(-4px);box-shadow:0 24px 50px -24px #000;border-color:var(--cyan)}
+  .card.soon{opacity:.62}
+  .thumb{height:130px;background:#04050a;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .body{padding:15px 17px 18px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
+  .body h2{font-size:18px;margin:6px 0 5px}
+  .body p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 12px}
+  .open{font-size:13px;font-weight:600;color:var(--cyan);display:inline-flex;gap:6px}
+  .soontag{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--muted);
+    border:1px solid var(--line);border-radius:20px;padding:3px 10px;display:inline-block}
+  .thread{margin-top:42px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .thread h3{font-size:12px;margin:0 0 10px;font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
+  .thread p{color:var(--muted);font-size:14px;line-height:1.66;margin:0;max-width:800px}
+  .thread b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lynceus</div>
+    <h1 class="grad">The keenest eyes of the Argonauts.</h1>
+    <p class="sub">Pulling the faint and the hidden out of the James Webb deep sky.</p>
+    <p class="lede" style="margin-top:16px">
+      Machine learning on <b>JWST</b> deep-field galaxies. A Vision Transformer learns what
+      galaxies <b>look like</b>, runs <b>live in your browser</b>, and the road ahead leads to a
+      self-supervised <b>atlas</b> you can fly through and an <b>anomaly hunt</b> for the
+      mysterious <b>Little Red Dots</b>. Self-contained, no build step — the methods, in the open.
+    </p>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="morphology/">
+      <div class="thumb" id="thumb"></div>
+      <div class="body">
+        <span class="tag">Demo A · live</span>
+        <h2>Galaxy morphology</h2>
+        <p>A ViT-Small in ONNX classifies a galaxy cutout in your browser — disk, spheroid,
+           irregular, point source or merger — with attention heatmaps and honest, cross-validated
+           metrics.</p>
+        <span class="open">Open demo <span class="arr">→</span></span>
+      </div>
+    </a>
+
+    <div class="card soon">
+      <div class="thumb"></div>
+      <div class="body">
+        <span class="tag">Demo B · next</span>
+        <h2>The embedding atlas</h2>
+        <p>A self-supervised encoder maps thousands of real JWST galaxies into a 2-D atlas you fly
+           through — colour it by morphology or redshift, and watch the rare objects separate out.</p>
+        <span class="soontag">Planned</span>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <div class="thumb"></div>
+      <div class="body">
+        <span class="tag">Demo C · research</span>
+        <h2>The anomaly hunt</h2>
+        <p>Score every galaxy by how unusual it is in latent space, and surface the
+           <b>Little Red Dots</b> — compact red sources JWST found that nobody can yet explain.</p>
+        <span class="soontag">Planned</span>
+      </div>
+    </div>
+
+    <div class="card soon">
+      <div class="thumb"></div>
+      <div class="body">
+        <span class="tag">Demo D · frontier</span>
+        <h2>The dropout hunter</h2>
+        <p>Spot galaxies at <b>z &gt; 10</b> as they vanish from the bluer filters — the
+           "too many bright early galaxies" tension that has JWST rewriting galaxy formation.</p>
+        <span class="soontag">Planned</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="thread">
+    <h3>Why "Lynceus"</h3>
+    <p>
+      <b>Lynceus</b> sailed with the Argonauts and had the sharpest sight of any mortal — he could
+      pick out a ship on the horizon, see through earth and water, and find what others missed. That
+      is the whole task here: the faintest galaxies in James Webb's deepest images sit at the edge of
+      the noise, and the most interesting objects are the ones that <b>don't look like anything else</b>.
+      Lynceus learns to see them. Companion to <b>Chiron</b> (computational physics),
+      <b>Empedocles</b> (evolutionary algorithms) and <b>Plutus</b> (quantitative finance).
+    </p>
+  </div>
+
+  <footer>
+    <b>Lynceus</b> · a serious research core + interactive demos.
+    Built with PyTorch + timm, served as static ONNX. <span id="src"></span>
+  </footer>
+</div>
+<script>
+  // Use a gallery cutout as the landing thumbnail if available.
+  fetch("morphology/gallery.json").then(r=>r.json()).then(g=>{
+    if(!g.length) return;
+    const pick=g.find(x=>x.label==="disk")||g[0];
+    const im=document.createElement("img");
+    im.src="morphology/"+pick.img;
+    document.getElementById("thumb").appendChild(im);
+  }).catch(()=>{});
+</script>
+</body>
+</html>

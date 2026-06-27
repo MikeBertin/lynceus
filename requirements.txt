@@ -1,0 +1,14 @@
+# Lynceus — Python core (training/export run offline; the web demo needs none of this).
+# Tested on Python 3.13 + Apple Silicon (MPS). Torch auto-selects mps/cuda/cpu.
+numpy
+astropy            # Sersic models, convolution, WCS, Cutout2D (real-data path)
+astroquery         # MAST / catalogue access for real CEERS/JADES cutouts
+scikit-learn       # StratifiedKFold + metrics
+pillow             # cutout PNGs
+matplotlib         # attention-map colouring
+torch
+torchvision
+timm               # ViT-Small backbone (ImageNet-pretrained)
+onnx
+onnxruntime        # ONNX check + INT8 dynamic quantisation for the browser
+pytest             # tests

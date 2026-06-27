@@ -1,0 +1,14 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Data: raw mosaics (multi-GB) and the regenerable cutout cache
+data/mosaics/
+data/cutouts/
+data/montage.png
+*.fits
+
+# Model checkpoints + intermediate ONNX (regenerable). The *web* model is committed:
+models/
+!web/morphology/model.onnx
