@@ -16,7 +16,7 @@ from PIL import Image
 from core import config
 from core.embed import embed_paths, umap_2d, normalise_coords
 
-TILE = 40  # sprite thumbnail size (px)
+TILE = 56  # sprite thumbnail size (px)
 
 
 def load_encoder():
@@ -51,7 +51,10 @@ def main() -> None:
             (TILE, TILE), Image.BILINEAR)
         sheet.paste(thumb, ((i % cols) * TILE, (i // cols) * TILE))
     config.WEB_ATLAS_DIR.mkdir(parents=True, exist_ok=True)
-    sheet.save(config.WEB_ATLAS_DIR / "sprites.png")
+    # JPEG: galaxy thumbnails are photographic, so this is a fraction of PNG size
+    # (faster first load) with no visible loss at thumbnail scale.
+    sheet.save(config.WEB_ATLAS_DIR / "sprites.jpg", quality=90, optimize=True)
+    (config.WEB_ATLAS_DIR / "sprites.png").unlink(missing_ok=True)
 
     points = []
     for i, r in enumerate(rows):
@@ -70,7 +73,7 @@ def main() -> None:
     mix = {}
     for r in rows:
         mix[r["dominant"]] = mix.get(r["dominant"], 0) + 1
-    print(f"Wrote sprites.png ({sheet.size}) + atlas.json ({n} points). mix={mix}")
+    print(f"Wrote sprites.jpg ({sheet.size}) + atlas.json ({n} points). mix={mix}")
 
 
 if __name__ == "__main__":
