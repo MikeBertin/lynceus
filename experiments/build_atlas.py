@@ -56,12 +56,20 @@ def main() -> None:
     sheet.save(config.WEB_ATLAS_DIR / "sprites.jpg", quality=90, optimize=True)
     (config.WEB_ATLAS_DIR / "sprites.png").unlink(missing_ok=True)
 
+    def field(ra):
+        ra = float(ra)
+        if 33 <= ra <= 36: return "UDS"
+        if 52 <= ra <= 54: return "GOODS-S"
+        if 149 <= ra <= 151: return "COSMOS"
+        return "?"
+
     points = []
     for i, r in enumerate(rows):
         points.append({
             "i": i,
             "x": round(float(xy[i, 0]), 4), "y": round(float(xy[i, 1]), 4),
             "d": r["dominant"],
+            "r": field(r["ra"]),
             "s": round(float(r["smooth"]), 2),
             "f": round(float(r["featured"]), 2),
             "m": round(float(r["merger"]), 2),

@@ -78,7 +78,9 @@
       marker(m.v, faint ? "#8e9ab2" : "#ff9e64", m.name, { r: faint ? 3 : 4, fz: faint ? 10 : 11, text: faint ? "#8e9ab2" : "#ffc59e" });
     }
     marker(geom.sun.v, COL.sun, "Sun", { r: 6, text: COL.sun });
-    for (const f of geom.fields) marker(f.v, "#ffffff", f.name, { r: 5, beam: true });
+    // sky-region colours match the atlas "sky region" mode (app.js REGION_COLORS)
+    const REG = { "GOODS-S": "#5ec27a", "COSMOS": "#ff9e64", "UDS": "#c792ea" };
+    for (const f of geom.fields) marker(f.v, REG[f.name] || "#fff", f.name, { r: 5, beam: true, text: REG[f.name] });
   }
 
   // ---- interaction ----

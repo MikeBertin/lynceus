@@ -5,6 +5,8 @@ const $ = (s) => document.querySelector(s);
 const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const CLASS_COLORS = { smooth: null, featured: null, merger: null };
 const CLASS_NAME = { smooth: "Smooth", featured: "Featured / disk", merger: "Merger" };
+// sky-region (deep field) colours — match the globe markers in skymap.js
+const REGION_COLORS = { "GOODS-S": "#5ec27a", "COSMOS": "#ff9e64", "UDS": "#c792ea" };
 
 const stage = $("#stage"), canvas = $("#atlas"), ctx = canvas.getContext("2d");
 const tip = $("#tip"), detail = $("#detail"), statusEl = $("#status");
@@ -41,7 +43,7 @@ async function boot() {
   CLASS_COLORS.featured = css("--c-featured");
   CLASS_COLORS.merger = css("--c-merger");
   try {
-    atlas = await fetch("atlas.json").then((r) => r.json());
+    atlas = await fetch("atlas.json?v=2").then((r) => r.json());
     sprites = new Image();
     await new Promise((res, rej) => { sprites.onload = res; sprites.onerror = rej; sprites.src = "sprites.jpg"; });
     pts = atlas.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
@@ -76,6 +78,7 @@ const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 
 const FAINT = [44, 52, 72];
 function colorFor(p) {
   if (mode === "morph") return CLASS_COLORS[p.d] || "#888";
+  if (mode === "region") return REGION_COLORS[p.r] || "#888";
   const v = mode === "featured" ? p.f : p.m;
   const hot = hexToRgb(mode === "featured" ? CLASS_COLORS.featured : CLASS_COLORS.merger);
   return `rgb(${lerp(FAINT[0], hot[0], v) | 0},${lerp(FAINT[1], hot[1], v) | 0},${lerp(FAINT[2], hot[2], v) | 0})`;
@@ -95,7 +98,7 @@ function draw() {
     if (X < -pad || X > canvas.width + pad || Y < -pad || Y > canvas.height + pad) continue;
     if (showThumbs) {
       const s = Math.min(70 * dpr, cam.scale * tile * 1.05);
-      ctx.globalAlpha = mode === "morph" ? 1 : 0.3 + 0.7 * (mode === "featured" ? p.f : p.m);
+      ctx.globalAlpha = (mode === "featured" || mode === "merger") ? 0.3 + 0.7 * (mode === "featured" ? p.f : p.m) : 1;
       ctx.drawImage(sprites, (p.i % cols) * tile, ((p.i / cols) | 0) * tile, tile, tile, X - s / 2, Y - s / 2, s, s);
     } else {
       ctx.fillStyle = colorFor(p);
@@ -116,6 +119,9 @@ function buildLegend() {
   if (mode === "morph") {
     L.innerHTML = [["featured", "Featured / disk"], ["smooth", "Smooth"], ["merger", "Merger"]]
       .map(([k, n]) => `<span><i style="background:${CLASS_COLORS[k]}"></i>${n}</span>`).join("");
+  } else if (mode === "region") {
+    L.innerHTML = Object.entries(REGION_COLORS)
+      .map(([k, c]) => `<span><i style="background:${c}"></i>${k}</span>`).join("");
   } else {
     const c = mode === "featured" ? CLASS_COLORS.featured : CLASS_COLORS.merger;
     L.innerHTML = `<span><i style="background:rgb(44,52,72)"></i>low</span><span><i style="background:${c}"></i>high ${mode} vote</span>`;

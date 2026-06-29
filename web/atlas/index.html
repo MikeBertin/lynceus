@@ -77,6 +77,7 @@
     <span class="hint">colour by</span>
     <div class="seg" id="colorseg">
       <button data-mode="morph" class="on">morphology</button>
+      <button data-mode="region">sky region</button>
       <button data-mode="featured">featured</button>
       <button data-mode="merger">merger</button>
     </div>
@@ -106,13 +107,13 @@
   <h2 class="ctx-h">Where are we looking?</h2>
   <p class="lede" style="margin-top:8px;font-size:14px">
     These galaxies live in three deep fields chosen to look <b>out of</b> our own Milky Way. Spin the
-    globe: the fields (white) sit near the <b>poles</b> of the gold <b>galactic plane</b> — i.e. far from
+    globe: the three fields sit near the <b>poles</b> of the gold <b>galactic plane</b> — i.e. far from
     its dust — and at varied distances from the cyan <b>ecliptic</b> (Earth's orbital plane).
   </p>
   <div class="ctx-grid">
     <div>
       <div class="globe-wrap"><canvas id="globe"></canvas></div>
-      <p class="cap">drag to rotate · gold = galactic plane · cyan = ecliptic · white = deep fields · the Sun's spot is for 29 Jun 2026</p>
+      <p class="cap">drag to rotate · gold = galactic plane · cyan = ecliptic · the three coloured dots = the deep fields (same colours as the atlas "sky region" mode) · the Sun's spot is for 29 Jun 2026</p>
     </div>
     <div class="edge">
       <svg viewBox="0 0 680 372" role="img" xmlns="http://www.w3.org/2000/svg">
@@ -138,21 +139,19 @@
         <text x="300" y="234" fill="#7f8aa3" font-size="11" text-anchor="middle">Milky Way disk, edge-on — dust, gas, billions of stars</text>
         <line x1="440" y1="190" x2="182" y2="190" stroke="#ff7a8a" stroke-width="2.5" stroke-dasharray="7 5"/>
         <text x="250" y="180" fill="#ff8e9c" font-size="11" text-anchor="middle">blocked along the disk</text>
-        <g stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round">
-          <line x1="440" y1="190" x2="317" y2="80"/>
-          <line x1="440" y1="190" x2="343" y2="323"/>
-          <line x1="440" y1="190" x2="525" y2="337"/>
+        <g stroke-width="2.5" fill="none" stroke-linecap="round">
+          <line x1="440" y1="190" x2="317" y2="80" stroke="#ff9e64"/>
+          <line x1="440" y1="190" x2="343" y2="323" stroke="#5ec27a"/>
+          <line x1="440" y1="190" x2="525" y2="337" stroke="#c792ea"/>
         </g>
         <path d="M398 190 A42 42 0 0 0 411.3 162.8" fill="none" stroke="#e6e9f2" stroke-opacity="0.5" stroke-width="1"/>
         <text x="396" y="172" fill="#cdd3e0" font-size="10" text-anchor="end">b</text>
-        <g fill="#ffffff">
-          <ellipse cx="317" cy="80" rx="7" ry="3" transform="rotate(20 317 80)"/>
-          <ellipse cx="343" cy="323" rx="7" ry="3" transform="rotate(-15 343 323)"/>
-          <ellipse cx="525" cy="337" rx="7" ry="3" transform="rotate(25 525 337)"/>
-        </g>
-        <text x="317" y="64" fill="#e9ecf6" font-size="12" text-anchor="middle">COSMOS · b +42°</text>
-        <text x="333" y="342" fill="#e9ecf6" font-size="12" text-anchor="middle">GOODS-S · b −54°</text>
-        <text x="525" y="354" fill="#e9ecf6" font-size="12" text-anchor="middle">UDS · b −60°</text>
+        <ellipse cx="317" cy="80" rx="7" ry="3" transform="rotate(20 317 80)" fill="#ff9e64"/>
+        <ellipse cx="343" cy="323" rx="7" ry="3" transform="rotate(-15 343 323)" fill="#5ec27a"/>
+        <ellipse cx="525" cy="337" rx="7" ry="3" transform="rotate(25 525 337)" fill="#c792ea"/>
+        <text x="317" y="64" fill="#ff9e64" font-size="12" text-anchor="middle">COSMOS · b +42°</text>
+        <text x="333" y="342" fill="#5ec27a" font-size="12" text-anchor="middle">GOODS-S · b −54°</text>
+        <text x="525" y="354" fill="#c792ea" font-size="12" text-anchor="middle">UDS · b −60°</text>
         <circle cx="440" cy="190" r="6.5" fill="#ffd24a"/>
         <text x="452" y="206" fill="#ffd24a" font-size="11" text-anchor="start">the Sun (us)</text>
         <text x="125" y="40" fill="#8e9ab2" font-size="11" text-anchor="middle">clear caps → distant galaxies</text>
@@ -167,7 +166,7 @@
     Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
   </footer>
 </div>
-<script src="app.js?v=6"></script>
-<script src="skymap.js?v=1"></script>
+<script src="app.js?v=7"></script>
+<script src="skymap.js?v=2"></script>
 </body>
 </html>
