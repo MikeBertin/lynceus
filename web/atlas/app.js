@@ -11,7 +11,7 @@ const REGION_COLORS = { "GOODS-S": "#5ec27a", "COSMOS": "#ff9e64", "UDS": "#c792
 const stage = $("#stage"), canvas = $("#atlas"), ctx = canvas.getContext("2d");
 const tip = $("#tip"), detail = $("#detail"), statusEl = $("#status");
 let atlas = null, sprites = null, pts = [];
-let mode = "morph";
+let mode = "region";   // story starts at "where" (sky region); see the colour-by order
 const WORLD = 2200;
 let cam = { x: 0, y: 0, scale: 0.28 };
 let hover = -1, selected = -1;

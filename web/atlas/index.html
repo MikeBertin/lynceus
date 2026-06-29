@@ -75,20 +75,21 @@
     <p class="lede" style="margin-top:14px">
       A <b>SimCLR</b> encoder was shown thousands of JWST cutouts with <b>no labels</b> and learned
       to place galaxies that <b>look alike</b> near each other. Here is its 2-D map (UMAP). Drag to
-      fly, scroll to zoom — thumbnails appear as you dive in. The <b>colours are Galaxy Zoo votes</b>,
-      never seen during training: if structure separates by colour, the encoder discovered morphology
-      on its own. <span id="status">loading atlas…</span>
+      fly, scroll to zoom — thumbnails appear as you dive in. Step the <b>colour</b> key left to right:
+      the three <b>sky regions</b> are mixed (location doesn't drive the map), but <b>morphology</b>
+      separates — and at the far right, <b>anomaly</b> lights up the weird ones. None of these labels
+      were seen during training. <span id="status">loading atlas…</span>
     </p>
   </header>
 
   <div class="barrow">
     <span class="hint">colour by</span>
     <div class="seg" id="colorseg">
-      <button data-mode="morph" class="on">morphology</button>
-      <button data-mode="region">sky region</button>
-      <button data-mode="anomaly">anomaly</button>
+      <button data-mode="region" class="on">sky region</button>
+      <button data-mode="morph">morphology</button>
       <button data-mode="featured">featured</button>
       <button data-mode="merger">merger</button>
+      <button data-mode="anomaly">anomaly</button>
     </div>
     <label class="lrdtog"><input type="checkbox" id="lrdToggle"> show known LRDs</label>
     <span id="count"></span>
@@ -201,7 +202,7 @@
     Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
   </footer>
 </div>
-<script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 <script src="skymap.js?v=2"></script>
 </body>
 </html>
