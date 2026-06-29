@@ -107,12 +107,23 @@ def main() -> None:
         p90 = np.percentile(araw, 90)
         frac = float((lraw > p90).mean())
         med_pct = float(np.mean([(araw < v).mean() for v in lraw]))
+        # LRD sprite sheet so the red dots show their real cutout on zoom
+        nl = len(lrd_rows)
+        lcols = math.ceil(math.sqrt(nl))
+        lsheet = Image.new("RGB", (lcols * TILE, math.ceil(nl / lcols) * TILE), (4, 5, 10))
+        for j, r in enumerate(lrd_rows):
+            png = LRD_DIR / "cutouts" / f"{r['id']}.png"
+            if png.exists():
+                lsheet.paste(Image.open(png).resize((TILE, TILE), Image.BILINEAR),
+                             ((j % lcols) * TILE, (j // lcols) * TILE))
+        lsheet.save(config.WEB_ATLAS_DIR / "lrd_sprites.jpg", quality=90, optimize=True)
         lpts = [{
+            "i": j,
             "x": round(float(xy_lrd[j, 0]), 4), "y": round(float(xy_lrd[j, 1]), 4),
             "a": round(float(a_lrd[j]), 3),
             "z": lrd_rows[j].get("z", ""), "field": field(lrd_rows[j]["ra"]),
-        } for j in range(len(lrd_rows))]
-        lrds = {"n": len(lpts), "enrichment": round(frac / 0.10, 1),
+        } for j in range(nl)]
+        lrds = {"n": nl, "tile": TILE, "cols": lcols, "enrichment": round(frac / 0.10, 1),
                 "frac_above_p90": round(frac, 3), "median_pct": round(med_pct, 3),
                 "points": lpts}
         (config.WEB_ATLAS_DIR / "lrds.json").write_text(json.dumps(lrds, separators=(",", ":")))

@@ -15,7 +15,8 @@ let mode = "morph";
 const WORLD = 2200;
 let cam = { x: 0, y: 0, scale: 0.28 };
 let hover = -1, selected = -1;
-let lrdPts = [], lrdOn = false;
+let lrdPts = [], lrdOn = false, lrdSheet = null, lrdTile = 56, lrdCols = 1;
+let hoverLRD = -1, selectedLRD = -1;
 let dpr = Math.max(1, window.devicePixelRatio || 1);
 let fitted = false, drawPending = false;
 
@@ -114,15 +115,24 @@ function draw() {
     }
   }
   ctx.globalAlpha = 1;
-  if (lrdOn) {                              // known Little Red Dots as diamonds
+  if (lrdOn) {                              // known Little Red Dots
+    const thumbs = showThumbs && lrdSheet && lrdSheet.complete;
     for (const L of lrdPts) {
       const X = sx(L.wx), Y = sy(L.wy);
       if (X < -pad || X > canvas.width + pad || Y < -pad || Y > canvas.height + pad) continue;
-      const s = 4.5 * dpr;
-      ctx.beginPath();
-      ctx.moveTo(X, Y - s); ctx.lineTo(X + s, Y); ctx.lineTo(X, Y + s); ctx.lineTo(X - s, Y); ctx.closePath();
-      ctx.fillStyle = "#ff5a4d"; ctx.fill();
-      ctx.strokeStyle = "#1a0c0a"; ctx.lineWidth = 1 * dpr; ctx.stroke();
+      if (thumbs) {                         // show the real cutout, red-framed
+        const s = Math.min(70 * dpr, cam.scale * lrdTile * 1.05);
+        ctx.drawImage(lrdSheet, (L.i % lrdCols) * lrdTile, ((L.i / lrdCols) | 0) * lrdTile,
+          lrdTile, lrdTile, X - s / 2, Y - s / 2, s, s);
+        ctx.strokeStyle = "#ff5a4d"; ctx.lineWidth = 2 * dpr;
+        ctx.strokeRect(X - s / 2, Y - s / 2, s, s);
+      } else {                              // diamond marker when zoomed out
+        const s = 4.5 * dpr;
+        ctx.beginPath();
+        ctx.moveTo(X, Y - s); ctx.lineTo(X + s, Y); ctx.lineTo(X, Y + s); ctx.lineTo(X - s, Y); ctx.closePath();
+        ctx.fillStyle = "#ff5a4d"; ctx.fill();
+        ctx.strokeStyle = "#1a0c0a"; ctx.lineWidth = 1 * dpr; ctx.stroke();
+      }
     }
   }
   for (const [idx, col, w] of [[hover, "#ffffff", 1.6], [selected, css("--cyan"), 2.4]]) {
@@ -130,6 +140,12 @@ function draw() {
     const p = pts[idx];
     ctx.strokeStyle = col; ctx.lineWidth = w * dpr;
     ctx.beginPath(); ctx.arc(sx(p.wx), sy(p.wy), (showThumbs ? 36 : 11) * dpr, 0, 7); ctx.stroke();
+  }
+  for (const [idx, col, w] of [[hoverLRD, "#ffffff", 1.6], [selectedLRD, "#ff5a4d", 2.6]]) {
+    if (idx < 0) continue;
+    const L = lrdPts[idx];
+    ctx.strokeStyle = col; ctx.lineWidth = w * dpr;
+    ctx.beginPath(); ctx.arc(sx(L.wx), sy(L.wy), (showThumbs ? 36 : 11) * dpr, 0, 7); ctx.stroke();
   }
 }
 
@@ -160,12 +176,43 @@ function pickAt(mx, my, radPx) {
   return best;
 }
 
-function tileDataURL(p, px) {
-  const tile = atlas.tile, cols = atlas.cols;
+function spriteURL(sheet, idx, cols, tile, px) {
   const c = document.createElement("canvas"); c.width = c.height = px;
   const g = c.getContext("2d"); g.imageSmoothingEnabled = true;
-  g.drawImage(sprites, (p.i % cols) * tile, ((p.i / cols) | 0) * tile, tile, tile, 0, 0, px, px);
+  g.drawImage(sheet, (idx % cols) * tile, ((idx / cols) | 0) * tile, tile, tile, 0, 0, px, px);
   return c.toDataURL();
+}
+const tileDataURL = (p, px) => spriteURL(sprites, p.i, atlas.cols, atlas.tile, px);
+
+function pickLRD(mx, my, radPx) {
+  let best = -1, bestD = (radPx * dpr) ** 2;
+  for (let i = 0; i < lrdPts.length; i++) {
+    const dx = sx(lrdPts[i].wx) - mx, dy = sy(lrdPts[i].wy) - my, d = dx * dx + dy * dy;
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
+function showLRDTip(i, cssx, cssy) {
+  const L = lrdPts[i];
+  const img = lrdSheet && lrdSheet.complete ? `<img src="${spriteURL(lrdSheet, L.i, lrdCols, lrdTile, 80)}">` : "";
+  tip.innerHTML = img + `<div class="meta"><b style="color:#ff7a6d">Little Red Dot</b><br>` +
+    `z &asymp; ${L.z || "?"} · ${L.field}<br>anomaly ${L.a}</div>`;
+  tip.style.opacity = 1;
+  tip.style.left = Math.min(stage.clientWidth - 158, cssx + 16) + "px";
+  tip.style.top = Math.min(stage.clientHeight - 140, cssy + 16) + "px";
+}
+
+function selectLRD(i) {
+  selectedLRD = i; selected = -1; markDirty();
+  const L = lrdPts[i];
+  const img = lrdSheet && lrdSheet.complete ? `<img src="${spriteURL(lrdSheet, L.i, lrdCols, lrdTile, 168)}">` : "";
+  detail.innerHTML = `<span class="x" id="dx">×</span>${img}` +
+    `<div class="dl"><span class="pill" style="background:#ff5a4d">Little Red Dot</span><br>` +
+    `<b>Kokorev et&nbsp;al. 2024</b><br>z &asymp; ${L.z || "?"} · field ${L.field}<br>` +
+    `anomaly ${L.a} (1 = weirdest)</div>`;
+  detail.classList.add("on");
+  $("#dx").onclick = (e) => { e.stopPropagation(); selectedLRD = -1; detail.classList.remove("on"); markDirty(); };
 }
 
 function showTip(i, cssx, cssy) {
@@ -179,7 +226,7 @@ function showTip(i, cssx, cssy) {
 const hideTip = () => { tip.style.opacity = 0; };
 
 function select(i) {
-  selected = i; markDirty();
+  selected = i; selectedLRD = -1; markDirty();
   if (i < 0) { detail.classList.remove("on"); return; }
   const p = pts[i], col = CLASS_COLORS[p.d];
   detail.innerHTML = `<span class="x" id="dx">×</span><img src="${tileDataURL(p, 168)}">` +
@@ -198,7 +245,11 @@ const evPos = (e) => { const r = canvas.getBoundingClientRect(); const [kx, ky] 
 
 stage.addEventListener("mousedown", (e) => { dragging = true; moved = 0; last = [e.clientX, e.clientY]; stage.classList.add("drag"); });
 window.addEventListener("mouseup", (e) => {
-  if (dragging && moved < 5) { const [mx, my] = evPos(e); select(pickAt(mx, my, 16)); }
+  if (dragging && moved < 5) {
+    const [mx, my] = evPos(e);
+    const hl = lrdOn ? pickLRD(mx, my, 16) : -1;
+    if (hl >= 0) selectLRD(hl); else select(pickAt(mx, my, 16));
+  }
   dragging = false; stage.classList.remove("drag");
 });
 window.addEventListener("mousemove", (e) => {
@@ -212,11 +263,18 @@ window.addEventListener("mousemove", (e) => {
 stage.addEventListener("mousemove", (e) => {
   if (dragging) return;
   const [mx, my, cx, cy] = evPos(e);
-  const h = pickAt(mx, my, 13);
-  if (h !== hover) { hover = h; markDirty(); }
-  if (h >= 0) showTip(h, cx, cy); else hideTip();
+  const hl = lrdOn ? pickLRD(mx, my, 13) : -1;
+  if (hl >= 0) {
+    if (hl !== hoverLRD || hover !== -1) { hoverLRD = hl; hover = -1; markDirty(); }
+    showLRDTip(hl, cx, cy);
+  } else {
+    if (hoverLRD !== -1) { hoverLRD = -1; markDirty(); }
+    const h = pickAt(mx, my, 13);
+    if (h !== hover) { hover = h; markDirty(); }
+    if (h >= 0) showTip(h, cx, cy); else hideTip();
+  }
 });
-stage.addEventListener("mouseleave", () => { hover = -1; hideTip(); markDirty(); });
+stage.addEventListener("mouseleave", () => { hover = -1; hoverLRD = -1; hideTip(); markDirty(); });
 
 function zoomAt(px, py, factor) {
   const wxAt = wx_(px), wyAt = wy_(py);
@@ -279,7 +337,9 @@ window.addEventListener("resize", resize);
 
 // ---- M3: Little Red Dots overlay + weirdest strip -------------------------
 function loadLRDs() {
-  fetch("lrds.json?v=1").then((r) => r.json()).then((d) => {
+  fetch("lrds.json?v=2").then((r) => r.json()).then((d) => {
+    lrdTile = d.tile; lrdCols = d.cols;
+    lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg";
     lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
     $("#lrdstat").innerHTML =
       `<b>${d.n} known Little Red Dots</b> (Kokorev et&nbsp;al. 2024) embedded with the same encoder — ` +
