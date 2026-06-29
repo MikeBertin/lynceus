@@ -16,7 +16,19 @@ const WORLD = 2200;
 let cam = { x: 0, y: 0, scale: 0.28 };
 let hover = -1, selected = -1;
 let lrdPts = [], lrdOn = false, lrdSheet = null, lrdTile = 56, lrdCols = 1;
-let hoverLRD = -1, selectedLRD = -1;
+let hoverLRD = -1, selectedLRD = -1, lrdStatHTML = "";
+
+const CONTEXT = {
+  region: "These are the <b>three deep fields</b> the galaxies live in — mapped on the globe below&nbsp;↓. " +
+          "In the atlas they're well mixed: <b>where</b> a galaxy is doesn't drive the structure.",
+  morph: "Colour by Galaxy Zoo morphology: <b>smooth</b>, <b>featured/disk</b>, <b>merger</b>. " +
+         "These the encoder discovered on its own — it was never shown a label.",
+  featured: "Brightness = the volunteer <b>featured/disk</b> vote. The disk-like galaxies glow on one side.",
+  merger: "Brightness = the volunteer <b>merger</b> vote.",
+};
+function updateContext() {
+  $("#lrdstat").innerHTML = mode === "anomaly" ? lrdStatHTML : (CONTEXT[mode] || "");
+}
 let dpr = Math.max(1, window.devicePixelRatio || 1);
 let fitted = false, drawPending = false;
 
@@ -52,7 +64,7 @@ async function boot() {
     $("#count").textContent = `${atlas.count.toLocaleString()} galaxies`;
     statusEl.textContent = "drag to fly · scroll to zoom · click a galaxy";
     statusEl.style.color = css("--cyan");
-    buildLegend();
+    buildLegend(); updateContext();
     loadLRDs();           // M3: known Little Red Dots overlay (non-blocking)
     buildWeirdest();      // M3: strip of the most anomalous galaxies
     new ResizeObserver(resize).observe(stage);  // fits + redraws once sized
@@ -325,12 +337,16 @@ stage.addEventListener("touchend", (e) => {
 }, { passive: false });
 
 // ---- controls -------------------------------------------------------------
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll("#colorseg button").forEach((x) => x.classList.toggle("on", x.dataset.mode === m));
+  $("#colorseg").className = "seg" + (m === "merger" ? " on-rose" : "");
+  lrdOn = (m === "anomaly");                 // the Little Red Dots ride along with anomaly
+  $("#lrdToggle").checked = lrdOn;
+  buildLegend(); updateContext(); markDirty();
+}
 $("#colorseg").addEventListener("click", (e) => {
-  const b = e.target.closest("button"); if (!b) return;
-  mode = b.dataset.mode;
-  document.querySelectorAll("#colorseg button").forEach((x) => x.classList.toggle("on", x === b));
-  $("#colorseg").className = "seg" + (mode === "merger" ? " on-rose" : "");
-  buildLegend(); markDirty();
+  const b = e.target.closest("button"); if (b) setMode(b.dataset.mode);
 });
 $("#reset").addEventListener("click", () => { resetView(); select(-1); });
 window.addEventListener("resize", resize);
@@ -341,19 +357,18 @@ function loadLRDs() {
     lrdTile = d.tile; lrdCols = d.cols;
     lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg";
     lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
-    $("#lrdstat").innerHTML =
+    lrdStatHTML =
       `<b>${d.n} known Little Red Dots</b> (Kokorev et&nbsp;al. 2024) embedded with the same encoder — ` +
       `<b>${d.enrichment}×</b> over-represented among the top-10% most anomalous galaxies ` +
       `(a typical one lands at the ${Math.round(d.median_pct * 100)}th percentile of weirdness). ` +
-      `Switch to <b>anomaly</b> and toggle them on: they pile into the hot zones the encoder flagged with no labels.`;
+      `They pile into the hot zones the encoder flagged with no labels — zoom in to see the red dots themselves.`;
+    updateContext();
   }).catch(() => {});
 }
 
 $("#lrdToggle").addEventListener("change", (e) => {
-  lrdOn = e.target.checked;
-  if (lrdOn && mode !== "anomaly") {   // jump to anomaly colouring for context
-    document.querySelector('#colorseg button[data-mode="anomaly"]').click();
-  }
+  if (e.target.checked && mode !== "anomaly") { setMode("anomaly"); return; }
+  lrdOn = e.target.checked;            // allow hiding LRDs while staying in anomaly
   markDirty();
 });
 
