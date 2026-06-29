@@ -45,6 +45,16 @@
   .detail .x{position:absolute;top:7px;right:9px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1}
   .detail .x:hover{color:var(--ink)}
   .barhint{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:auto}
+  .ctx-h{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin:38px 0 0}
+  .ctx-grid{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:24px;align-items:center;margin-top:16px}
+  @media(max-width:760px){.ctx-grid{grid-template-columns:1fr}}
+  .globe-wrap{position:relative;width:100%;max-width:340px;aspect-ratio:1;border:1px solid var(--line);
+    border-radius:14px;background:radial-gradient(circle at 50% 45%,#0c1124,#05060d 75%);cursor:grab;touch-action:none}
+  .globe-wrap:active{cursor:grabbing}
+  #globe{display:block;width:100%;height:100%}
+  .cap{font-family:var(--mono);font-size:11px;color:var(--faint);margin:8px 2px 0;line-height:1.5}
+  .edge{min-width:0}
+  .edge svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:14px}
 </style>
 </head>
 <body>
@@ -93,11 +103,71 @@
     <b>Little Red Dots</b>.
   </p>
 
+  <h2 class="ctx-h">Where are we looking?</h2>
+  <p class="lede" style="margin-top:8px;font-size:14px">
+    These galaxies live in three deep fields chosen to look <b>out of</b> our own Milky Way. Spin the
+    globe: the fields (white) sit near the <b>poles</b> of the gold <b>galactic plane</b> — i.e. far from
+    its dust — and at varied distances from the cyan <b>ecliptic</b> (Earth's orbital plane).
+  </p>
+  <div class="ctx-grid">
+    <div>
+      <div class="globe-wrap"><canvas id="globe"></canvas></div>
+      <p class="cap">drag to rotate · gold = galactic plane · cyan = ecliptic · white = deep fields · the Sun's spot is for 29 Jun 2026</p>
+    </div>
+    <div class="edge">
+      <svg viewBox="0 0 680 372" role="img" xmlns="http://www.w3.org/2000/svg">
+        <title>Edge-on cutaway: sightlines from the Sun out of the galactic disk to the deep fields</title>
+        <desc>The Milky Way drawn edge-on. A sightline along the disk is blocked; sightlines to COSMOS, GOODS-S and UDS leave the disk steeply into the clear galactic caps.</desc>
+        <rect x="6" y="6" width="668" height="360" rx="12" fill="#05060d"/>
+        <g fill="#9fb0c8" fill-opacity="0.5">
+          <ellipse cx="250" cy="46" rx="6" ry="2.4" transform="rotate(25 250 46)"/>
+          <ellipse cx="150" cy="86" rx="5" ry="2" transform="rotate(-20 150 86)"/>
+          <ellipse cx="600" cy="64" rx="6" ry="2.6" transform="rotate(40 600 64)"/>
+          <ellipse cx="120" cy="320" rx="6" ry="2.4" transform="rotate(15 120 320)"/>
+          <ellipse cx="600" cy="320" rx="5" ry="2.2" transform="rotate(-30 600 320)"/>
+          <ellipse cx="470" cy="340" rx="6" ry="2.6" transform="rotate(20 470 340)"/>
+          <circle cx="200" cy="60" r="1"/><circle cx="320" cy="40" r="1"/><circle cx="430" cy="50" r="1"/>
+          <circle cx="90" cy="150" r="1"/><circle cx="620" cy="150" r="1"/><circle cx="180" cy="338" r="1"/>
+          <circle cx="560" cy="345" r="1"/><circle cx="380" cy="345" r="1"/>
+        </g>
+        <ellipse cx="300" cy="190" rx="250" ry="30" fill="#1b2746"/>
+        <ellipse cx="300" cy="190" rx="250" ry="22" fill="#2c3c68"/>
+        <ellipse cx="300" cy="190" rx="120" ry="34" fill="#3a4a78" fill-opacity="0.7"/>
+        <ellipse cx="300" cy="190" rx="70" ry="30" fill="#d9c98f"/>
+        <ellipse cx="300" cy="190" rx="250" ry="5" fill="#0a0c14"/>
+        <text x="300" y="234" fill="#7f8aa3" font-size="11" text-anchor="middle">Milky Way disk, edge-on — dust, gas, billions of stars</text>
+        <line x1="440" y1="190" x2="182" y2="190" stroke="#ff7a8a" stroke-width="2.5" stroke-dasharray="7 5"/>
+        <text x="250" y="180" fill="#ff8e9c" font-size="11" text-anchor="middle">blocked along the disk</text>
+        <g stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round">
+          <line x1="440" y1="190" x2="317" y2="80"/>
+          <line x1="440" y1="190" x2="343" y2="323"/>
+          <line x1="440" y1="190" x2="525" y2="337"/>
+        </g>
+        <path d="M398 190 A42 42 0 0 0 411.3 162.8" fill="none" stroke="#e6e9f2" stroke-opacity="0.5" stroke-width="1"/>
+        <text x="396" y="172" fill="#cdd3e0" font-size="10" text-anchor="end">b</text>
+        <g fill="#ffffff">
+          <ellipse cx="317" cy="80" rx="7" ry="3" transform="rotate(20 317 80)"/>
+          <ellipse cx="343" cy="323" rx="7" ry="3" transform="rotate(-15 343 323)"/>
+          <ellipse cx="525" cy="337" rx="7" ry="3" transform="rotate(25 525 337)"/>
+        </g>
+        <text x="317" y="64" fill="#e9ecf6" font-size="12" text-anchor="middle">COSMOS · b +42°</text>
+        <text x="333" y="342" fill="#e9ecf6" font-size="12" text-anchor="middle">GOODS-S · b −54°</text>
+        <text x="525" y="354" fill="#e9ecf6" font-size="12" text-anchor="middle">UDS · b −60°</text>
+        <circle cx="440" cy="190" r="6.5" fill="#ffd24a"/>
+        <text x="452" y="206" fill="#ffd24a" font-size="11" text-anchor="start">the Sun (us)</text>
+        <text x="125" y="40" fill="#8e9ab2" font-size="11" text-anchor="middle">clear caps → distant galaxies</text>
+        <text x="610" y="300" fill="#8e9ab2" font-size="11" text-anchor="end">clear caps → distant galaxies</text>
+      </svg>
+      <p class="cap">galactic latitude b is the angle each sightline makes with the disk — bigger means a cleaner view out. (schematic, not to scale)</p>
+    </div>
+  </div>
+
   <footer>
     <b>Lynceus</b> — the keenest-sighted of the Argonauts.
     Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
   </footer>
 </div>
 <script src="app.js?v=6"></script>
+<script src="skymap.js?v=1"></script>
 </body>
 </html>
