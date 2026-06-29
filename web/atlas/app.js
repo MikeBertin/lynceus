@@ -15,6 +15,7 @@ let mode = "morph";
 const WORLD = 2200;
 let cam = { x: 0, y: 0, scale: 0.28 };
 let hover = -1, selected = -1;
+let lrdPts = [], lrdOn = false;
 let dpr = Math.max(1, window.devicePixelRatio || 1);
 let fitted = false, drawPending = false;
 
@@ -43,7 +44,7 @@ async function boot() {
   CLASS_COLORS.featured = css("--c-featured");
   CLASS_COLORS.merger = css("--c-merger");
   try {
-    atlas = await fetch("atlas.json?v=2").then((r) => r.json());
+    atlas = await fetch("atlas.json?v=3").then((r) => r.json());
     sprites = new Image();
     await new Promise((res, rej) => { sprites.onload = res; sprites.onerror = rej; sprites.src = "sprites.jpg"; });
     pts = atlas.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
@@ -51,6 +52,8 @@ async function boot() {
     statusEl.textContent = "drag to fly · scroll to zoom · click a galaxy";
     statusEl.style.color = css("--cyan");
     buildLegend();
+    loadLRDs();           // M3: known Little Red Dots overlay (non-blocking)
+    buildWeirdest();      // M3: strip of the most anomalous galaxies
     new ResizeObserver(resize).observe(stage);  // fits + redraws once sized
     resize();
     $("#loading").classList.add("hide");
@@ -76,9 +79,14 @@ function resetView() {
 const lerp = (a, b, t) => a + (b - a) * t;
 const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
 const FAINT = [44, 52, 72];
+const HEAT = [255, 90, 77];   // anomaly "hot" colour
 function colorFor(p) {
   if (mode === "morph") return CLASS_COLORS[p.d] || "#888";
   if (mode === "region") return REGION_COLORS[p.r] || "#888";
+  if (mode === "anomaly") {
+    const v = p.a || 0;
+    return `rgb(${lerp(FAINT[0], HEAT[0], v) | 0},${lerp(FAINT[1], HEAT[1], v) | 0},${lerp(FAINT[2], HEAT[2], v) | 0})`;
+  }
   const v = mode === "featured" ? p.f : p.m;
   const hot = hexToRgb(mode === "featured" ? CLASS_COLORS.featured : CLASS_COLORS.merger);
   return `rgb(${lerp(FAINT[0], hot[0], v) | 0},${lerp(FAINT[1], hot[1], v) | 0},${lerp(FAINT[2], hot[2], v) | 0})`;
@@ -106,6 +114,17 @@ function draw() {
     }
   }
   ctx.globalAlpha = 1;
+  if (lrdOn) {                              // known Little Red Dots as diamonds
+    for (const L of lrdPts) {
+      const X = sx(L.wx), Y = sy(L.wy);
+      if (X < -pad || X > canvas.width + pad || Y < -pad || Y > canvas.height + pad) continue;
+      const s = 4.5 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(X, Y - s); ctx.lineTo(X + s, Y); ctx.lineTo(X, Y + s); ctx.lineTo(X - s, Y); ctx.closePath();
+      ctx.fillStyle = "#ff5a4d"; ctx.fill();
+      ctx.strokeStyle = "#1a0c0a"; ctx.lineWidth = 1 * dpr; ctx.stroke();
+    }
+  }
   for (const [idx, col, w] of [[hover, "#ffffff", 1.6], [selected, css("--cyan"), 2.4]]) {
     if (idx < 0) continue;
     const p = pts[idx];
@@ -122,6 +141,9 @@ function buildLegend() {
   } else if (mode === "region") {
     L.innerHTML = Object.entries(REGION_COLORS)
       .map(([k, c]) => `<span><i style="background:${c}"></i>${k}</span>`).join("");
+  } else if (mode === "anomaly") {
+    L.innerHTML = `<span><i style="background:rgb(44,52,72)"></i>typical</span>` +
+      `<span><i style="background:rgb(255,90,77)"></i>most unusual</span>`;
   } else {
     const c = mode === "featured" ? CLASS_COLORS.featured : CLASS_COLORS.merger;
     L.innerHTML = `<span><i style="background:rgb(44,52,72)"></i>low</span><span><i style="background:${c}"></i>high ${mode} vote</span>`;
@@ -254,5 +276,43 @@ $("#colorseg").addEventListener("click", (e) => {
 });
 $("#reset").addEventListener("click", () => { resetView(); select(-1); });
 window.addEventListener("resize", resize);
+
+// ---- M3: Little Red Dots overlay + weirdest strip -------------------------
+function loadLRDs() {
+  fetch("lrds.json?v=1").then((r) => r.json()).then((d) => {
+    lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
+    $("#lrdstat").innerHTML =
+      `<b>${d.n} known Little Red Dots</b> (Kokorev et&nbsp;al. 2024) embedded with the same encoder — ` +
+      `<b>${d.enrichment}×</b> over-represented among the top-10% most anomalous galaxies ` +
+      `(a typical one lands at the ${Math.round(d.median_pct * 100)}th percentile of weirdness). ` +
+      `Switch to <b>anomaly</b> and toggle them on: they pile into the hot zones the encoder flagged with no labels.`;
+  }).catch(() => {});
+}
+
+$("#lrdToggle").addEventListener("change", (e) => {
+  lrdOn = e.target.checked;
+  if (lrdOn && mode !== "anomaly") {   // jump to anomaly colouring for context
+    document.querySelector('#colorseg button[data-mode="anomaly"]').click();
+  }
+  markDirty();
+});
+
+function buildWeirdest() {
+  const top = [...pts].sort((a, b) => (b.a || 0) - (a.a || 0)).slice(0, 18);
+  const host = $("#weird");
+  host.innerHTML = "<h3>The 18 weirdest galaxies the encoder found</h3>";
+  const row = document.createElement("div"); row.className = "weirdrow";
+  for (const p of top) {
+    const im = document.createElement("img");
+    im.src = tileDataURL(p, 54); im.title = "anomaly " + (p.a || 0).toFixed(2);
+    im.onclick = () => { select(p.i); centreOn(p); };
+    row.appendChild(im);
+  }
+  host.appendChild(row);
+}
+
+function centreOn(p) {
+  cam.x = p.wx; cam.y = p.wy; cam.scale = Math.max(cam.scale, 1.6); markDirty();
+}
 
 boot();

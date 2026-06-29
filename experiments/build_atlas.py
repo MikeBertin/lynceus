@@ -13,10 +13,11 @@ import timm
 import torch
 from PIL import Image
 
-from core import config
+from core import config, anomaly
 from core.embed import embed_paths, umap_2d, normalise_coords
 
 TILE = 56  # sprite thumbnail size (px)
+LRD_DIR = config.DATA_DIR / "lrd"
 
 
 def load_encoder():
@@ -40,7 +41,27 @@ def main() -> None:
         feats = embed_paths(load_encoder(), paths, device=config.get_device())
         np.save(cache, feats)
         print(f"  features {feats.shape}; running UMAP...")
-    xy = normalise_coords(umap_2d(feats))
+    n = len(rows)
+
+    # --- M3: anomaly score + known Little Red Dots overlay --------------------
+    araw = anomaly.knn_anomaly(feats, feats, k=20, exclude_self=True)
+    a_lo, a_hi = np.percentile(araw, [5, 99])
+    unit = lambda v: np.clip((v - a_lo) / (a_hi - a_lo + 1e-9), 0, 1)
+    a_atlas = unit(araw)
+
+    has_lrd = (LRD_DIR / "lrd_emb.npy").exists() and (LRD_DIR / "lrd_meta.csv").exists()
+    if has_lrd:
+        lrd_emb = np.load(LRD_DIR / "lrd_emb.npy")
+        lrd_rows = list(csv.DictReader(open(LRD_DIR / "lrd_meta.csv")))
+        xy_all = normalise_coords(umap_2d(np.vstack([feats, lrd_emb])))
+        xy, xy_lrd = xy_all[:n], xy_all[n:]
+        lraw = anomaly.knn_anomaly(lrd_emb, feats, k=20)
+        a_lrd = unit(lraw)
+        ldist = anomaly.nearest_distance(feats, lrd_emb)   # atlas -> nearest LRD
+        d_lo, d_hi = np.percentile(ldist, [2, 50])
+        lc = np.clip(1 - (ldist - d_lo) / (d_hi - d_lo + 1e-9), 0, 1)
+    else:
+        xy = normalise_coords(umap_2d(feats))
 
     # sprite sheet: row-major grid of TILE-px thumbnails, sprite index = row order
     n = len(rows)
@@ -65,7 +86,7 @@ def main() -> None:
 
     points = []
     for i, r in enumerate(rows):
-        points.append({
+        p = {
             "i": i,
             "x": round(float(xy[i, 0]), 4), "y": round(float(xy[i, 1]), 4),
             "d": r["dominant"],
@@ -74,9 +95,29 @@ def main() -> None:
             "f": round(float(r["featured"]), 2),
             "m": round(float(r["merger"]), 2),
             "c": round(float(r["clumpy"]), 2),
-        })
+            "a": round(float(a_atlas[i]), 3),
+        }
+        if has_lrd:
+            p["lc"] = round(float(lc[i]), 2)
+        points.append(p)
     atlas = {"tile": TILE, "cols": cols, "count": n, "points": points}
     (config.WEB_ATLAS_DIR / "atlas.json").write_text(json.dumps(atlas, separators=(",", ":")))
+
+    if has_lrd:
+        p90 = np.percentile(araw, 90)
+        frac = float((lraw > p90).mean())
+        med_pct = float(np.mean([(araw < v).mean() for v in lraw]))
+        lpts = [{
+            "x": round(float(xy_lrd[j, 0]), 4), "y": round(float(xy_lrd[j, 1]), 4),
+            "a": round(float(a_lrd[j]), 3),
+            "z": lrd_rows[j].get("z", ""), "field": field(lrd_rows[j]["ra"]),
+        } for j in range(len(lrd_rows))]
+        lrds = {"n": len(lpts), "enrichment": round(frac / 0.10, 1),
+                "frac_above_p90": round(frac, 3), "median_pct": round(med_pct, 3),
+                "points": lpts}
+        (config.WEB_ATLAS_DIR / "lrds.json").write_text(json.dumps(lrds, separators=(",", ":")))
+        print(f"LRD overlay: {len(lpts)} known LRDs · {lrds['enrichment']}x enriched in top-10% "
+              f"anomalies · median LRD sits at the {med_pct*100:.0f}th percentile")
 
     mix = {}
     for r in rows:

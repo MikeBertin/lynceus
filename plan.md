@@ -21,9 +21,14 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   in training, yet a kNN probe of the embeddings recovers the dominant class at **58.5% vs
   33% baseline** — morphology emerges on its own.
 
-- **M3 — The anomaly hunt.** _Research._
-  Latent-space outlier scoring (kNN density / isolation forest); surface **Little Red
-  Dots** and other rare objects; validate against published LRD catalogues.
+- **M3 — The anomaly hunt. _Built._**
+  kNN latent-space anomaly scoring on the SSL embeddings (`core/anomaly.py`); the atlas gains
+  an **anomaly** colour mode and a "18 weirdest galaxies" strip. **216 real Little Red Dots**
+  (Kokorev et al. 2024, github.com/VasilyKokorev/lrd_phot) in GOODS-S/COSMOS/UDS are embedded
+  with the same encoder and overlaid: they're **~2× over-represented** among the top-10%
+  anomalies (median LRD at the 60th percentile) — the shape-based encoder partially
+  rediscovers them with no labels/colour. Honest + modest: colour was normalised out, so the
+  signal is compactness, not redness.
 
 - **M4 — The frontier.** Photo-z dropout hunting (z>10 / "too many bright early galaxies"
   ΛCDM tension), or image+spectra contrastive on NIRSpec (AstroCLIP lineage).

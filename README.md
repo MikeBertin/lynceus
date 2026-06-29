@@ -20,8 +20,8 @@ Plutus (quantitative finance).
 | | | |
 |---|---|---|
 | **[Morphology](web/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser — featured / smooth / merger (Galaxy Zoo labels) — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
-| **[Atlas](web/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of ~2,400 real JWST galaxies; colour by morphology and watch structure the encoder found with **no labels** emerge. **Built.** |
-| **Anomaly hunt** | Discovery | Score every galaxy by how unusual it is, and surface the **Little Red Dots**. *Planned (M3).* |
+| **[Atlas](web/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of ~2,400 real JWST galaxies; colour by morphology / sky region / **anomaly**; watch structure the encoder found with **no labels** emerge. **Built.** |
+| **[Anomaly hunt](web/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (~2× enriched in the top-10% anomalies). **Built** (in the atlas). |
 | **Dropout hunter** | Cosmic dawn | Find galaxies at z>10 as they vanish from the bluer filters. *Planned (M4).* |
 
 ## The data, honestly
@@ -57,14 +57,16 @@ core/                 # reusable package
   morphology.py       #   label schema + metrics
   ssl.py              #   M2: SimCLR self-supervised contrastive training
   embed.py            #   M2: encoder embeddings -> UMAP 2-D layout
+  anomaly.py          #   M3: kNN latent-space anomaly scoring
 experiments/
   fetch_gz.py         #   M1: Galaxy Zoo visual labels + DJA JWST cutouts
   fetch_ceers.py      #   M1 alt: Sersic-fit labels (CEERS) + DJA cutout service
   fetch_data.py       #   M1: synthetic Sersic fallback / local-mosaic Cutout2D
   fetch_atlas.py      #   M2: ~2.4k unlabelled JWST cutouts for the atlas
+  fetch_lrd.py        #   M3: known Little Red Dots (Kokorev+24) + embeddings
   train_vit.py        #   M1: CV metrics + final model + metrics.json
   train_atlas.py      #   M2: SimCLR encoder
-  build_atlas.py      #   M2: embed -> UMAP -> sprite sheet + atlas.json
+  build_atlas.py      #   M2/M3: embed -> UMAP -> sprites + atlas.json + anomaly + lrds.json
   export_onnx.py      #   -> INT8 web/morphology/model.onnx
   build_web_assets.py #   gallery PNGs + attention maps + json
 web/
@@ -93,7 +95,12 @@ pytest -q                                           # data + model tests
 # M2 — the self-supervised atlas
 python -m experiments.fetch_atlas  --n 2550         # unlabelled JWST cutouts
 python -m experiments.train_atlas  --epochs 80      # SimCLR encoder (MPS)
-python -m experiments.build_atlas                   # embed -> UMAP -> atlas assets
+
+# M3 — the anomaly hunt: known Little Red Dots, embedded with the same encoder
+curl -L -o data/lrd_kokorev.fits \
+  https://raw.githubusercontent.com/VasilyKokorev/lrd_phot/master/lrd_table_v1.1.fits
+python -m experiments.fetch_lrd                     # fetch + embed the LRDs
+python -m experiments.build_atlas                   # atlas + anomaly scores + lrds.json
 
 cd web && python3 -m http.server                    # open http://localhost:8000
 ```
@@ -105,5 +112,6 @@ No-download fallback (synthetic Sérsic galaxies): `python -m experiments.fetch_
 Built with PyTorch, [timm](https://github.com/huggingface/pytorch-image-models) and
 [onnxruntime-web](https://onnxruntime.ai/). Real JWST cutouts from the
 [DAWN JWST Archive](https://dawn-cph.github.io/dja/) (grizli reductions); visual-morphology
-labels from [Galaxy Zoo](https://data.galaxyzoo.org/): CANDELS (Simmons et al. 2017). M2 will
-use MAST HLSP [JADES](https://archive.stsci.edu/hlsp/jades). All data public.
+labels from [Galaxy Zoo](https://data.galaxyzoo.org/): CANDELS (Simmons et al. 2017). Little
+Red Dot catalogue: [Kokorev et al. 2024](https://github.com/VasilyKokorev/lrd_phot). All data
+public.
