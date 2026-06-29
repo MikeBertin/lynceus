@@ -104,6 +104,27 @@
     <b>Little Red Dots</b>.
   </p>
 
+  <details class="note" style="margin-top:6px">
+    <summary style="cursor:pointer;color:var(--cyan);font-weight:600">Why does the map have this shape?</summary>
+    <div style="margin-top:10px">
+      <b>The outline is the projection's, not the galaxies'.</b> UMAP squeezes the encoder's
+      512-dimensional vectors down to 2-D; the overall silhouette depends on UMAP's settings and a
+      random seed. Change them and the blob reshapes — but <b>which galaxies sit together</b> stays
+      put. Read it like a subway map: adjacency is meaningful, the outline isn't, and the axes have
+      no units.<br><br>
+      <b>It's one connected cloud, not separate islands</b>, because morphology is a continuum —
+      smooth blends into featured blends into disturbed — so colour shifts gradually instead of
+      snapping into clusters.<br><br>
+      <b>Dense vs sparse = common vs rare appearance.</b> The crowded interior is the big population
+      of small, smooth sources; the thin spikes reaching the edges are unusual cutouts (very compact,
+      very extended, or artefacts) that the layout flings outward. Those outliers are exactly what
+      the next milestone's <b>anomaly hunt</b> will score.<br><br>
+      <b>Two colour caveats.</b> The sizes of the morphology-coloured regions reflect our balanced
+      sampling, not the true sky mix; and under <b>sky region</b> the colours stay intermixed —
+      confirming the geometry follows what galaxies <i>look like</i>, not where they are.
+    </div>
+  </details>
+
   <h2 class="ctx-h">Where are we looking?</h2>
   <p class="lede" style="margin-top:8px;font-size:14px">
     These galaxies live in three deep fields chosen to look <b>out of</b> our own Milky Way. Spin the
