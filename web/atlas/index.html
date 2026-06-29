@@ -148,11 +148,12 @@
         <p>Colour by <b>anomaly</b>: the 216 known <b>Little Red Dots</b> pile into the same corner
            the encoder flagged as weird — it was never told they exist.</p>
         <span class="x why">why they stand out</span>
-        <div class="explain"><h4>Rare &amp; compact = isolated</h4>
-          <p>LRDs are compact and uncommon, so they sit far from everything in latent space → a high
-             anomaly score (~<b>2&times;</b> enriched in the top 10%).</p>
-          <p class="muted">Caveat: our per-channel stretch removed colour, so the encoder catches
-             their <b>compactness</b>, not their redness.</p></div>
+        <div class="explain"><h4>Compact <i>and</i> red = isolated</h4>
+          <p>LRDs are compact, uncommon, and genuinely <b>red</b>, so they sit far from everything in
+             latent space → a high anomaly score (~<b>3.4&times;</b> enriched in the top 10%).</p>
+          <p class="muted">The encoder now sees colour: a colour-preserving stretch keeps each band's
+             real flux, so it catches both their <b>compactness</b> and their <b>redness</b> — up from
+             ~2&times; when an earlier per-channel stretch had washed the colour out.</p></div>
       </div>
     </div>
   </section>
@@ -241,7 +242,7 @@
   </footer>
 </div>
 <div id="pop"></div>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 <script src="skymap.js?v=2"></script>
 <script src="../shared/notice.js?v=1"></script>
 </body>

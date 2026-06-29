@@ -18,7 +18,7 @@ deliberate choice; flip it on when ready (see §8).
 |---|---|---|
 | **M1 — Morphology** | In-browser ViT classifies a real JWST cutout (featured / smooth / merger) with attention maps | **81.0%** 5-fold CV vs 33% baseline, on real Galaxy Zoo labels |
 | **M2 — Atlas** | Self-supervised (SimCLR) 2-D embedding of ~2,400 real JWST galaxies you fly through | kNN-morphology **58%** vs 33% — structure emerges with no labels |
-| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **~2×** over-represented in the top-10% anomalies |
+| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **~3.4×** over-represented in the top-10% anomalies (was ~2× before the colour-aware encoder) |
 
 Both demos live under `web/`: `web/morphology/` and `web/atlas/` (the atlas page
 also hosts the anomaly hunt, the "where are we looking?" globe, and "things to
@@ -184,10 +184,15 @@ gotchas — **all of these have bitten us**:
 - M2: SimCLR ResNet-18, 80 epochs, NT-Xent 4.5→2.0. kNN-morphology 58% vs 33%;
   kNN-by-field 58% vs 39% (regions loosely separable — survey-depth fingerprint).
 - M3: anomaly = mean cosine distance to 20 nearest in 512-D space. 216 LRDs are
-  ~2× over-represented in the top-10% anomalies (median LRD at 60th percentile of
-  weirdness). **Honest caveat baked into the UI:** our per-channel asinh stretch
-  removed absolute colour, so the encoder is **shape-based** — it catches LRDs'
-  *compactness*, not their *redness*. (This is the seed of an M4 idea, §9.)
+  **~3.4×** over-represented in the top-10% anomalies (33.8% of LRDs in the top
+  decile vs 10% by chance; median LRD at 64th percentile). **Sharpened (was ~2×):**
+  the asinh stretch is now colour-preserving (Lupton-style — `asinh_stretch(colour=True)`
+  in `core/data.py`: per-band sky subtraction, a single shared intensity stretch,
+  linear per-band scaling, so flux *ratios* survive), the SSL encoder was retrained
+  on the colour cutouts (per-channel colour jitter trimmed ±15%→±8%), and the LRDs
+  re-embedded. The encoder now keys on both compactness *and* redness. Old
+  colour-blind encoder kept at `models/ssl_encoder_perchannel.pt`. M1 is pinned to
+  the original per-channel stretch (`colour=False`) so its shipped 81% reproduces.
 
 ---
 
@@ -244,17 +249,19 @@ too bright* early galaxies (a real ΛCDM tension).
   cutout service for the imagery and the same theme/notice-card patterns.
 - Promote the landing "dropout hunter" card to Live when done.
 
-### Option B (quick, high-value): colour-aware encoder → sharpen M3
-The M3 caveat is that per-channel normalisation threw away colour, so the encoder
-is colour-blind and only catches LRDs by compactness (~2×). Fix the normalisation
-to preserve colour (e.g., a shared luminance/asinh scaling across bands instead of
-per-channel), retrain SimCLR (`train_atlas`), rebuild the atlas, and re-measure the
-LRD enrichment — it should jump well above 2×. This strengthens an existing demo
-rather than adding a new one; much less work than Option A.
+### Option B (colour-aware encoder → sharpen M3) — ✅ DONE (2026-06-29)
+Completed. The per-channel stretch that threw away colour was replaced with a
+colour-preserving Lupton-style stretch (`asinh_stretch(colour=True)`); the atlas +
+LRD cutouts were re-fetched, SimCLR retrained, and the atlas rebuilt. LRD
+enrichment **rose from ~2× to ~3.4×** — the encoder now catches LRDs by redness as
+well as compactness. New reproducibility script: `experiments/restretch_atlas.py`
+(re-fetches the existing atlas cutouts in place with the colour stretch). See §6.
+To redo from scratch: `restretch_atlas` → `train_atlas --epochs 80` → `fetch_lrd`
+→ `build_atlas`. (Note: the DJA service rate-limits after a few thousand requests
+in a session — the LRD re-fetch may need a retry.)
 
-**Recommendation to offer the user:** Option A is the "new milestone / new demo"
-that matches the roadmap and the landing card; Option B is a fast, satisfying
-improvement to M3's headline. Either is a clean next step.
+That leaves **Option A (the dropout hunter / M4)** as the next milestone — the
+"new demo" that matches the roadmap and the landing card. See Option A above.
 
 Other threads if asked: bigger atlas / WebGL rendering; image+spectra contrastive
 (AstroCLIP-style) using NIRSpec; or publishing (§8).

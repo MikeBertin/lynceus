@@ -40,11 +40,15 @@ def _augment(arr: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     a = np.ascontiguousarray(a)
     t = torch.from_numpy(a).float().unsqueeze(0)
     t = F.interpolate(t, size=(SSL_PX, SSL_PX), mode="bilinear", align_corners=False)[0]
-    # photometric jitter: brightness, contrast, per-channel colour
+    # photometric jitter: brightness + contrast (luminance) are jittered freely,
+    # but per-channel *colour* jitter is kept gentle (+-8%) — the cutouts now
+    # preserve real colour (asinh_stretch colour=True) and we want the encoder to
+    # treat colour as signal, not nuisance. Too much colour jitter would teach it
+    # to ignore the very redness that distinguishes Little Red Dots.
     t = t * rng.uniform(0.8, 1.2)
     mean = t.mean()
     t = (t - mean) * rng.uniform(0.8, 1.2) + mean
-    t = t * torch.tensor(rng.uniform(0.85, 1.15, size=3), dtype=torch.float32).view(3, 1, 1)
+    t = t * torch.tensor(rng.uniform(0.92, 1.08, size=3), dtype=torch.float32).view(3, 1, 1)
     t = t.clamp(0, 1)
     return ((t - _MEAN) / _STD).numpy()
 

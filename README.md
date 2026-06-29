@@ -21,7 +21,7 @@ Plutus (quantitative finance).
 |---|---|---|
 | **[Morphology](web/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser — featured / smooth / merger (Galaxy Zoo labels) — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
 | **[Atlas](web/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of ~2,400 real JWST galaxies; colour by morphology / sky region / **anomaly**; watch structure the encoder found with **no labels** emerge. **Built.** |
-| **[Anomaly hunt](web/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (~2× enriched in the top-10% anomalies). **Built** (in the atlas). |
+| **[Anomaly hunt](web/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (**~3.4× enriched** in the top-10% anomalies — up from ~2× once a colour-preserving stretch let the encoder see their redness, not just their compactness). **Built** (in the atlas). |
 | **Dropout hunter** | Cosmic dawn | Find galaxies at z>10 as they vanish from the bluer filters. *Planned (M4).* |
 
 ## The data, honestly

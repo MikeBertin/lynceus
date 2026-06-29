@@ -55,23 +55,54 @@ class CutoutRecord:
 # Shared normalisation + caching
 # ---------------------------------------------------------------------------
 def asinh_stretch(img: np.ndarray, lo_pct: float = 45.0, hi_pct: float = 99.8,
-                  soft: float = 0.15) -> np.ndarray:
-    """Per-channel percentile clip + asinh stretch into [0, 1].
+                  soft: float = 0.15, colour: bool = True) -> np.ndarray:
+    """Percentile clip + asinh stretch into [0, 1].
 
     ``img`` is (C, H, W). asinh stretch is the standard way astronomers display
     high-dynamic-range sky images, keeping faint structure visible without the
-    bright cores saturating. The black point defaults to the per-channel median
-    (a robust background estimate) so empty sky stays dark instead of blooming
-    into noise.
+    bright cores saturating.
+
+    Two modes:
+
+    * ``colour=True`` (default) — a Lupton et al. (2004) style stretch that
+      **preserves colour**. A per-channel black point (sky) is subtracted, but a
+      *single shared* intensity is stretched and each band is then scaled
+      linearly by the same factor. Because the scaling is shared and linear, the
+      flux *ratios* between bands survive — a genuinely red source (bright in
+      F444W, faint in F200W) stays red. This is what M2/M3 want: the encoder can
+      see colour, not just shape.
+
+    * ``colour=False`` — the original per-channel normalisation, where each band
+      is independently stretched to fill [0, 1]. This maximises per-channel
+      contrast but **discards absolute colour**. Retained for the M1 morphology
+      model, which was trained and shipped on it.
     """
-    out = np.empty_like(img, dtype=np.float32)
-    for c in range(img.shape[0]):
-        ch = img[c].astype(np.float32)
-        lo, hi = np.percentile(ch, [lo_pct, hi_pct])
-        ch = np.clip((ch - lo) / (hi - lo + 1e-8), 0.0, 1.0)
-        ch = np.arcsinh(ch / soft) / np.arcsinh(1.0 / soft)
-        out[c] = ch
-    return out
+    if not colour:
+        out = np.empty_like(img, dtype=np.float32)
+        for c in range(img.shape[0]):
+            ch = img[c].astype(np.float32)
+            lo, hi = np.percentile(ch, [lo_pct, hi_pct])
+            ch = np.clip((ch - lo) / (hi - lo + 1e-8), 0.0, 1.0)
+            ch = np.arcsinh(ch / soft) / np.arcsinh(1.0 / soft)
+            out[c] = ch
+        return out
+
+    f = img.astype(np.float32)
+    C = f.shape[0]
+    # Per-channel black point: subtract each band's sky so empty sky goes dark,
+    # without touching the relative scale between bands above sky.
+    los = np.percentile(f.reshape(C, -1), lo_pct, axis=1)
+    f = np.clip(f - los[:, None, None], 0.0, None)
+    # Shared intensity = mean across bands. Stretch *it*, then redistribute the
+    # stretch back onto each band linearly -> ratios (= colour) are preserved.
+    intensity = f.mean(axis=0)
+    hi = np.percentile(intensity, hi_pct)
+    norm = intensity / (hi + 1e-8)
+    stretched = np.arcsinh(norm / soft) / np.arcsinh(1.0 / soft)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        scale = np.where(intensity > 1e-8, stretched / intensity, 0.0)
+    out = f * scale[None]
+    return np.clip(out, 0.0, 1.0).astype(np.float32)
 
 
 def _save_record(rec_id: str, label: str, source: str, ra: float, dec: float,
@@ -226,7 +257,7 @@ def generate_synthetic_dataset(n_per_class: int = 170, seed: int = 7,
     for label in CLASSES:
         for i in range(n_per_class):
             raw = _render_galaxy(label, rng, px)
-            stretched = asinh_stretch(raw)
+            stretched = asinh_stretch(raw, colour=False)  # M1: shipped per-channel
             rec = _save_record(
                 f"syn_{label}_{i:04d}", label, "synthetic",
                 ra=float(rng.uniform(214.7, 215.1)),   # nominal EGS/CEERS field
@@ -286,7 +317,7 @@ def extract_real_cutouts(catalog_rows: list[dict],
             continue  # source off the mosaic edge / no coverage
         if cube.shape != (3, px, px):
             continue
-        stretched = asinh_stretch(np.nan_to_num(cube))
+        stretched = asinh_stretch(np.nan_to_num(cube), colour=False)  # M1: shipped per-channel
         rec = _save_record(
             str(row.get("id", f"ceers_{i:05d}")), label, "ceers",
             ra=float(row["ra"]), dec=float(row["dec"]),
@@ -350,7 +381,7 @@ def build_dataset_from_service(catalog_rows: list[dict], *, size: float = 3.0,
         cube = fetch_service_cube(float(row["ra"]), float(row["dec"]), size=size)
         if cube is None:
             return None
-        stretched = asinh_stretch(np.nan_to_num(cube))
+        stretched = asinh_stretch(np.nan_to_num(cube), colour=False)  # M1: shipped per-channel
         return _save_record(rec_id, row["label"], source,
                             float(row["ra"]), float(row["dec"]),
                             float(row.get("redshift", 0.0) or 0.0), stretched)
