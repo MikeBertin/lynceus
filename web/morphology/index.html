@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lynceus — Galaxy morphology, live in your browser</title>
 <meta name="description" content="A Vision Transformer classifies JWST-style galaxy cutouts in your browser via ONNX, with attention heatmaps and honest cross-validated metrics.">
-<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="../shared/theme.css?v=2">
 <style>
   .layout{display:grid;grid-template-columns:300px 1fr;gap:26px;margin-top:24px}
   @media(max-width:820px){.layout{grid-template-columns:1fr}}
@@ -118,6 +118,43 @@
     JWST galaxies you can fly through, and the hunt for the <b>Little Red Dots</b>.
   </p>
 
+  <section class="notice">
+    <h2 class="notice-title">Things to notice</h2>
+    <div class="notice-grid">
+      <div class="ncard">
+        <h3>It looks at the galaxy</h3>
+        <p>Tick <b>attention overlay</b>: the transformer concentrates on the source and ignores the
+           empty sky around it.</p>
+        <span class="x why">how that's drawn</span>
+        <div class="explain"><h4>Attention rollout</h4>
+          <p>It chains the ViT's self-attention across all layers back to the image, showing which
+             patches the network actually leaned on.</p>
+          <p class="muted">Nobody told it where the galaxy was — it learned to weight the structured
+             pixels.</p></div>
+      </div>
+      <div class="ncard">
+        <h3>Honest about hard cases</h3>
+        <p>In the confusion matrix, <b>smooth</b> and <b>merger</b> trip each other up far more than
+           disks do.</p>
+        <span class="x why">why they blur</span>
+        <div class="explain"><h4>A real degeneracy</h4>
+          <p>A relaxed elliptical and a settled merger remnant can look identical in a single image —
+             even human classifiers disagree.</p>
+          <p class="muted">The model reports the confusion rather than hiding it; that's the honest
+             81% vs a 33% baseline.</p></div>
+      </div>
+      <div class="ncard">
+        <h3>Confidence tracks ambiguity</h3>
+        <p>A clean disk scores ~99%; a faint or messy cutout splits its vote across the three
+           classes.</p>
+        <span class="x why">what the bars mean</span>
+        <div class="explain"><h4>Not a coin flip</h4>
+          <p>The bar heights are the softmax probabilities. A near-even split is the model honestly
+             saying <b>this one is genuinely ambiguous</b>, not guessing.</p></div>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <b>Lynceus</b> — the keenest-sighted of the Argonauts. Companion to
     <a href="https://mikebertin.github.io/chiron/">Chiron</a>,
@@ -126,7 +163,9 @@
   </footer>
 </div>
 
+<div id="pop"></div>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
 <script src="app.js"></script>
+<script src="../shared/notice.js?v=1"></script>
 </body>
 </html>

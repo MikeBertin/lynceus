@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lynceus — The galaxy atlas</title>
 <meta name="description" content="Fly through a self-supervised embedding of thousands of real JWST galaxies. A SimCLR encoder learned what galaxies look like with no labels; colour the map by Galaxy Zoo morphology.">
-<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="../shared/theme.css?v=2">
 <style>
   .barrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0 12px}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
@@ -119,6 +119,44 @@
     with no labels.
   </p>
 
+  <section class="notice">
+    <h2 class="notice-title">Things to notice</h2>
+    <div class="notice-grid">
+      <div class="ncard">
+        <h3>Morphology, from no labels</h3>
+        <p>Flip the colour from <b>sky region</b> to <b>morphology</b>: with no labels, the encoder
+           has already sorted galaxies into smooth, featured and merger.</p>
+        <span class="x why">how it knows</span>
+        <div class="explain"><h4>It only ever saw pixels</h4>
+          <p>SimCLR pulls two random crops of the <b>same</b> cutout together and pushes different
+             galaxies apart — so look-alikes end up neighbours.</p>
+          <p class="muted">The Galaxy Zoo votes only <b>colour</b> the finished map; they never
+             touched training.</p></div>
+      </div>
+      <div class="ncard">
+        <h3>Where barely matters</h3>
+        <p>Under <b>sky region</b> the three deep fields stay thoroughly mixed — a disk in GOODS-S
+           sits beside one in COSMOS.</p>
+        <span class="x why">but not nothing</span>
+        <div class="explain"><h4>A faint survey fingerprint</h4>
+          <p>A classifier can still guess the field <b>58%</b> of the time (vs 39% by chance) — but
+             that's mostly survey <b>depth and PSF</b>, not real structure.</p>
+          <p class="muted">The encoder keys on what a galaxy looks like, not where it is.</p></div>
+      </div>
+      <div class="ncard">
+        <h3>The Red Dots find the heat</h3>
+        <p>Colour by <b>anomaly</b>: the 216 known <b>Little Red Dots</b> pile into the same corner
+           the encoder flagged as weird — it was never told they exist.</p>
+        <span class="x why">why they stand out</span>
+        <div class="explain"><h4>Rare &amp; compact = isolated</h4>
+          <p>LRDs are compact and uncommon, so they sit far from everything in latent space → a high
+             anomaly score (~<b>2&times;</b> enriched in the top 10%).</p>
+          <p class="muted">Caveat: our per-channel stretch removed colour, so the encoder catches
+             their <b>compactness</b>, not their redness.</p></div>
+      </div>
+    </div>
+  </section>
+
   <details class="note" style="margin-top:6px">
     <summary style="cursor:pointer;color:var(--cyan);font-weight:600">Why does the map have this shape?</summary>
     <div style="margin-top:10px">
@@ -202,7 +240,9 @@
     Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
   </footer>
 </div>
+<div id="pop"></div>
 <script src="app.js?v=11"></script>
 <script src="skymap.js?v=2"></script>
+<script src="../shared/notice.js?v=1"></script>
 </body>
 </html>
