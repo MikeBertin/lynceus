@@ -9,11 +9,11 @@ single source of truth for picking the project back up. Read it top to bottom.
 
 ## 1. Status — where we are
 
-**Four milestones are built, live, and verified.** Repo is **private**
+**Four milestones built, live, verified, and committed.** Repo is **private**
 on GitHub: `git@github.com:MikeBertin/lynceus.git` (user `MikeBertin`, SSH).
-Default branch `main`. Nothing is published yet (no GitHub Pages) — that's a
-deliberate choice; flip it on when ready (see §8). (M4 is built + verified in the
-preview but **not yet committed** as of this writing — commit it.)
+Default branch `main`, all work committed there. **Nothing is published yet**
+(no GitHub Pages) — deliberately paused at the user's call, *ready to publish but
+not published* (see §8 + §9).
 
 | Milestone | What | Headline result |
 |---|---|---|
@@ -24,14 +24,22 @@ preview but **not yet committed** as of this writing — commit it.)
 
 Demos under `web/`: `web/morphology/`, `web/atlas/` (also hosts the anomaly hunt,
 the globe, "things to notice"), and `web/dropout/` (M4). Landing at
-`web/index.html` (all four cards now **Live**).
+`web/index.html` (all four cards **Live**).
 
-**Pre-publish polish done:** the atlas was scaled **2,389 → 9,673 galaxies** and
-moved to a **WebGL** renderer (encoder retrained on the bigger set; LRD enrichment
-rose to **~5×**; the globe's Sun is now computed for the current day client-side).
-**Next:** a quick pre-publish pass (mobile/responsive, meta + OG cards) then
-**publish** (public repo + GitHub Pages, like the siblings); after that the new
-frontier — image+spectra contrastive on NIRSpec (AstroCLIP lineage).
+**Recent work, all committed** (newest first):
+- `0e77488` **pre-publish polish** — themed SVG favicon (`web/shared/favicon.svg`),
+  og/twitter meta on all 4 pages, refreshed stale landing copy, **mobile fix**
+  (atlas colour-by control clipped the *anomaly* chip off-screen → now wraps),
+  **WebGL→canvas-2D fallback** in the atlas.
+- `c35db9d` **atlas at scale** — 2,389 → **9,673** galaxies, **WebGL** renderer,
+  encoder retrained, LRD enrichment → **~5×**, globe Sun now computed for the
+  current day client-side, LRD-vs-atlas wording clarified.
+- `dbe8882` **M4 dropout hunter**; `5a99a2e` **M3 colour-aware** (2× → 3.4×).
+
+**Next: make it a credible research on-ramp, then publish — see §9.** The user
+explicitly framed Lynceus as "an on-ramp for a real research project," so the
+priority is *scientific rigor on the existing claims* (error bars / significance,
+photo-z calibration, reproducibility) before — or alongside — publishing.
 
 ---
 
@@ -91,6 +99,7 @@ web/
   index.html          #   landing (4 cards, all Live)
   shared/theme.css    #   cosmic theme + notice/popover styles (VERSIONED: ?v=2)
   shared/notice.js    #   "things to notice" popover handler
+  shared/favicon.svg  #   themed SVG "eye" favicon (all pages link it)
   morphology/         #   Demo A: ONNX classifier (index.html, app.js, model.onnx, gallery/)
   atlas/              #   Demo B: atlas + anomaly + globe (index.html, app.js,
                       #     skymap.js, atlas.json, lrds.json, sprites.jpg, lrd_sprites.jpg, skygeom.json)
@@ -196,18 +205,23 @@ gotchas — **all of these have bitten us**:
 - M1: 81.0% acc, macro-F1 0.81. Only real confusion is smooth↔merger (genuine
   degeneracy). Model = `vit_small_patch16_224` (timm, ImageNet-pretrained),
   fine-tuned, INT8-quantised to 22 MB ONNX.
-- M2: SimCLR ResNet-18, 80 epochs, NT-Xent 4.5→2.0. kNN-morphology 58% vs 33%;
-  kNN-by-field 58% vs 39% (regions loosely separable — survey-depth fingerprint).
+- M2: SimCLR ResNet-18, 80 epochs, NT-Xent 4.5→2.0 (1.81 on the 9,673-galaxy set).
+  On the scaled atlas: **kNN-morphology 62% vs 39%** baseline; **kNN-by-field 63%
+  vs 41%** (regions loosely separable — survey-depth fingerprint). Encoders kept:
+  `ssl_encoder.pt` (current, 9.7k colour), `ssl_encoder_2389.pt` (colour, old size),
+  `ssl_encoder_perchannel.pt` (old colour-blind). All gitignored.
 - M3: anomaly = mean cosine distance to 20 nearest in 512-D space. 216 LRDs are
-  **~3.4×** over-represented in the top-10% anomalies (33.8% of LRDs in the top
-  decile vs 10% by chance; median LRD at 64th percentile). **Sharpened (was ~2×):**
-  the asinh stretch is now colour-preserving (Lupton-style — `asinh_stretch(colour=True)`
-  in `core/data.py`: per-band sky subtraction, a single shared intensity stretch,
-  linear per-band scaling, so flux *ratios* survive), the SSL encoder was retrained
-  on the colour cutouts (per-channel colour jitter trimmed ±15%→±8%), and the LRDs
-  re-embedded. The encoder now keys on both compactness *and* redness. Old
-  colour-blind encoder kept at `models/ssl_encoder_perchannel.pt`. M1 is pinned to
-  the original per-channel stretch (`colour=False`) so its shipped 81% reproduces.
+  **~5×** over-represented in the top-10% anomalies (33.8% of LRDs in the top decile
+  vs 10% by chance; median LRD at the **70th** percentile) on the 9.7k atlas — up
+  the chain **2× → 3.4× → 5×**. The 3.4×→5× jump came from the larger reference
+  cloud, not a model change. The 2×→3.4× came from making the asinh stretch
+  colour-preserving (Lupton-style — `asinh_stretch(colour=True)` in `core/data.py`:
+  per-band sky subtraction, a single shared intensity stretch, linear per-band
+  scaling, so flux *ratios* survive), retraining SimCLR on the colour cutouts
+  (per-channel colour jitter trimmed ±15%→±8%), and re-embedding the LRDs — the
+  encoder now keys on both compactness *and* redness. M1 is pinned to the original
+  per-channel stretch (`colour=False`) so its shipped 81% reproduces.
+  **NB (see §9 #1):** the 5× is still a bare point estimate — needs a CI + null test.
 
 ---
 
@@ -229,9 +243,11 @@ gotchas — **all of these have bitten us**:
 
 - All work is on `main`, pushed, **private**. Commit style: present-tense subject
   + body, with `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
-- Big committed assets: `web/morphology/model.onnx` (22 MB), `web/atlas/sprites.jpg`
-  (1.5 MB), `lrd_sprites.jpg`, `atlas.json`, `lrds.json`, `skygeom.json`. These are
-  intentionally committed (the demos need them); `data/` and `models/` are not.
+- Big committed assets (the demos need them; `data/` and `models/` are not committed):
+  `web/morphology/model.onnx` (22 MB); `web/atlas/sprites.jpg` (**~4.6 MB**, 48px
+  tiles, 9,673 galaxies), `atlas.json` (~1 MB), `lrd_sprites.jpg`, `lrds.json`,
+  `skygeom.json`; `web/dropout/photoz.onnx` (487 KB), `dropout.json`, `filmstrips.jpg`;
+  `web/shared/favicon.svg`. First-load for the atlas is ~5.6 MB — lean enough for Pages.
 - **To publish** (when the user says so): make the repo public
   (`gh repo edit MikeBertin/lynceus --visibility public`) and enable GitHub Pages
   on `main`/`web` (or move `web/` to root / use a Pages action), matching how
@@ -241,67 +257,81 @@ gotchas — **all of these have bitten us**:
 
 ---
 
-## 9. Milestones — M4 done, what's next
+## 9. What's next — make it a real research on-ramp, then publish
 
-### Option A — the dropout hunter (photo-z / z>10) — ✅ DONE (2026-06-29), M4
-Built and verified in the preview. What shipped:
-- **Data:** the **CEERS grizli/EAZY** catalogue (the `fetch_ceers.py` download,
-  `data/ceers_morpho.fits.gz`, HDU1) — ~76k galaxies with NIRCam+HST aperture
-  fluxes, EAZY `z_phot`, and ~1,800 real `z_spec`. `experiments/build_photoz_dataset.py`
-  → `data/photoz/photoz.npz` (train on z_phot, **spec-z objects held out for
-  validation**). The Kokorev LRDs were too narrow (z 4–9, one object type, no z>10),
-  so CEERS is the training set.
-- **Model (`core/photoz.py`):** small MLP over 9 bands (F606W,F814W,F115W,F150W,
-  F200W,F277W,F356W,F410M,F444W; F090W absent in CEERS) → **softmax over 96
-  redshift bins** (a PDF, so it shows the low-z/high-z degeneracy). Features =
-  red-band-normalised asinh colours + detection mask + log(1+S/N) + brightness
-  (`featurize`). Headline estimate = refined peak (local mean around the mode).
-  `train_photoz.py`: **σ_NMAD ≈ 0.040, ~19% outliers** on held-out spec-z, vs the
-  **EAZY template ceiling 0.027 / 17%** it distils (the honest framing: a 0.1 MB
-  net reproducing template fitting, no templates at inference). Best at z 4–6
-  (break in-band), hazier at low z (break in unobserved UV). `models/photoz.pt`
-  (+ `photoz_metrics.json`); **note `torch.load(..., weights_only=False)`** — the
-  ckpt holds numpy mu/sd.
-- **Export:** `export_photoz_onnx.py` folds standardisation into the graph →
-  `web/dropout/photoz.onnx` (487 KB) + `photoz_meta.json`. The JS `featurize`
-  must stay byte-for-byte equivalent to the Python (red-ref normalisation, asinh
-  0.05 soft, mask, log1p S/N, log10 scale → 28-d).
-- **Assets:** `build_dropout_assets.py` → a curated 15-galaxy gallery (`dropout.json`:
-  per-galaxy fluxes, precomputed PDF, z's) + per-filter grayscale **filmstrips.jpg**
-  (shared red-band scale so high-z galaxies stay dark in blue bands) + a
-  Lyman-break colour–colour scatter (2,500 pts).
-- **Demo (`web/dropout/`, `app.js?v=1`):** filter scrubber (blue→red) with a
-  wavelength bar + moving Lyman-break marker; **live ONNX** photo-z PDF; gallery
-  sorted by z; Lyman-break colour–colour diagram; honest-numbers card; 3 notice
-  cards. The gallery deliberately includes true **interlopers** (EAZY z~10 →
-  our net z~2.4, bimodal PDF) — the verdict names both peaks. Landing card promoted
-  to **Live**.
+All four milestones (M1–M4) + the atlas scaling are **done and committed** (see §1
+for commits, §6 for how each was built, and the per-script notes throughout). The
+demos are polished and ready. The user's explicit framing: **"this is an on-ramp
+for a real research project."** So the next priority is **scientific rigor on the
+existing claims**, not new features. Do these against the *cached* data — no
+re-fetch or retrain needed for #1–#4.
 
-### Option B (colour-aware encoder → sharpen M3) — ✅ DONE (2026-06-29)
-Completed. The per-channel stretch that threw away colour was replaced with a
-colour-preserving Lupton-style stretch (`asinh_stretch(colour=True)`); the atlas +
-LRD cutouts were re-fetched, SimCLR retrained, and the atlas rebuilt. LRD
-enrichment **rose from ~2× to ~3.4×** — the encoder now catches LRDs by redness as
-well as compactness. New reproducibility script: `experiments/restretch_atlas.py`
-(re-fetches the existing atlas cutouts in place with the colour stretch). See §6.
-To redo from scratch: `restretch_atlas` → `train_atlas --epochs 80` → `fetch_lrd`
-→ `build_atlas`. (Note: the DJA service rate-limits after a few thousand requests
-in a session — the LRD re-fetch may need a retry.)
+Start every session with: `cd /Users/m/.openclaw/workspace/projects/lynceus &&
+.venv/bin/python -m pytest -q` and confirm the demo serves (`lynceus-web`, port
+8137). Keep the house style: serious `core/`, no-build demo, honest numbers in the
+UI, "things to notice" cards, versioned assets.
 
-That leaves **Option A (the dropout hunter / M4)** as the next milestone — the
-"new demo" that matches the roadmap and the landing card. See Option A above.
+### #1 (top priority) — error bars + significance on the headline claims
+Right now every headline is a bare point estimate. Make them defensible.
+- **LRD enrichment (the M3 story).** Currently ~33.8% of 216 LRDs land in the
+  top-10% anomalies → "5×". Add (a) a **bootstrap 95% CI** (resample the 216 LRDs
+  with replacement, recompute the top-decile fraction), and (b) a **permutation /
+  null test** (draw 216 random atlas galaxies many times → null distribution of
+  the fraction → p-value). Data is all cached: `data/lrd/lrd_emb.npy` (216×512),
+  `data/atlas/embeddings.npy` (9673×512); scoring via `core/anomaly.knn_anomaly`
+  (see `experiments/build_atlas.py` for the exact `araw`/`lraw` computation).
+  Surface "5× (95% CI a–b, p<…)" in the anomaly stat line + caveat card.
+- **kNN probes.** Report mean ± std across CV folds (currently bare 62% / 63%).
+  `sklearn.cross_val_score(... ).std()` — trivial.
+- **Photo-z σ_NMAD.** Bootstrap the ~1,828 spec-z residuals for a CI.
+- Suggested home: a `core/stats.py` (bootstrap_ci, permutation_p) + an
+  `experiments/significance.py` that prints/saves the numbers; then wire into the
+  UI strings + `*_metrics.json`.
 
-Other threads if asked: bigger atlas / WebGL rendering; image+spectra contrastive
-(AstroCLIP-style) using NIRSpec; or publishing (§8).
+### #2 — calibrate the photo-z PDFs
+We report σ_NMAD/outliers but never check whether the **PDFs** are trustworthy —
+the standard photo-z validation. Compute the **PIT** (for each spec-z galaxy,
+evaluate the predicted CDF at z_spec; calibrated ⇒ PIT uniform on [0,1]) and a
+**coverage** test (do c%-credible intervals contain the truth c% of the time?).
+Recompute PDFs for the held-out spec set from `data/photoz/photoz.npz` (`is_val`)
+via `core/photoz` + `models/photoz.pt` (load with `weights_only=False`). If
+miscalibrated, temperature-scale the softmax and re-report (honest either way).
+New `experiments/calibrate_photoz.py`; surface a small PIT histogram + one
+calibration number in the dropout "honest numbers" card.
 
-### How to start M4 (whichever option)
-1. `cd /Users/m/.openclaw/workspace/projects/lynceus && .venv/bin/python -m pytest -q`
-   (sanity).
-2. Confirm the demo still serves: `lynceus-web` config, port 8137.
-3. For Option A: inspect `data/lrd_kokorev.fits` columns (or the DJA morpho-phot
-   catalog) — `*_flux` bands + `z_phot` — and prototype a photo-z regressor before
-   any web work. For Option B: edit `core/data.asinh_stretch` / the SSL input
-   normalisation, retrain, rebuild, re-run the M3 feasibility check (kNN of LRDs vs
-   atlas — see the pattern used in `fetch_lrd`/`anomaly`).
-4. Keep the house style: serious `core/` code, no-build browser demo, honest
-   numbers stated in the UI, "things to notice" cards, versioned assets.
+### #3 — reproducibility hardening
+- **Pin the env.** `requirements.txt` is loose; pin exact versions (torch, timm,
+  umap-learn, onnxruntime, scikit-learn, astropy, numpy). Record: python **3.13**
+  in `.venv` (system 3.14 is too new for torch); Apple **MPS**.
+- **One-command repro.** A `Makefile`/`experiments/run_all.py` documenting the DAG
+  per milestone (fetch → train → export → build), with the network/time costs and
+  the DJA rate-limit caveat noted.
+- **Expand tests** (only 3 today). Good targets: `asinh_stretch(colour=True)`
+  preserves band ratios (the Lupton property — the whole M3 fix); `photoz.featurize`
+  shape/determinism + equals a known vector; `point_estimates` peak/refine logic;
+  `knn_anomaly` orders a planted outlier correctly.
+
+### #4 — a `RESEARCH.md` (the on-ramp made explicit)
+Short doc of open questions the toolkit could actually attack, e.g.: is the SSL
+anomaly score a clean **LRD selection function** (purity/completeness vs Kokorev)?
+does the photo-z net's interloper rate beat EAZY on a **controlled subset**? can
+the atlas+anomaly produce a **ranked candidate list for spectroscopic follow-up**?
+does the encoder **generalise across fields** (train one field, test another)?
+
+### Publishing — PAUSED, ready to go (do NOT publish without an explicit ask)
+The user paused here intentionally. Two things to settle first (see §8):
+1. **Pages source / URL.** Site lives under `web/` (landing `web/index.html`).
+   Siblings publish at `mikebertin.github.io/<name>` with the landing at root.
+   Decide: move `web/`'s contents to repo root, use `/docs`, or a `gh-pages`
+   branch — **check how Chiron/Empedocles actually do it and mirror it.**
+2. **`og:image`.** Deferred (needs the final absolute URL). Once known, generate a
+   1200×630 social card (an atlas render works well) and add
+   `<meta property="og:image">` to all four pages.
+Then: `gh repo edit MikeBertin/lynceus --visibility public` + enable Pages.
+
+### The bigger research bet — M5: image + spectra contrastive (NIRSpec)
+The genuine new-science direction (AstroCLIP lineage): align cutout-image
+embeddings with **NIRSpec spectrum** embeddings via a contrastive loss, so you can
+retrieve spectra from images (and vice versa) and get spectroscopically-informed
+representations. New data: JWST NIRSpec spectra (DJA/DAWN spectroscopic releases or
+MAST). High effort, real payoff — a true M5, not a polish item.
