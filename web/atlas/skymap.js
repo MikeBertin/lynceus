@@ -21,6 +21,20 @@
     draw();
   }
 
+  // Sun's position for a given date, as an equatorial unit vector
+  // [cos(Dec)cos(RA), cos(Dec)sin(RA), sin(Dec)] — same convention as skygeom.json.
+  // Low-precision solar ephemeris (good to a few arcmin; plenty for a 6px dot).
+  function sunVector(date) {
+    const rad = Math.PI / 180;
+    const n = (date.getTime() - Date.UTC(2000, 0, 1, 12)) / 86400000;  // days since J2000.0
+    const L = (280.460 + 0.9856474 * n) * rad;                          // mean longitude
+    const g = (357.528 + 0.9856003 * n) * rad;                          // mean anomaly
+    const lam = L + (1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * rad;  // ecliptic longitude
+    const eps = 23.439 * rad;                                           // obliquity
+    return [Math.cos(lam), Math.cos(eps) * Math.sin(lam), Math.sin(eps) * Math.sin(lam)];
+  }
+  const sunNow = sunVector(new Date());
+
   // rotate (yaw about vertical, pitch about horizontal), then orthographic project
   function project(v) {
     const ca = Math.cos(yaw), sa = Math.sin(yaw), cb = Math.cos(pitch), sb = Math.sin(pitch);
@@ -77,7 +91,7 @@
       const faint = m.name.indexOf("pole") >= 0;
       marker(m.v, faint ? "#8e9ab2" : "#ff9e64", m.name, { r: faint ? 3 : 4, fz: faint ? 10 : 11, text: faint ? "#8e9ab2" : "#ffc59e" });
     }
-    marker(geom.sun.v, COL.sun, "Sun", { r: 6, text: COL.sun });
+    marker(sunNow, COL.sun, "Sun", { r: 6, text: COL.sun });
     // sky-region colours match the atlas "sky region" mode (app.js REGION_COLORS)
     const REG = { "GOODS-S": "#5ec27a", "COSMOS": "#ff9e64", "UDS": "#c792ea" };
     for (const f of geom.fields) marker(f.v, REG[f.name] || "#fff", f.name, { r: 5, beam: true, text: REG[f.name] });
@@ -102,6 +116,10 @@
 
   // gentle auto-spin until first interaction (best-effort; rAF may idle when hidden)
   function tick() { if (spin) { yaw += 0.0025; draw(); } requestAnimationFrame(tick); }
+
+  const sd = document.getElementById("sundate");
+  if (sd) sd.textContent = new Date().toLocaleDateString("en-GB",
+    { day: "numeric", month: "short", year: "numeric" });
 
   fetch("skygeom.json").then((r) => r.json()).then((g) => {
     geom = g;

@@ -21,7 +21,7 @@
   .stage{position:relative;width:100%;height:600px;border:1px solid var(--line);border-radius:14px;
     overflow:hidden;background:radial-gradient(900px 600px at 50% 30%,#0b1020,#04050a 70%);cursor:grab}
   .stage.drag{cursor:grabbing}
-  #atlas{display:block;width:100%;height:100%}
+  #atlasgl,#atlas{position:absolute;inset:0;width:100%;height:100%;display:block}
   .tip{position:absolute;pointer-events:none;z-index:5;background:#0a0e1aee;border:1px solid var(--line);
     border-radius:10px;padding:8px;opacity:0;transition:opacity .08s;box-shadow:0 18px 40px -18px #000;width:150px}
   .tip img{width:100%;border-radius:6px;display:block;background:#04050a;image-rendering:auto}
@@ -99,6 +99,7 @@
   <p id="lrdstat" class="cap" style="margin-top:6px"></p>
 
   <div class="stage" id="stage" style="margin-top:12px">
+    <canvas id="atlasgl"></canvas>
     <canvas id="atlas"></canvas>
     <button class="ghost reset" id="reset">reset view</button>
     <div class="tip" id="tip"></div>
@@ -139,18 +140,21 @@
            sits beside one in COSMOS.</p>
         <span class="x why">but not nothing</span>
         <div class="explain"><h4>A faint survey fingerprint</h4>
-          <p>A classifier can still guess the field <b>58%</b> of the time (vs 39% by chance) — but
+          <p>A classifier can still guess the field <b>63%</b> of the time (vs 41% by chance) — but
              that's mostly survey <b>depth and PSF</b>, not real structure.</p>
           <p class="muted">The encoder keys on what a galaxy looks like, not where it is.</p></div>
       </div>
       <div class="ncard">
         <h3>The Red Dots find the heat</h3>
-        <p>Colour by <b>anomaly</b>: the 216 known <b>Little Red Dots</b> pile into the same corner
-           the encoder flagged as weird — it was never told they exist.</p>
+        <p>Colour by <b>anomaly</b>: 216 known <b>Little Red Dots</b> — a <b>separate published
+           catalogue</b> laid over the atlas, not drawn from it — pile into the same corner the encoder
+           flagged as weird, though it was never told they exist.</p>
         <span class="x why">why they stand out</span>
         <div class="explain"><h4>Compact <i>and</i> red = isolated</h4>
           <p>LRDs are compact, uncommon, and genuinely <b>red</b>, so they sit far from everything in
-             latent space → a high anomaly score (~<b>3.4&times;</b> enriched in the top 10%).</p>
+             latent space → a high anomaly score (~<b>5&times;</b> enriched in the top 10%). The 216 are
+             every known Little Red Dot in these fields — a fixed set; growing the atlas only sharpens
+             how far they stand out.</p>
           <p class="muted">The encoder now sees colour: a colour-preserving stretch keeps each band's
              real flux, so it catches both their <b>compactness</b> and their <b>redness</b> — up from
              ~2&times; when an earlier per-channel stretch had washed the colour out.</p></div>
@@ -188,7 +192,7 @@
   <div class="ctx-grid">
     <div>
       <div class="globe-wrap"><canvas id="globe"></canvas></div>
-      <p class="cap">drag to rotate · gold = galactic plane · cyan = ecliptic · the three coloured dots = the deep fields (same colours as the atlas "sky region" mode) · the Sun's spot is for 29 Jun 2026</p>
+      <p class="cap">drag to rotate · gold = galactic plane · cyan = ecliptic · the three coloured dots = the deep fields (same colours as the atlas "sky region" mode) · the Sun's spot is for <span id="sundate">today</span></p>
     </div>
     <div class="edge">
       <svg viewBox="0 0 680 372" role="img" xmlns="http://www.w3.org/2000/svg">
@@ -242,8 +246,8 @@
   </footer>
 </div>
 <div id="pop"></div>
-<script src="app.js?v=12"></script>
-<script src="skymap.js?v=2"></script>
+<script src="app.js?v=13"></script>
+<script src="skymap.js?v=3"></script>
 <script src="../shared/notice.js?v=1"></script>
 </body>
 </html>

@@ -16,7 +16,8 @@ from PIL import Image
 from core import config, anomaly
 from core.embed import embed_paths, umap_2d, normalise_coords
 
-TILE = 56  # sprite thumbnail size (px)
+TILE = 48  # sprite thumbnail size (px); kept modest so the ~10k-galaxy
+           # sprites.jpg stays a lean first-load asset (~5 MB) for GitHub Pages
 LRD_DIR = config.DATA_DIR / "lrd"
 
 

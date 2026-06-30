@@ -48,6 +48,7 @@ function resize() {
   const ch = stage.clientHeight || 600;
   canvas.width = Math.round(cw * dpr);
   canvas.height = Math.round(ch * dpr);
+  glcanvas.width = canvas.width; glcanvas.height = canvas.height;
   if (!fitted) { resetView(); fitted = true; }
   markDirty();
 }
@@ -56,11 +57,13 @@ async function boot() {
   CLASS_COLORS.smooth = css("--c-smooth");
   CLASS_COLORS.featured = css("--c-featured");
   CLASS_COLORS.merger = css("--c-merger");
+  setupGL();
   try {
-    atlas = await fetch("atlas.json?v=4").then((r) => r.json());
+    atlas = await fetch("atlas.json?v=5").then((r) => r.json());
     sprites = new Image();
-    await new Promise((res, rej) => { sprites.onload = res; sprites.onerror = rej; sprites.src = "sprites.jpg?v=2"; });
+    await new Promise((res, rej) => { sprites.onload = res; sprites.onerror = rej; sprites.src = "sprites.jpg?v=3"; });
     pts = atlas.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
+    uploadPositions(); uploadColors();
     $("#count").textContent = `${atlas.count.toLocaleString()} galaxies`;
     statusEl.textContent = "drag to fly · scroll to zoom · click a galaxy";
     statusEl.style.color = css("--cyan");
@@ -105,25 +108,103 @@ function colorFor(p) {
   return `rgb(${lerp(FAINT[0], hot[0], v) | 0},${lerp(FAINT[1], hot[1], v) | 0},${lerp(FAINT[2], hot[2], v) | 0})`;
 }
 
+// ---- WebGL point cloud ----------------------------------------------------
+// The galaxy cloud (potentially tens of thousands of points) is drawn on a
+// WebGL canvas behind the 2-D one — gl.POINTS scales to 50k+ at 60fps where a
+// per-point canvas arc would crawl. The 2-D canvas in front keeps doing the
+// low-count work: thumbnails on zoom-in, the LRD overlay, and hover/select rings.
+const glcanvas = $("#atlasgl");
+let gl = null, glProg = null, glLoc = {}, posBuf = null, colBuf = null, glN = 0;
+
+const FAINTF = FAINT.map((v) => v / 255), HEATF = HEAT.map((v) => v / 255);
+const mixF = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+const hexToRgbF = (h) => hexToRgb(h).map((v) => v / 255);
+function colorRGB(p) {
+  if (mode === "morph") return hexToRgbF(CLASS_COLORS[p.d] || "#888888");
+  if (mode === "region") return hexToRgbF(REGION_COLORS[p.r] || "#888888");
+  if (mode === "anomaly") return mixF(FAINTF, HEATF, p.a || 0);
+  const hot = hexToRgbF(mode === "featured" ? CLASS_COLORS.featured : CLASS_COLORS.merger);
+  return mixF(FAINTF, hot, mode === "featured" ? p.f : p.m);
+}
+
+const VERT = `attribute vec2 a_world; attribute vec3 a_color;
+uniform vec2 u_cam; uniform float u_scale; uniform vec2 u_res; uniform float u_psize;
+varying vec3 v_color;
+void main() {
+  vec2 screen = (a_world - u_cam) * u_scale + u_res * 0.5;
+  gl_Position = vec4(screen.x / u_res.x * 2.0 - 1.0, 1.0 - screen.y / u_res.y * 2.0, 0.0, 1.0);
+  gl_PointSize = u_psize; v_color = a_color;
+}`;
+const FRAG = `precision mediump float;
+varying vec3 v_color; uniform float u_alpha;
+void main() {
+  float d = length(gl_PointCoord - 0.5);
+  if (d > 0.5) discard;
+  gl_FragColor = vec4(v_color, smoothstep(0.5, 0.4, d) * u_alpha);
+}`;
+
+function setupGL() {
+  gl = glcanvas.getContext("webgl", { alpha: true, antialias: true, premultipliedAlpha: false });
+  if (!gl) return false;
+  const sh = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  glProg = gl.createProgram();
+  gl.attachShader(glProg, sh(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(glProg, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(glProg);
+  for (const k of ["a_world", "a_color"]) glLoc[k] = gl.getAttribLocation(glProg, k);
+  for (const k of ["u_cam", "u_scale", "u_res", "u_psize", "u_alpha"]) glLoc[k] = gl.getUniformLocation(glProg, k);
+  posBuf = gl.createBuffer(); colBuf = gl.createBuffer();
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  return true;
+}
+function uploadPositions() {
+  if (!gl) return;
+  glN = pts.length;
+  const a = new Float32Array(glN * 2);
+  for (let i = 0; i < glN; i++) { a[i * 2] = pts[i].wx; a[i * 2 + 1] = pts[i].wy; }
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferData(gl.ARRAY_BUFFER, a, gl.STATIC_DRAW);
+}
+function uploadColors() {
+  if (!gl || !glN) return;
+  const a = new Float32Array(glN * 3);
+  for (let i = 0; i < glN; i++) { const c = colorRGB(pts[i]); a[i * 3] = c[0]; a[i * 3 + 1] = c[1]; a[i * 3 + 2] = c[2]; }
+  gl.bindBuffer(gl.ARRAY_BUFFER, colBuf); gl.bufferData(gl.ARRAY_BUFFER, a, gl.DYNAMIC_DRAW);
+  markDirty();
+}
+function drawGL(showThumbs) {
+  if (!gl) return;
+  gl.viewport(0, 0, glcanvas.width, glcanvas.height);
+  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+  if (showThumbs || !glN) return;            // thumbnails cover the cloud when zoomed in
+  gl.useProgram(glProg);
+  gl.uniform2f(glLoc.u_cam, cam.x, cam.y);
+  gl.uniform1f(glLoc.u_scale, cam.scale);
+  gl.uniform2f(glLoc.u_res, glcanvas.width, glcanvas.height);
+  const r = Math.max(1.3 * dpr, Math.min(4.2 * dpr, cam.scale * 6.5));
+  gl.uniform1f(glLoc.u_psize, 2 * r + 1.5);
+  gl.uniform1f(glLoc.u_alpha, 0.92);
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+  gl.enableVertexAttribArray(glLoc.a_world); gl.vertexAttribPointer(glLoc.a_world, 2, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
+  gl.enableVertexAttribArray(glLoc.a_color); gl.vertexAttribPointer(glLoc.a_color, 3, gl.FLOAT, false, 0, 0);
+  gl.drawArrays(gl.POINTS, 0, glN);
+}
+
 // ---- render ---------------------------------------------------------------
 function draw() {
   if (!atlas || !canvas.width) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   const tile = atlas.tile, cols = atlas.cols;
   const showThumbs = cam.scale > 0.85;
-  const r = Math.max(1.3 * dpr, Math.min(4.2 * dpr, cam.scale * 6.5));
   const pad = 80 * dpr;
-  ctx.globalAlpha = showThumbs ? 1 : 0.92;
-  for (const p of pts) {
-    const X = sx(p.wx), Y = sy(p.wy);
-    if (X < -pad || X > canvas.width + pad || Y < -pad || Y > canvas.height + pad) continue;
-    if (showThumbs) {
+  drawGL(showThumbs);                          // point cloud (WebGL, behind)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (showThumbs) {                            // thumbnails take over on zoom-in
+    for (const p of pts) {
+      const X = sx(p.wx), Y = sy(p.wy);
+      if (X < -pad || X > canvas.width + pad || Y < -pad || Y > canvas.height + pad) continue;
       const s = Math.min(70 * dpr, cam.scale * tile * 1.05);
       ctx.globalAlpha = (mode === "featured" || mode === "merger") ? 0.3 + 0.7 * (mode === "featured" ? p.f : p.m) : 1;
       ctx.drawImage(sprites, (p.i % cols) * tile, ((p.i / cols) | 0) * tile, tile, tile, X - s / 2, Y - s / 2, s, s);
-    } else {
-      ctx.fillStyle = colorFor(p);
-      ctx.beginPath(); ctx.arc(X, Y, r, 0, 7); ctx.fill();
     }
   }
   ctx.globalAlpha = 1;
@@ -343,7 +424,7 @@ function setMode(m) {
   $("#colorseg").className = "seg" + (m === "merger" ? " on-rose" : "");
   lrdOn = (m === "anomaly");                 // the Little Red Dots ride along with anomaly
   $("#lrdToggle").checked = lrdOn;
-  buildLegend(); updateContext(); markDirty();
+  buildLegend(); updateContext(); uploadColors(); markDirty();
 }
 $("#colorseg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (b) setMode(b.dataset.mode);
@@ -353,15 +434,18 @@ window.addEventListener("resize", resize);
 
 // ---- M3: Little Red Dots overlay + weirdest strip -------------------------
 function loadLRDs() {
-  fetch("lrds.json?v=3").then((r) => r.json()).then((d) => {
+  fetch("lrds.json?v=4").then((r) => r.json()).then((d) => {
     lrdTile = d.tile; lrdCols = d.cols;
-    lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg?v=2";
+    lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg?v=3";
     lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
     lrdStatHTML =
-      `<b>${d.n} known Little Red Dots</b> (Kokorev et&nbsp;al. 2024) embedded with the same encoder — ` +
-      `<b>${d.enrichment}×</b> over-represented among the top-10% most anomalous galaxies ` +
-      `(a typical one lands at the ${Math.round(d.median_pct * 100)}th percentile of weirdness). ` +
-      `They pile into the hot zones the encoder flagged with no labels — zoom in to see the red dots themselves.`;
+      `<b>All ${d.n} known Little Red Dots</b> in these fields (Kokorev et&nbsp;al. 2024) — a ` +
+      `<b>separate published catalogue</b>, laid over the ${(atlas ? atlas.count.toLocaleString() : "reference")} ` +
+      `atlas galaxies and embedded with the same encoder — are <b>${d.enrichment}×</b> over-represented ` +
+      `among the top-10% most anomalous galaxies (a typical one lands at the ` +
+      `${Math.round(d.median_pct * 100)}th percentile of weirdness). They pile into the hot zones the ` +
+      `encoder flagged with no labels — zoom in to see them. (More galaxies sharpen this; the 216 ` +
+      `known dots are fixed.)`;
     updateContext();
   }).catch(() => {});
 }

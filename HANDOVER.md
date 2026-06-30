@@ -18,16 +18,20 @@ preview but **not yet committed** as of this writing — commit it.)
 | Milestone | What | Headline result |
 |---|---|---|
 | **M1 — Morphology** | In-browser ViT classifies a real JWST cutout (featured / smooth / merger) with attention maps | **81.0%** 5-fold CV vs 33% baseline, on real Galaxy Zoo labels |
-| **M2 — Atlas** | Self-supervised (SimCLR) 2-D embedding of ~2,400 real JWST galaxies you fly through | kNN-morphology **58%** vs 33% — structure emerges with no labels |
-| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **~3.4×** over-represented in the top-10% anomalies (was ~2× before the colour-aware encoder) |
+| **M2 — Atlas** | Self-supervised (SimCLR) 2-D embedding of **~9,700** real JWST galaxies you fly through (**WebGL**-rendered) | kNN-morphology **62%** vs 39% — structure emerges with no labels |
+| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **~5×** over-represented in the top-10% anomalies (2× → 3.4× colour-aware → 5× on the larger atlas) |
 | **M4 — Dropout hunter** | In-browser neural **photo-z** over 9 JWST/HST bands; filter scrubber shows the Lyman break sweeping + galaxies dropping out; redshift PDF + Lyman-break colour–colour diagram | **σ_NMAD ≈ 0.040** vs ~1,800 held-out spec-z (EAZY template ceiling 0.027) |
 
 Demos under `web/`: `web/morphology/`, `web/atlas/` (also hosts the anomaly hunt,
 the globe, "things to notice"), and `web/dropout/` (M4). Landing at
 `web/index.html` (all four cards now **Live**).
 
-**Next: M5 — see §9** (M4 is done; remaining threads: image+spectra contrastive on
-NIRSpec, bigger/WebGL atlas, or publishing).
+**Pre-publish polish done:** the atlas was scaled **2,389 → 9,673 galaxies** and
+moved to a **WebGL** renderer (encoder retrained on the bigger set; LRD enrichment
+rose to **~5×**; the globe's Sun is now computed for the current day client-side).
+**Next:** a quick pre-publish pass (mobile/responsive, meta + OG cards) then
+**publish** (public repo + GitHub Pages, like the siblings); after that the new
+frontier — image+spectra contrastive on NIRSpec (AstroCLIP lineage).
 
 ---
 
