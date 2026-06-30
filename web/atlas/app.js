@@ -206,6 +206,16 @@ function draw() {
       ctx.globalAlpha = (mode === "featured" || mode === "merger") ? 0.3 + 0.7 * (mode === "featured" ? p.f : p.m) : 1;
       ctx.drawImage(sprites, (p.i % cols) * tile, ((p.i / cols) | 0) * tile, tile, tile, X - s / 2, Y - s / 2, s, s);
     }
+  } else if (!gl) {
+    // Fallback for browsers without WebGL: draw the cloud as canvas-2D dots.
+    const r = Math.max(1.3 * dpr, Math.min(4.2 * dpr, cam.scale * 6.5));
+    ctx.globalAlpha = 0.92;
+    for (const p of pts) {
+      const X = sx(p.wx), Y = sy(p.wy);
+      if (X < -pad || X > canvas.width + pad || Y < -pad || Y > canvas.height + pad) continue;
+      ctx.fillStyle = colorFor(p);
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, 7); ctx.fill();
+    }
   }
   ctx.globalAlpha = 1;
   if (lrdOn) {                              // known Little Red Dots
