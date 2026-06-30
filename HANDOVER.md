@@ -300,16 +300,26 @@ Tests: `tests/test_stats.py` (4) — full suite 7 passing.
 per-LRD percentiles mislabelled "median"; the true median is the 90th (consistent
 with 50%-in-top-decile = 5×).
 
-### #2 — calibrate the photo-z PDFs
-We report σ_NMAD/outliers but never check whether the **PDFs** are trustworthy —
-the standard photo-z validation. Compute the **PIT** (for each spec-z galaxy,
-evaluate the predicted CDF at z_spec; calibrated ⇒ PIT uniform on [0,1]) and a
-**coverage** test (do c%-credible intervals contain the truth c% of the time?).
-Recompute PDFs for the held-out spec set from `data/photoz/photoz.npz` (`is_val`)
-via `core/photoz` + `models/photoz.pt` (load with `weights_only=False`). If
-miscalibrated, temperature-scale the softmax and re-report (honest either way).
-New `experiments/calibrate_photoz.py`; surface a small PIT histogram + one
-calibration number in the dropout "honest numbers" card.
+### #2 — calibrate the photo-z PDFs — ✅ DONE
+Added the PDF-calibration primitives to `core/photoz.py` (`pit_values` —
+bin-interpolated CDF; `credible_coverage` — central-interval coverage, which is
+just `mean(|PIT-0.5| ≤ c/2)`; `pit_ks`; `temperature_scale` — exact via
+`normalise(pdf**(1/T))`, no logits needed; `nll_at_truth`; `fit_temperature`,
+objective `"nll"` or `"ks"`) and `experiments/calibrate_photoz.py` (recomputes
+PDFs for the held-out spec set, no retrain).
+**Finding (the interesting part):** the PIT is a **central hump** — the net's
+PDFs are mildly **over-dispersed / under-confident** (PIT KS 0.18). But coverage
+at the levels that matter is already good: a **90% credible interval contains the
+truth 88%** of the time (95% → 90%). A single temperature **cannot** calibrate
+it: NLL-optimal **T≈1.5** wants to *widen* (to cover the catastrophic-outlier
+tails) while PIT/KS-optimal **T≈0.24** wants to *sharpen* (to flatten the core) —
+and sharpening would drop 90% coverage to 78% (worse where it matters) and crush
+the secondary interloper peaks. So we **ship T=1 (unscaled)** and *disclose* the
+calibration rather than fake it. σ_NMAD unchanged (0.0403).
+Saves `models/photoz_calibration.json`; patches a `calibration` block into
+`web/dropout/dropout.json` (v3) + `photoz_meta.json`. UI: PIT histogram + an
+honest verdict in the dropout "honest numbers" card (app.js v4). Tests:
+`tests/test_calibration.py` (5) — suite **12 passing**.
 
 ### #3 — reproducibility hardening
 - **Pin the env.** `requirements.txt` is loose; pin exact versions (torch, timm,

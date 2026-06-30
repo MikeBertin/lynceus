@@ -44,6 +44,10 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   filter scrubber shows the Lyman break sweeping redward and the galaxy dropping out of the bluer
   bands, alongside the redshift PDF, a Lyman-break colour–colour diagram, and a curated gallery —
   including the **low-z interloper degeneracy** behind the "too many bright early galaxies" tension.
+  PDF calibration is checked honestly (PIT + central-interval coverage on the spec-z set): the PDFs
+  are mildly over-dispersed but a 90% credible interval still contains the truth ~88% of the time, and
+  since the catastrophic-outlier tails and the over-wide core pull a global temperature in opposite
+  directions (NLL→1.5 widen vs PIT→0.24 sharpen), the net's own PDFs ship unscaled.
   (A further frontier: image+spectra contrastive on NIRSpec, AstroCLIP lineage.)
 
 ## Data provenance
@@ -87,6 +91,8 @@ experiments/build_photoz_dataset.py # M4: CEERS fluxes+z -> data/photoz/photoz.n
 experiments/train_photoz.py         # M4: train photo-z MLP, validate on spec-z -> photoz.pt
 experiments/export_photoz_onnx.py   # M4: photoz.pt -> web/dropout/photoz.onnx (+meta)
 experiments/build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> web/dropout/
+experiments/calibrate_photoz.py     # M4: PIT + coverage on the spec-z PDFs (core/photoz);
+                                    #   ships T=1, discloses calibration -> dropout.json
 
 experiments/significance.py    # error bars: bootstrap CIs + permutation null on the
                                #   headline claims (core/stats.py) -> models/significance.json

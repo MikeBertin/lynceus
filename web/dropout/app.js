@@ -312,16 +312,37 @@ function buildMetrics() {
     `compute, running in this browser tab.`;
 }
 
+// PIT calibration histogram + the honest "can a temperature fix it?" verdict.
+function buildCalibration() {
+  const c = D.calibration;
+  if (!c) return;
+  const h = c.pit_hist, unif = 1 / h.length;
+  const top = Math.max(...h, unif * 1.25);            // headroom above the tallest bar
+  $("#pit").innerHTML =
+    h.map((v) => `<div class="b" style="height:${(v / top * 100).toFixed(1)}%" ` +
+                 `title="${(v * 100).toFixed(1)}% of galaxies"></div>`).join("") +
+    `<div class="unif" style="bottom:${(unif / top * 100).toFixed(1)}%"><span>flat = calibrated</span></div>`;
+  const cov = c.coverage;
+  $("#calnote").innerHTML =
+    `Across <b>${D.metrics.n_val_spec.toLocaleString()}</b> spec-z galaxies the PIT (predicted CDF at the ` +
+    `true redshift) should be <b>flat</b> if the PDFs are calibrated. Ours is centre-heavy — the net's ` +
+    `PDFs run a touch <b>wide</b> (mildly under-confident). Even so, a <b>90% credible interval contains ` +
+    `the truth ${Math.round(cov["90"] * 100)}%</b> of the time (95% → ${Math.round(cov["95"] * 100)}%). ` +
+    `A single softmax temperature can't do better: covering the rare catastrophic outliers wants ` +
+    `<i>wider</i> PDFs (NLL-optimal T ≈ ${c.t_nll}) while the core wants <i>narrower</i> (T ≈ ${c.t_pit}), ` +
+    `so we ship the net's own PDFs unscaled rather than fake the confidence.`;
+}
+
 // ---- boot ------------------------------------------------------------------
 async function boot() {
   [D, META] = await Promise.all([
-    fetch("dropout.json?v=2").then((r) => r.json()),
+    fetch("dropout.json?v=3").then((r) => r.json()),
     fetch("photoz_meta.json?v=1").then((r) => r.json()),
   ]);
   ZC = D.z_centres;
   sprite = new Image();
   await new Promise((res) => { sprite.onload = res; sprite.onerror = res; sprite.src = "filmstrips.jpg?v=1"; });
-  buildGallery(); buildMetrics();
+  buildGallery(); buildMetrics(); buildCalibration();
   // open on the cleanest high-z dropout: zpeak >= 8 with the least second-peak mass
   let start = -1, best = 1e9;
   D.gallery.forEach((g, i) => {

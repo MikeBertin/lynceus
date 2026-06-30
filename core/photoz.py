@@ -163,6 +163,95 @@ def point_estimates(pdf: np.ndarray, peak_win: float = 1.5) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# PDF calibration (are the *uncertainties* trustworthy, not just the peak?)
+# ---------------------------------------------------------------------------
+def temperature_scale(pdf: np.ndarray, T: float) -> np.ndarray:
+    """Apply softmax temperature ``T`` directly to a normalised PDF.
+
+    Because ``softmax(logits / T) = normalise(softmax(logits) ** (1/T))``, we can
+    re-temperature a stored PDF without the original logits. ``T>1`` widens the
+    PDF (fixes over-confidence), ``T<1`` sharpens it.
+    """
+    pdf = np.asarray(pdf, np.float64)
+    if T == 1.0:
+        return pdf / (pdf.sum(-1, keepdims=True) + 1e-12)
+    scaled = np.power(np.clip(pdf, 1e-12, None), 1.0 / T)
+    return scaled / (scaled.sum(-1, keepdims=True) + 1e-12)
+
+
+def pit_values(pdf: np.ndarray, z_true: np.ndarray,
+               edges: np.ndarray = Z_EDGES) -> np.ndarray:
+    """Probability Integral Transform: the predicted CDF evaluated at the truth.
+
+    For a calibrated model the PITs are **uniform on [0,1]** — a U-shaped PIT
+    histogram means over-confident (too-narrow) PDFs, a central hump means
+    under-confident ones, a tilt means bias. Each bin's mass is treated as
+    uniform within the bin so the CDF (and the PIT) is continuous.
+    """
+    pdf = np.atleast_2d(np.asarray(pdf, np.float64))
+    pdf = pdf / (pdf.sum(1, keepdims=True) + 1e-12)
+    z_true = np.asarray(z_true, np.float64)
+    cum_left = np.concatenate([np.zeros((len(pdf), 1)), np.cumsum(pdf, axis=1)], axis=1)[:, :-1]
+    width = np.diff(edges)
+    k = np.clip(np.searchsorted(edges, z_true, side="right") - 1, 0, len(width) - 1)
+    frac = np.clip((z_true - edges[k]) / width[k], 0.0, 1.0)
+    rows = np.arange(len(pdf))
+    return cum_left[rows, k] + pdf[rows, k] * frac
+
+
+def credible_coverage(pit: np.ndarray, levels: np.ndarray) -> np.ndarray:
+    """Empirical coverage of central credible intervals at each nominal ``level``.
+
+    A central ``c``-credible interval contains the truth iff its PIT lies within
+    ``c/2`` of 0.5, so coverage(c) = mean(|PIT - 0.5| <= c/2). Calibrated ⇒
+    coverage(c) ≈ c for all c.
+    """
+    pit = np.asarray(pit)[:, None]
+    return (np.abs(pit - 0.5) <= np.asarray(levels)[None] / 2).mean(0)
+
+
+def pit_ks(pit: np.ndarray) -> float:
+    """Kolmogorov–Smirnov distance of the PITs from Uniform[0,1] (0 = perfect)."""
+    p = np.sort(np.asarray(pit))
+    n = len(p)
+    cdf = np.arange(1, n + 1) / n
+    return float(np.max(np.abs(cdf - p)))
+
+
+def nll_at_truth(pdf: np.ndarray, z_true: np.ndarray,
+                 edges: np.ndarray = Z_EDGES) -> float:
+    """Mean negative log *density* the PDFs assign at the true redshifts."""
+    pdf = np.atleast_2d(np.asarray(pdf, np.float64))
+    pdf = pdf / (pdf.sum(1, keepdims=True) + 1e-12)
+    width = np.diff(edges)
+    k = np.clip(np.searchsorted(edges, np.asarray(z_true), side="right") - 1, 0, len(width) - 1)
+    dens = pdf[np.arange(len(pdf)), k] / width[k]
+    return float(-np.mean(np.log(dens + 1e-12)))
+
+
+def fit_temperature(pdf: np.ndarray, z_true: np.ndarray,
+                    edges: np.ndarray = Z_EDGES, objective: str = "nll",
+                    grid: np.ndarray | None = None) -> float:
+    """Grid-search the single softmax temperature minimising ``objective``.
+
+    ``"nll"`` (default) is classical temperature scaling (Guo et al.) — the
+    principled choice; ``"ks"`` minimises the PIT Kolmogorov distance to uniform.
+    On a model with a good core but heavy catastrophic-outlier tails the two
+    disagree (NLL widens to cover outliers, KS sharpens to flatten the core),
+    which is itself a useful diagnostic.
+    """
+    if grid is None:
+        grid = np.geomspace(0.2, 5.0, 96)
+    if objective == "nll":
+        score = [nll_at_truth(temperature_scale(pdf, T), z_true, edges) for T in grid]
+    elif objective == "ks":
+        score = [pit_ks(pit_values(temperature_scale(pdf, T), z_true, edges)) for T in grid]
+    else:
+        raise ValueError("objective must be 'nll' or 'ks'")
+    return float(grid[int(np.argmin(score))])
+
+
+# ---------------------------------------------------------------------------
 # Metrics (computed against spectroscopic truth)
 # ---------------------------------------------------------------------------
 @dataclass
