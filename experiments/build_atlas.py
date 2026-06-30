@@ -105,9 +105,16 @@ def main() -> None:
     (config.WEB_ATLAS_DIR / "atlas.json").write_text(json.dumps(atlas, separators=(",", ":")))
 
     if has_lrd:
+        from core import stats
         p90 = np.percentile(araw, 90)
         frac = float((lraw > p90).mean())
-        med_pct = float(np.mean([(araw < v).mean() for v in lraw]))
+        lrd_pct = np.array([(araw < v).mean() for v in lraw])
+        med_pct = float(np.median(lrd_pct))   # typical LRD's anomaly percentile
+        # error bars: bootstrap the 216 LRDs; permutation null = random subsets
+        enr_ci = stats.bootstrap_ci(lraw, lambda s: float((s > p90).mean()) / 0.10)
+        med_ci = stats.bootstrap_ci(lrd_pct, np.median)
+        perm = stats.permutation_p(frac, araw, lambda s: float((s > p90).mean()),
+                                   n_draw=len(lraw), alternative="greater")
         # LRD sprite sheet so the red dots show their real cutout on zoom
         nl = len(lrd_rows)
         lcols = math.ceil(math.sqrt(nl))
@@ -124,8 +131,11 @@ def main() -> None:
             "a": round(float(a_lrd[j]), 3),
             "z": lrd_rows[j].get("z", ""), "field": field(lrd_rows[j]["ra"]),
         } for j in range(nl)]
-        lrds = {"n": nl, "tile": TILE, "cols": lcols, "enrichment": round(frac / 0.10, 1),
+        lrds = {"n": nl, "tile": TILE, "cols": lcols, "enrichment": round(enr_ci["point"], 1),
+                "enrichment_ci": [round(enr_ci["lo"], 2), round(enr_ci["hi"], 2)],
+                "p_value": perm["p"],
                 "frac_above_p90": round(frac, 3), "median_pct": round(med_pct, 3),
+                "median_pct_ci": [round(med_ci["lo"], 3), round(med_ci["hi"], 3)],
                 "points": lpts}
         (config.WEB_ATLAS_DIR / "lrds.json").write_text(json.dumps(lrds, separators=(",", ":")))
         print(f"LRD overlay: {len(lpts)} known LRDs · {lrds['enrichment']}x enriched in top-10% "

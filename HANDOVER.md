@@ -19,7 +19,7 @@ not published* (see §8 + §9).
 |---|---|---|
 | **M1 — Morphology** | In-browser ViT classifies a real JWST cutout (featured / smooth / merger) with attention maps | **81.0%** 5-fold CV vs 33% baseline, on real Galaxy Zoo labels |
 | **M2 — Atlas** | Self-supervised (SimCLR) 2-D embedding of **~9,700** real JWST galaxies you fly through (**WebGL**-rendered) | kNN-morphology **62%** vs 39% — structure emerges with no labels |
-| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **~5×** over-represented in the top-10% anomalies (2× → 3.4× colour-aware → 5× on the larger atlas) |
+| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **5×** over-represented in the top-10% anomalies (95% CI 4.4–5.7×, p<0.0001 vs random-galaxy null); 2× → 3.4× colour-aware → 5× on the larger atlas |
 | **M4 — Dropout hunter** | In-browser neural **photo-z** over 9 JWST/HST bands; filter scrubber shows the Lyman break sweeping + galaxies dropping out; redshift PDF + Lyman-break colour–colour diagram | **σ_NMAD ≈ 0.040** vs ~1,800 held-out spec-z (EAZY template ceiling 0.027) |
 
 Demos under `web/`: `web/morphology/`, `web/atlas/` (also hosts the anomaly hunt,
@@ -211,9 +211,13 @@ gotchas — **all of these have bitten us**:
   `ssl_encoder.pt` (current, 9.7k colour), `ssl_encoder_2389.pt` (colour, old size),
   `ssl_encoder_perchannel.pt` (old colour-blind). All gitignored.
 - M3: anomaly = mean cosine distance to 20 nearest in 512-D space. 216 LRDs are
-  **~5×** over-represented in the top-10% anomalies (33.8% of LRDs in the top decile
-  vs 10% by chance; median LRD at the **70th** percentile) on the 9.7k atlas — up
-  the chain **2× → 3.4× → 5×**. The 3.4×→5× jump came from the larger reference
+  **5×** over-represented in the top-10% anomalies (**50%** of the 216 LRDs land in
+  the top decile vs 10% by chance → 5×; **95% CI 4.4–5.7×**, permutation **p<0.0001**
+  vs a random-216-galaxy null) on the 9.7k atlas — up the chain **2× → 3.4× → 5×**.
+  The **median** LRD sits at the **90th** percentile of atlas anomaly (equivalently:
+  50% in the top decile). NB the old "70th percentile" figure was the *mean* of the
+  per-LRD percentiles, mislabelled "median" in `build_atlas.py` — now fixed (it writes
+  the true median + bootstrap CI + p, via `core/stats.py`). The 3.4×→5× jump came from the larger reference
   cloud, not a model change. The 2×→3.4× came from making the asinh stretch
   colour-preserving (Lupton-style — `asinh_stretch(colour=True)` in `core/data.py`:
   per-band sky subtraction, a single shared intensity stretch, linear per-band
@@ -221,7 +225,12 @@ gotchas — **all of these have bitten us**:
   (per-channel colour jitter trimmed ±15%→±8%), and re-embedding the LRDs — the
   encoder now keys on both compactness *and* redness. M1 is pinned to the original
   per-channel stretch (`colour=False`) so its shipped 81% reproduces.
-  **NB (see §9 #1):** the 5× is still a bare point estimate — needs a CI + null test.
+  **Significance (§9 #1, done):** `experiments/significance.py` + `core/stats.py`
+  recompute all headline numbers with error bars from the cached embeddings —
+  enrichment 5.0× (CI 4.4–5.7×, p<0.0001), kNN morph 62.0%±0.7% / field 63.4%±0.5%
+  (k=15, 5-fold; baselines 38.9% / 40.6%), photo-z σ_NMAD 0.0403 (CI 0.0374–0.0438).
+  Writes `models/significance.json` and patches the CIs into `web/atlas/lrds.json`,
+  `web/dropout/dropout.json`, `models/photoz_metrics.json` (re-runnable, idempotent).
 
 ---
 
@@ -271,22 +280,25 @@ Start every session with: `cd /Users/m/.openclaw/workspace/projects/lynceus &&
 8137). Keep the house style: serious `core/`, no-build demo, honest numbers in the
 UI, "things to notice" cards, versioned assets.
 
-### #1 (top priority) — error bars + significance on the headline claims
-Right now every headline is a bare point estimate. Make them defensible.
-- **LRD enrichment (the M3 story).** Currently ~33.8% of 216 LRDs land in the
-  top-10% anomalies → "5×". Add (a) a **bootstrap 95% CI** (resample the 216 LRDs
-  with replacement, recompute the top-decile fraction), and (b) a **permutation /
-  null test** (draw 216 random atlas galaxies many times → null distribution of
-  the fraction → p-value). Data is all cached: `data/lrd/lrd_emb.npy` (216×512),
-  `data/atlas/embeddings.npy` (9673×512); scoring via `core/anomaly.knn_anomaly`
-  (see `experiments/build_atlas.py` for the exact `araw`/`lraw` computation).
-  Surface "5× (95% CI a–b, p<…)" in the anomaly stat line + caveat card.
-- **kNN probes.** Report mean ± std across CV folds (currently bare 62% / 63%).
-  `sklearn.cross_val_score(... ).std()` — trivial.
-- **Photo-z σ_NMAD.** Bootstrap the ~1,828 spec-z residuals for a CI.
-- Suggested home: a `core/stats.py` (bootstrap_ci, permutation_p) + an
-  `experiments/significance.py` that prints/saves the numbers; then wire into the
-  UI strings + `*_metrics.json`.
+### #1 — error bars + significance on the headline claims — ✅ DONE
+Built `core/stats.py` (`bootstrap_ci`, `permutation_p`; percentile bootstrap +
+resampled null, both seeded) and `experiments/significance.py` (`python -m
+experiments.significance`, ~5 s, all from cached embeddings — no re-fetch/retrain).
+Results (seed 0, 10k boot / 10k perm):
+- **LRD enrichment:** 5.0× (95% CI 4.4–5.7×), permutation **p<0.0001** vs a
+  random-216-galaxy null. Median LRD at the **90th** percentile (CI 87–93).
+- **kNN probes (k=15, 5-fold):** morph **62.0%±0.7%** (baseline 38.9%), field
+  **63.4%±0.5%** (baseline 40.6%).
+- **Photo-z σ_NMAD:** **0.0403** (95% CI 0.0374–0.0438); outliers 18.8% (CI 17.0–20.5).
+Writes `models/significance.json` and idempotently patches the CIs into
+`web/atlas/lrds.json` (v5), `web/dropout/dropout.json` (v2), `models/photoz_metrics.json`.
+UI updated: atlas anomaly stat line + caveat card, "survey fingerprint" card (±std),
+dropout honest-numbers note. `build_atlas.py` also fixed to emit the same CIs +
+the corrected (true median) percentile, so a full rebuild stays consistent.
+Tests: `tests/test_stats.py` (4) — full suite 7 passing.
+**Caught + fixed:** the old "median LRD at 70th percentile" was the *mean* of the
+per-LRD percentiles mislabelled "median"; the true median is the 90th (consistent
+with 50%-in-top-decile = 5×).
 
 ### #2 — calibrate the photo-z PDFs
 We report σ_NMAD/outliers but never check whether the **PDFs** are trustworthy —

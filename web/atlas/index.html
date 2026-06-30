@@ -152,8 +152,8 @@
            sits beside one in COSMOS.</p>
         <span class="x why">but not nothing</span>
         <div class="explain"><h4>A faint survey fingerprint</h4>
-          <p>A classifier can still guess the field <b>63%</b> of the time (vs 41% by chance) — but
-             that's mostly survey <b>depth and PSF</b>, not real structure.</p>
+          <p>A classifier can still guess the field <b>63%</b> of the time (&plusmn;0.5% across folds,
+             vs 41% by chance) — but that's mostly survey <b>depth and PSF</b>, not real structure.</p>
           <p class="muted">The encoder keys on what a galaxy looks like, not where it is.</p></div>
       </div>
       <div class="ncard">
@@ -164,7 +164,8 @@
         <span class="x why">why they stand out</span>
         <div class="explain"><h4>Compact <i>and</i> red = isolated</h4>
           <p>LRDs are compact, uncommon, and genuinely <b>red</b>, so they sit far from everything in
-             latent space → a high anomaly score (~<b>5&times;</b> enriched in the top 10%). The 216 are
+             latent space → a high anomaly score (<b>5&times;</b> enriched in the top 10%; 95% CI
+             4.4&ndash;5.7&times;, p&lt;0.0001 against a random-galaxy null). The 216 are
              every known Little Red Dot in these fields — a fixed set; growing the atlas only sharpens
              how far they stand out.</p>
           <p class="muted">The encoder now sees colour: a colour-preserving stretch keeps each band's
@@ -258,7 +259,7 @@
   </footer>
 </div>
 <div id="pop"></div>
-<script src="app.js?v=14"></script>
+<script src="app.js?v=15"></script>
 <script src="skymap.js?v=3"></script>
 <script src="../shared/notice.js?v=1"></script>
 </body>

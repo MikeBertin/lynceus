@@ -3,6 +3,8 @@
 
 const $ = (s) => document.querySelector(s);
 const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+// format a permutation p-value as a clean reporting threshold (e.g. "p<0.0001")
+const fmtP = (p) => p == null ? "" : p < 1e-4 ? "p&lt;0.0001" : p < 0.01 ? "p&lt;0.01" : "p=" + p.toFixed(3);
 const CLASS_COLORS = { smooth: null, featured: null, merger: null };
 const CLASS_NAME = { smooth: "Smooth", featured: "Featured / disk", merger: "Merger" };
 // sky-region (deep field) colours — match the globe markers in skymap.js
@@ -444,15 +446,16 @@ window.addEventListener("resize", resize);
 
 // ---- M3: Little Red Dots overlay + weirdest strip -------------------------
 function loadLRDs() {
-  fetch("lrds.json?v=4").then((r) => r.json()).then((d) => {
+  fetch("lrds.json?v=5").then((r) => r.json()).then((d) => {
     lrdTile = d.tile; lrdCols = d.cols;
     lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg?v=3";
     lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
+    const ci = d.enrichment_ci ? ` (95% CI ${d.enrichment_ci[0]}–${d.enrichment_ci[1]}×, ${fmtP(d.p_value)})` : "";
     lrdStatHTML =
       `<b>All ${d.n} known Little Red Dots</b> in these fields (Kokorev et&nbsp;al. 2024) — a ` +
       `<b>separate published catalogue</b>, laid over the ${(atlas ? atlas.count.toLocaleString() : "reference")} ` +
-      `atlas galaxies and embedded with the same encoder — are <b>${d.enrichment}×</b> over-represented ` +
-      `among the top-10% most anomalous galaxies (a typical one lands at the ` +
+      `atlas galaxies and embedded with the same encoder — are <b>${d.enrichment}×</b>${ci} over-represented ` +
+      `among the top-10% most anomalous galaxies (the median dot lands at the ` +
       `${Math.round(d.median_pct * 100)}th percentile of weirdness). They pile into the hot zones the ` +
       `encoder flagged with no labels — zoom in to see them. (More galaxies sharpen this; the 216 ` +
       `known dots are fixed.)`;

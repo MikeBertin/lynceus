@@ -20,15 +20,16 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   fly-through coloured by Galaxy Zoo morphology, **WebGL-rendered** (gl.POINTS for the cloud,
   a 2-D layer for thumbnails/overlays on zoom-in) so it stays smooth at ~10k+ points. The
   labels were never used in training, yet a kNN probe of the embeddings recovers the dominant
-  class at **62% vs 39% baseline** — morphology emerges on its own. (The globe also places the
+  class at **62% ± 0.7% (5-fold) vs 39% baseline** — morphology emerges on its own. (The globe also places the
   Sun for the current day, computed client-side.)
 
 - **M3 — The anomaly hunt. _Built._**
   kNN latent-space anomaly scoring on the SSL embeddings (`core/anomaly.py`); the atlas gains
   an **anomaly** colour mode and a "18 weirdest galaxies" strip. **216 real Little Red Dots**
   (Kokorev et al. 2024, github.com/VasilyKokorev/lrd_phot) in GOODS-S/COSMOS/UDS are embedded
-  with the same encoder and overlaid: they're **~5× over-represented** among the top-10%
-  anomalies (median LRD at the 70th percentile) — the encoder rediscovers them with no labels.
+  with the same encoder and overlaid: they're **5× over-represented** among the top-10%
+  anomalies (95% CI 4.4–5.7×, p<0.0001 vs a random-galaxy null; median LRD at the 90th
+  percentile) — the encoder rediscovers them with no labels.
   A colour-preserving asinh stretch (Lupton-style: per-band sky subtraction, a shared intensity
   stretch, linear per-band scaling) keeps the real flux ratios, so the encoder keys on both
   their **compactness** and their **redness** — up from ~2× under the earlier per-channel stretch
@@ -38,8 +39,8 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   A small MLP (`core/photoz.py`) reads a galaxy's redshift from nine JWST/HST band fluxes, output as
   a **probability distribution over redshift bins** (so it shows a PDF and its degeneracies). Trained
   on ~71k EAZY template redshifts from the CEERS grizli catalogue and validated against **~1,800 real
-  spectroscopic** redshifts it never saw: **σ_NMAD ≈ 0.040**, within a hair of the EAZY template
-  ceiling (0.027) it distils. Exported to ONNX and run **live in the browser** (`web/dropout/`): a
+  spectroscopic** redshifts it never saw: **σ_NMAD ≈ 0.040** (95% CI 0.037–0.044), within a hair
+  of the EAZY template ceiling (0.027) it distils. Exported to ONNX and run **live in the browser** (`web/dropout/`): a
   filter scrubber shows the Lyman break sweeping redward and the galaxy dropping out of the bluer
   bands, alongside the redshift PDF, a Lyman-break colour–colour diagram, and a curated gallery —
   including the **low-z interloper degeneracy** behind the "too many bright early galaxies" tension.
@@ -86,4 +87,8 @@ experiments/build_photoz_dataset.py # M4: CEERS fluxes+z -> data/photoz/photoz.n
 experiments/train_photoz.py         # M4: train photo-z MLP, validate on spec-z -> photoz.pt
 experiments/export_photoz_onnx.py   # M4: photoz.pt -> web/dropout/photoz.onnx (+meta)
 experiments/build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> web/dropout/
+
+experiments/significance.py    # error bars: bootstrap CIs + permutation null on the
+                               #   headline claims (core/stats.py) -> models/significance.json
+                               #   + patches the CIs into the web JSON
 ```

@@ -303,9 +303,10 @@ function buildMetrics() {
     ["spec-z tested", m.n_val_spec.toLocaleString()],
     ["trained on", (m.n_train / 1000).toFixed(0) + "k"],
   ].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+  const nmadCI = m.sigma_nmad_ci ? `95% CI ${m.sigma_nmad_ci[0].toFixed(3)}&ndash;${m.sigma_nmad_ci[1].toFixed(3)}, ` : "";
   $("#metricnote").innerHTML =
     `Scored against <b>${m.n_val_spec.toLocaleString()}</b> real spectroscopic redshifts the net never ` +
-    `saw. Our <b>σ<sub>NMAD</sub> = ${m.sigma_nmad.toFixed(3)}</b> (${(m.outlier_frac * 100).toFixed(0)}% ` +
+    `saw. Our <b>σ<sub>NMAD</sub> = ${m.sigma_nmad.toFixed(3)}</b> (${nmadCI}${(m.outlier_frac * 100).toFixed(0)}% ` +
     `catastrophic outliers) sits within a hair of the <b>EAZY template</b> ceiling it distils ` +
     `(${eb.sigma_nmad.toFixed(3)}, ${(eb.outlier_frac * 100).toFixed(0)}%) — at a millionth of the ` +
     `compute, running in this browser tab.`;
@@ -314,7 +315,7 @@ function buildMetrics() {
 // ---- boot ------------------------------------------------------------------
 async function boot() {
   [D, META] = await Promise.all([
-    fetch("dropout.json?v=1").then((r) => r.json()),
+    fetch("dropout.json?v=2").then((r) => r.json()),
     fetch("photoz_meta.json?v=1").then((r) => r.json()),
   ]);
   ZC = D.z_centres;

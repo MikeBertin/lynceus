@@ -18,6 +18,7 @@ MODELS_DIR = ROOT / "models"                # checkpoints + onnx (gitignored)
 WEB_DIR = ROOT / "web"
 WEB_MORPH_DIR = WEB_DIR / "morphology"
 WEB_ATLAS_DIR = WEB_DIR / "atlas"
+WEB_DROPOUT_DIR = WEB_DIR / "dropout"
 
 for _d in (DATA_DIR, CUTOUTS_DIR, MOSAIC_DIR, ATLAS_CUTOUTS, MODELS_DIR):
     _d.mkdir(parents=True, exist_ok=True)
