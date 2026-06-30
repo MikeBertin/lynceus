@@ -9,22 +9,25 @@ single source of truth for picking the project back up. Read it top to bottom.
 
 ## 1. Status — where we are
 
-**Three milestones are built, live, verified, and pushed.** Repo is **private**
+**Four milestones are built, live, and verified.** Repo is **private**
 on GitHub: `git@github.com:MikeBertin/lynceus.git` (user `MikeBertin`, SSH).
 Default branch `main`. Nothing is published yet (no GitHub Pages) — that's a
-deliberate choice; flip it on when ready (see §8).
+deliberate choice; flip it on when ready (see §8). (M4 is built + verified in the
+preview but **not yet committed** as of this writing — commit it.)
 
 | Milestone | What | Headline result |
 |---|---|---|
 | **M1 — Morphology** | In-browser ViT classifies a real JWST cutout (featured / smooth / merger) with attention maps | **81.0%** 5-fold CV vs 33% baseline, on real Galaxy Zoo labels |
 | **M2 — Atlas** | Self-supervised (SimCLR) 2-D embedding of ~2,400 real JWST galaxies you fly through | kNN-morphology **58%** vs 33% — structure emerges with no labels |
 | **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **~3.4×** over-represented in the top-10% anomalies (was ~2× before the colour-aware encoder) |
+| **M4 — Dropout hunter** | In-browser neural **photo-z** over 9 JWST/HST bands; filter scrubber shows the Lyman break sweeping + galaxies dropping out; redshift PDF + Lyman-break colour–colour diagram | **σ_NMAD ≈ 0.040** vs ~1,800 held-out spec-z (EAZY template ceiling 0.027) |
 
-Both demos live under `web/`: `web/morphology/` and `web/atlas/` (the atlas page
-also hosts the anomaly hunt, the "where are we looking?" globe, and "things to
-notice" cards). Landing at `web/index.html`.
+Demos under `web/`: `web/morphology/`, `web/atlas/` (also hosts the anomaly hunt,
+the globe, "things to notice"), and `web/dropout/` (M4). Landing at
+`web/index.html` (all four cards now **Live**).
 
-**Next: M4.** See §9.
+**Next: M5 — see §9** (M4 is done; remaining threads: image+spectra contrastive on
+NIRSpec, bigger/WebGL atlas, or publishing).
 
 ---
 
@@ -63,6 +66,7 @@ core/                 # reusable Python package (the serious core)
   ssl.py              #   M2 SimCLR (ResNet-18, NT-Xent), 128px, MPS
   embed.py            #   M2 encoder->features->cosine UMAP->2D layout
   anomaly.py          #   M3 kNN cosine anomaly score + nearest-distance
+  photoz.py           #   M4 photo-z: featurize + binned-softmax MLP + metrics
 experiments/          # one-shot scripts (run as `python -m experiments.X`)
   fetch_gz.py         #   M1: Galaxy Zoo visual labels + JWST cutouts  (PRIMARY)
   fetch_ceers.py      #   M1 alt: Sersic-fit labels (DJA CEERS catalog)
@@ -74,16 +78,23 @@ experiments/          # one-shot scripts (run as `python -m experiments.X`)
   train_atlas.py      #   M2: train SimCLR encoder -> models/ssl_encoder.pt
   fetch_lrd.py        #   M3: 216 Kokorev+24 LRDs in our fields, fetched + embedded
   build_atlas.py      #   M2/M3: embed -> UMAP -> sprites + atlas.json + anomaly + lrds.json
+  restretch_atlas.py  #   M3: re-fetch atlas cutouts in place with colour stretch
+  build_photoz_dataset.py # M4: CEERS fluxes+z -> data/photoz/photoz.npz
+  train_photoz.py     #   M4: train photo-z MLP, validate on spec-z -> models/photoz.pt
+  export_photoz_onnx.py   # M4: photoz.pt -> web/dropout/photoz.onnx (+ meta)
+  build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> web/dropout/
 web/
-  index.html          #   landing (4 cards)
+  index.html          #   landing (4 cards, all Live)
   shared/theme.css    #   cosmic theme + notice/popover styles (VERSIONED: ?v=2)
   shared/notice.js    #   "things to notice" popover handler
   morphology/         #   Demo A: ONNX classifier (index.html, app.js, model.onnx, gallery/)
   atlas/              #   Demo B: atlas + anomaly + globe (index.html, app.js,
                       #     skymap.js, atlas.json, lrds.json, sprites.jpg, lrd_sprites.jpg, skygeom.json)
+  dropout/            #   Demo D (M4): photo-z dropout hunter (index.html, app.js,
+                      #     photoz.onnx, photoz_meta.json, dropout.json, filmstrips.jpg)
 tests/                # test_data.py, test_models.py
 data/                 # GITIGNORED — all raw catalogs/cutouts/embeddings (regenerable)
-models/               # GITIGNORED — vit.pt, ssl_encoder.pt, vit.onnx, metrics.json
+models/               # GITIGNORED — vit.pt, ssl_encoder.pt, photoz.pt, *.onnx, *metrics.json
 .venv/                # GITIGNORED
 ```
 
@@ -226,28 +237,41 @@ gotchas — **all of these have bitten us**:
 
 ---
 
-## 9. M4 — what to build next (the point of this handover)
+## 9. Milestones — M4 done, what's next
 
-The roadmap's M4 is the **"dropout hunter"** (it's the 4th landing card,
-currently "Frontier · Planned"). Two strong, concrete options — confirm with the
-user which to pursue:
-
-### Option A (roadmap): the dropout hunter — photometric redshift / z>10
-The science: high-z galaxies "drop out" of bluer filters as the Lyman break
-redshifts through the bands; JWST pushed the record to z≈14 and found *too many,
-too bright* early galaxies (a real ΛCDM tension). 
-- **Data is already in hand:** the **Kokorev LRD catalog** (`data/lrd_kokorev.fits`)
-  and the **DJA morpho-phot catalog** (`fetch_ceers.py`'s download) both have
-  multi-band NIRCam fluxes (F090W…F444W) **and** `z_phot`. That's a ready-made
-  photo-z training set (fluxes → redshift). For a bigger/cleaner set, pull the DJA
-  per-field photometric catalogs or JADES photometric catalog (MAST HLSP `jades`).
-- **Model:** a small MLP/transformer on the band fluxes → photo-z (point + PDF).
-  Train offline; tiny model → run in-browser via ONNX, or precompute.
-- **Demo (`web/dropout/`):** scrub through the filters and watch a galaxy *vanish*
-  from the blue bands then "drop in" at red; show the photo-z PDF and a
-  colour–colour (Lyman-break) diagram; a gallery of z>10 candidates. Reuse the
-  cutout service for the imagery and the same theme/notice-card patterns.
-- Promote the landing "dropout hunter" card to Live when done.
+### Option A — the dropout hunter (photo-z / z>10) — ✅ DONE (2026-06-29), M4
+Built and verified in the preview. What shipped:
+- **Data:** the **CEERS grizli/EAZY** catalogue (the `fetch_ceers.py` download,
+  `data/ceers_morpho.fits.gz`, HDU1) — ~76k galaxies with NIRCam+HST aperture
+  fluxes, EAZY `z_phot`, and ~1,800 real `z_spec`. `experiments/build_photoz_dataset.py`
+  → `data/photoz/photoz.npz` (train on z_phot, **spec-z objects held out for
+  validation**). The Kokorev LRDs were too narrow (z 4–9, one object type, no z>10),
+  so CEERS is the training set.
+- **Model (`core/photoz.py`):** small MLP over 9 bands (F606W,F814W,F115W,F150W,
+  F200W,F277W,F356W,F410M,F444W; F090W absent in CEERS) → **softmax over 96
+  redshift bins** (a PDF, so it shows the low-z/high-z degeneracy). Features =
+  red-band-normalised asinh colours + detection mask + log(1+S/N) + brightness
+  (`featurize`). Headline estimate = refined peak (local mean around the mode).
+  `train_photoz.py`: **σ_NMAD ≈ 0.040, ~19% outliers** on held-out spec-z, vs the
+  **EAZY template ceiling 0.027 / 17%** it distils (the honest framing: a 0.1 MB
+  net reproducing template fitting, no templates at inference). Best at z 4–6
+  (break in-band), hazier at low z (break in unobserved UV). `models/photoz.pt`
+  (+ `photoz_metrics.json`); **note `torch.load(..., weights_only=False)`** — the
+  ckpt holds numpy mu/sd.
+- **Export:** `export_photoz_onnx.py` folds standardisation into the graph →
+  `web/dropout/photoz.onnx` (487 KB) + `photoz_meta.json`. The JS `featurize`
+  must stay byte-for-byte equivalent to the Python (red-ref normalisation, asinh
+  0.05 soft, mask, log1p S/N, log10 scale → 28-d).
+- **Assets:** `build_dropout_assets.py` → a curated 15-galaxy gallery (`dropout.json`:
+  per-galaxy fluxes, precomputed PDF, z's) + per-filter grayscale **filmstrips.jpg**
+  (shared red-band scale so high-z galaxies stay dark in blue bands) + a
+  Lyman-break colour–colour scatter (2,500 pts).
+- **Demo (`web/dropout/`, `app.js?v=1`):** filter scrubber (blue→red) with a
+  wavelength bar + moving Lyman-break marker; **live ONNX** photo-z PDF; gallery
+  sorted by z; Lyman-break colour–colour diagram; honest-numbers card; 3 notice
+  cards. The gallery deliberately includes true **interlopers** (EAZY z~10 →
+  our net z~2.4, bimodal PDF) — the verdict names both peaks. Landing card promoted
+  to **Live**.
 
 ### Option B (colour-aware encoder → sharpen M3) — ✅ DONE (2026-06-29)
 Completed. The per-channel stretch that threw away colour was replaced with a

@@ -32,8 +32,16 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   their **compactness** and their **redness** — up from ~2× under the earlier per-channel stretch
   that had washed colour out.
 
-- **M4 — The frontier.** Photo-z dropout hunting (z>10 / "too many bright early galaxies"
-  ΛCDM tension), or image+spectra contrastive on NIRSpec (AstroCLIP lineage).
+- **M4 — The dropout hunter (photometric redshifts). _Built._**
+  A small MLP (`core/photoz.py`) reads a galaxy's redshift from nine JWST/HST band fluxes, output as
+  a **probability distribution over redshift bins** (so it shows a PDF and its degeneracies). Trained
+  on ~71k EAZY template redshifts from the CEERS grizli catalogue and validated against **~1,800 real
+  spectroscopic** redshifts it never saw: **σ_NMAD ≈ 0.040**, within a hair of the EAZY template
+  ceiling (0.027) it distils. Exported to ONNX and run **live in the browser** (`web/dropout/`): a
+  filter scrubber shows the Lyman break sweeping redward and the galaxy dropping out of the bluer
+  bands, alongside the redshift PDF, a Lyman-break colour–colour diagram, and a curated gallery —
+  including the **low-z interloper degeneracy** behind the "too many bright early galaxies" tension.
+  (A further frontier: image+spectra contrastive on NIRSpec, AstroCLIP lineage.)
 
 ## Data provenance
 
@@ -48,6 +56,9 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   (van der Wel et al. 2025, arXiv:2505.21622) via `fetch_ceers.py` — disk/spheroid/compact.
 - **Imaging (M2):** JADES DR5 NIRCam mosaics + photometric catalogue, MAST HLSP `jades`
   (Johnson et al. 2026, arXiv:2601.15954; Robertson et al. 2026, arXiv:2601.15956).
+- **Photometry + redshifts (M4):** the **CEERS grizli / EAZY** photometric catalogue (van der Wel
+  et al. 2025) — ~76k galaxies with NIRCam+HST aperture fluxes, EAZY template `z_phot`, and ~1,800
+  real spectroscopic `z_spec`. Trained on the template redshifts; validated on the spectroscopic ones.
 - The 375 MB catalogue and the cutout cache are gitignored; only small web assets + the
   quantised model are committed.
 - *Alternative labels considered:* the Kartaltepe et al. 2023 CEERS VISUAL catalogue (true
@@ -68,4 +79,9 @@ experiments/fetch_data.py      # synthetic fallback OR local-mosaic Cutout2D cac
 experiments/train_vit.py       # k-fold CV metrics + final model + metrics.json
 experiments/export_onnx.py     # vit.pt -> INT8 web/morphology/model.onnx
 experiments/build_web_assets.py# gallery PNGs + attention maps + gallery/labels/metrics json
+
+experiments/build_photoz_dataset.py # M4: CEERS fluxes+z -> data/photoz/photoz.npz
+experiments/train_photoz.py         # M4: train photo-z MLP, validate on spec-z -> photoz.pt
+experiments/export_photoz_onnx.py   # M4: photoz.pt -> web/dropout/photoz.onnx (+meta)
+experiments/build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> web/dropout/
 ```

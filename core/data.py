@@ -359,6 +359,41 @@ def fetch_service_cube(ra: float, dec: float, size: float = 3.0,
     return None
 
 
+def fetch_service_bands(ra: float, dec: float, bands: list[str], size: float = 3.0,
+                        retries: int = 3, timeout: int = 40) -> dict[str, np.ndarray] | None:
+    """Fetch single-band NIRCam cutouts by RA/Dec, one plane per requested band.
+
+    ``bands`` are filter names like ``"f150w"`` (``-clear`` is appended). Returns
+    a ``{band: 2-D array}`` dict over the bands the service actually returned (a
+    band with no coverage is simply absent). Used by the M4 dropout scrubber,
+    which shows the same galaxy filter by filter as the Lyman break sweeps
+    through. Returns ``None`` only if the request wholly fails.
+    """
+    import requests
+    from astropy.io import fits
+
+    filt = ",".join(f"{b}-clear" for b in bands)
+    url = (f"{CUTOUT_SERVICE}?ra={ra:.6f}&dec={dec:.6f}&size={size}"
+           f"&filters={filt}&output=fits")
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, timeout=timeout)
+            if r.status_code != 200 or not r.content:
+                raise IOError(f"status {r.status_code}")
+            out: dict[str, np.ndarray] = {}
+            with fits.open(io.BytesIO(r.content)) as hdul:
+                for h in hdul:
+                    if h.data is None or h.data.ndim != 2:
+                        continue
+                    name = str(h.header.get("FILTER", "")).lower().replace("-clear", "")
+                    if name in bands and name not in out:
+                        out[name] = np.asarray(h.data, np.float32)
+            return out or None
+        except Exception:
+            time.sleep(1.5 * (attempt + 1))
+    return None
+
+
 def build_dataset_from_service(catalog_rows: list[dict], *, size: float = 3.0,
                                max_workers: int = 6, resume: bool = True,
                                source: str = "jwst") -> list[CutoutRecord]:

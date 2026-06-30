@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lynceus — The dropout hunter: photometric redshifts, live</title>
+<meta name="description" content="Watch a galaxy vanish from the bluer JWST filters as the Lyman break redshifts through them, and read its photometric redshift from a neural net running live in your browser.">
+<link rel="stylesheet" href="../shared/theme.css?v=2">
+<style>
+  .layout{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px}
+  @media(max-width:860px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  h2.s{font-size:12px;font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin:0 0 14px}
+  /* filter strip */
+  .strip{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+  .filt{position:relative;cursor:pointer;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:#04050a;transition:transform .12s,border-color .12s}
+  .filt canvas{width:100%;aspect-ratio:1;display:block;image-rendering:auto}
+  .filt .lab{position:absolute;left:0;right:0;bottom:0;font-family:var(--mono);font-size:10.5px;text-align:center;
+    padding:2px 0;background:linear-gradient(transparent,rgba(0,0,0,.8));color:var(--muted)}
+  .filt.cur{border-color:var(--cyan);transform:translateY(-3px)}
+  .filt.cur .lab{color:var(--ink)}
+  .filt.dark::after{content:"dropped out";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:10px;letter-spacing:.5px;color:#ff6b6b;text-transform:uppercase;
+    background:rgba(255,60,60,.06)}
+  .wave{margin-top:14px}
+  .scrubrow{display:flex;align-items:center;gap:12px;margin-top:12px}
+  .scrubrow input[type=range]{flex:1}
+  .play{font-family:var(--mono);font-size:12px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:6px 12px;cursor:pointer}
+  .play:hover{border-color:var(--cyan)}
+  .vmeta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+  .vmeta b{color:var(--ink)}
+  /* photoz readout */
+  .zline{display:flex;gap:22px;flex-wrap:wrap;margin:2px 0 10px;font-family:var(--mono)}
+  .zstat .k{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .zstat .v{font-size:25px;font-weight:700}
+  .zstat .v small{font-size:13px;color:var(--muted);font-weight:400}
+  .verdict{font-size:14.5px;line-height:1.55;margin:6px 0 0}
+  .verdict b{color:var(--cyan)}
+  .pdf{width:100%;aspect-ratio:16/7;background:#04050a;border:1px solid var(--line);border-radius:10px}
+  /* gallery */
+  .gal{display:flex;gap:9px;overflow-x:auto;padding:4px 2px 8px}
+  .gal .g{flex:0 0 auto;width:66px;cursor:pointer;text-align:center}
+  .gal .g canvas{width:66px;height:66px;border-radius:8px;border:1px solid var(--line);background:#04050a;transition:border-color .12s,transform .12s}
+  .gal .g:hover canvas{transform:scale(1.06)}
+  .gal .g.sel canvas{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(90,209,230,.35)}
+  .gal .g .z{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:4px}
+  .gal .g.sel .z{color:var(--ink)}
+  .cc{width:100%;aspect-ratio:1.5;background:#04050a;border:1px solid var(--line);border-radius:10px}
+  .metrics{display:flex;gap:26px;flex-wrap:wrap;margin:2px 0 10px}
+  .stat .k{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-family:var(--mono);font-size:24px;font-weight:700}
+  .stat .v small{font-size:12px;color:var(--muted);font-weight:400}
+  #status{font-family:var(--mono);font-size:12px;color:var(--amber)}
+  .tag2{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.5px;text-transform:uppercase;
+    padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle}
+  .tag2.spec{color:#5ec27a;border-color:rgba(94,194,122,.4)}
+  .tag2.cand{color:#ff9e64;border-color:rgba(255,158,100,.4)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">&larr; Lynceus</a>
+  <header>
+    <div class="badge">Lynceus</div>
+    <h1 class="grad">The dropout hunter.</h1>
+    <p class="sub">Reading a galaxy's redshift from the filters it vanishes from.</p>
+    <p class="lede" style="margin-top:14px">
+      Neutral hydrogen across the early Universe absorbs a galaxy's light blueward of the
+      <b>Lyman break</b> (1216&nbsp;&Aring;). As a galaxy sits further away its light is stretched, so
+      that break <b>sweeps redward through the filters</b> — and the galaxy <b>drops out</b> of the
+      bluer bands one by one. The pattern of which filters it appears in <b>is</b> its redshift. A tiny
+      neural net — exported to <b>ONNX</b>, running <b>live in your browser</b> — reads that pattern off
+      nine JWST/HST bands. This is how JWST pushed the frontier to z&nbsp;&approx;&nbsp;14 and turned up
+      <b>too many, too bright</b> early galaxies. <span id="status">loading model…</span>
+    </p>
+  </header>
+
+  <div class="layout">
+    <!-- left: filter scrubber -->
+    <div class="card">
+      <h2 class="s">Scrub the filters — blue → red</h2>
+      <div class="strip" id="strip"></div>
+      <canvas class="pdf wave" id="wave" style="aspect-ratio:16/4"></canvas>
+      <div class="scrubrow">
+        <button class="play" id="play">▶ sweep</button>
+        <input type="range" id="scrub" min="0" max="5" value="2" step="1">
+      </div>
+      <div class="vmeta" id="vmeta">—</div>
+    </div>
+
+    <!-- right: photo-z -->
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <div class="card">
+        <h2 class="s">Photometric redshift — live ONNX</h2>
+        <div class="zline">
+          <div class="zstat"><div class="k">our photo-z</div><div class="v" id="z-ours">—</div></div>
+          <div class="zstat"><div class="k">template (EAZY)</div><div class="v" id="z-temp"><small>—</small></div></div>
+          <div class="zstat"><div class="k">spectroscopic</div><div class="v" id="z-spec"><small>—</small></div></div>
+        </div>
+        <canvas class="pdf" id="pdf"></canvas>
+        <p class="verdict" id="verdict">Select a galaxy below.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px">
+    <h2 class="s">The sample — sorted by predicted redshift</h2>
+    <div class="gal" id="gallery"></div>
+  </div>
+
+  <div class="layout" style="margin-top:24px">
+    <div class="card">
+      <h2 class="s">The Lyman-break diagram</h2>
+      <canvas class="cc" id="cc"></canvas>
+      <p class="note" style="margin-top:12px">
+        Every dot is a real CEERS galaxy, placed by two colours and tinted by redshift. As the break
+        crosses F115W, high-z galaxies redden sharply in <b>F115W&minus;F150W</b> and rush to the right
+        — the <b>dropout corner</b>. The selected galaxy is ringed.
+      </p>
+    </div>
+    <div class="card">
+      <h2 class="s">Honest numbers</h2>
+      <div class="metrics" id="metrics"></div>
+      <p class="note" id="metricnote"></p>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>What you're seeing.</b> Real <b>JWST/NIRCam</b> cutouts (and HST/ACS where it helps), pulled from
+    the <a href="https://dawn-cph.github.io/dja/">DAWN JWST Archive</a> cutout service for galaxies in
+    the <b>CEERS</b> field. Fluxes and reference redshifts come from the public
+    <a href="https://dawn-cph.github.io/dja/">grizli</a>&nbsp;/&nbsp;<b>EAZY</b> photometric catalogue
+    (van&nbsp;der&nbsp;Wel et&nbsp;al. 2025). The network was trained on <b>~71,000</b> template
+    redshifts and is scored here against <b>~1,800 real spectroscopic</b> redshifts it never saw.
+  </p>
+
+  <section class="notice">
+    <h2 class="notice-title">Things to notice</h2>
+    <div class="notice-grid">
+      <div class="ncard">
+        <h3>The break sweeps redward</h3>
+        <p>Step a galaxy up in redshift: the <b>dropped-out</b> band marches from F115W toward the red.
+           The marker on the wavelength bar is the Lyman break for that redshift.</p>
+        <span class="x why">why it drops out</span>
+        <div class="explain"><h4>Hydrogen eats the blue</h4>
+          <p>Intergalactic neutral hydrogen absorbs almost everything blueward of 1216&nbsp;&Aring;
+             rest-frame. Redshifted into the observed bands, that wall of absorption blacks out every
+             filter sitting below it.</p>
+          <p class="muted">So the bluest filter a galaxy still shines in pins down (1+z).</p></div>
+      </div>
+      <div class="ncard">
+        <h3>Some "z&nbsp;~&nbsp;10" are really z&nbsp;~&nbsp;2</h3>
+        <p>A few candidates give a <b>two-humped</b> PDF: a dusty galaxy whose 4000&nbsp;&Aring; break
+           mimics a Lyman dropout. The net shows the doubt instead of hiding it.</p>
+        <span class="x why">the great degeneracy</span>
+        <div class="explain"><h4>Interloper or frontier?</h4>
+          <p>A red z&nbsp;~&nbsp;2 galaxy and a z&nbsp;~&nbsp;11 dropout can show nearly the same colours.
+             This ambiguity is exactly why JWST's "too many bright early galaxies" needs spectroscopy to
+             confirm — and why some candidates evaporate.</p></div>
+      </div>
+      <div class="ncard">
+        <h3>Sharpest where the break is in-band</h3>
+        <p>Accuracy is best at <b>z&nbsp;4&ndash;6</b>, where the break sits squarely inside the
+           filters; at low z it lives in the unobserved UV and the net is hazier.</p>
+        <span class="x why">distilled, not magic</span>
+        <div class="explain"><h4>A 0.1&nbsp;MB emulator</h4>
+          <p>The net is distilling template fitting into something that runs instantly client-side. It
+             reaches &sigma;<sub>NMAD</sub>&nbsp;&approx;&nbsp;0.04 against spectroscopy — within a hair
+             of the templates' own 0.027, and at a millionth of the cost.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <b>Lynceus</b> — the keenest-sighted of the Argonauts. Companion to
+    <a href="https://mikebertin.github.io/chiron/">Chiron</a>,
+    <a href="https://mikebertin.github.io/empedocles/">Empedocles</a> and Plutus.
+    Model: a small MLP over JWST/HST band fluxes → redshift PDF, via onnxruntime-web.
+  </footer>
+</div>
+
+<div id="pop"></div>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script src="app.js?v=1"></script>
+<script src="../shared/notice.js?v=1"></script>
+</body>
+</html>
