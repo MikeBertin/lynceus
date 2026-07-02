@@ -339,12 +339,24 @@ honest verdict in the dropout "honest numbers" card (app.js v4). Tests:
   masking, `point_estimates` two-mode logic, `soft_labels`; `test_anomaly.py` —
   planted-outlier ordering, `exclude_self` semantics, `nearest_distance`.
 
-### #4 — a `RESEARCH.md` (the on-ramp made explicit)
-Short doc of open questions the toolkit could actually attack, e.g.: is the SSL
-anomaly score a clean **LRD selection function** (purity/completeness vs Kokorev)?
-does the photo-z net's interloper rate beat EAZY on a **controlled subset**? can
-the atlas+anomaly produce a **ranked candidate list for spectroscopic follow-up**?
-does the encoder **generalise across fields** (train one field, test another)?
+### #4 — `RESEARCH.md` — ✅ written (PRIVATE), Q1 done, Q2/Q3 staged
+`RESEARCH.md` (repo root) is the research notebook: five questions (Q1 selection
+function, Q2 interlopers vs EAZY, Q3 follow-up candidate list, Q4 cross-field
+generalisation, Q5 = M5 NIRSpec contrastive), each with method/data/"what counts
+as a result"/status. **User's call: keep it private, do Q1–Q3 in stages, and
+only consider going public once something is definitely in hand.**
+- **Q1 DONE** — `experiments/lrd_selection.py` (cached data, seed 0): AUC
+  **0.702** (CI 0.655–0.748); top-2% cut = **10.2×** enrichment at 20.4%
+  completeness; completeness saturates ~60% and **28.2% of LRDs score below
+  the atlas median**. The missed tail is systematic, not random: fainter
+  (F444W 0.14 vs 0.26 µJy, ρ=0.33 with score) and less red/dusty (Av 1.1 vs
+  1.8, F444W/F200W 4.2 vs 6.0). Verdict in RESEARCH.md: an *enricher*, not a
+  *selector* — selects the bright/red end, a measured selection bias that any
+  Q3 candidate list must disclose.
+- **Q2 next** (interloper rates, PDF-aware selection vs EAZY — all cached), then
+  **Q3** (candidate list; run anomaly-ranked AND nearest-to-known-LRD rankings).
+- **Q4 is the pre-publish gate** if Q3 finds anything: retrain minus one field,
+  check the enrichment survives on the held-out field.
 
 ### Publishing — PAUSED, ready to go (do NOT publish without an explicit ask)
 The user paused here intentionally. Two things to settle first (see §8):
