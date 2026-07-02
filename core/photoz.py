@@ -211,11 +211,16 @@ def credible_coverage(pit: np.ndarray, levels: np.ndarray) -> np.ndarray:
 
 
 def pit_ks(pit: np.ndarray) -> float:
-    """Kolmogorov–Smirnov distance of the PITs from Uniform[0,1] (0 = perfect)."""
+    """Kolmogorov–Smirnov distance of the PITs from Uniform[0,1] (0 = perfect).
+
+    Proper two-sided statistic: the empirical CDF is a staircase, so the max
+    deviation must be checked at both the top (i/n) and bottom ((i-1)/n) of
+    each step.
+    """
     p = np.sort(np.asarray(pit))
     n = len(p)
-    cdf = np.arange(1, n + 1) / n
-    return float(np.max(np.abs(cdf - p)))
+    i = np.arange(1, n + 1)
+    return float(max((i / n - p).max(), (p - (i - 1) / n).max()))
 
 
 def nll_at_truth(pdf: np.ndarray, z_true: np.ndarray,

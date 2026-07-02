@@ -25,8 +25,8 @@ import torch
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 
-from core import config, anomaly, stats, photoz
-from core.photoz import PhotoZNet, featurize, pdf_from_logits, point_estimates, photoz_metrics
+from core import config, anomaly, stats
+from core.photoz import PhotoZNet, featurize, pdf_from_logits, point_estimates
 
 K_ANOM = 20      # neighbours for the anomaly score (matches build_atlas.py)
 K_PROBE = 15     # neighbours for the kNN morphology/field probes (reproduces 62%/63%)
@@ -81,18 +81,20 @@ def lrd_enrichment() -> dict:
     }
     print(f"M3  LRD enrichment {out['enrichment']}× "
           f"(95% CI {out['enrichment_ci'][0]}–{out['enrichment_ci'][1]}×, "
-          f"p<{_p_str(perm['p'])}); median LRD at the "
+          f"{_p_str(perm['p'])}); median LRD at the "
           f"{out['median_pct']*100:.0f}th percentile "
           f"(CI {out['median_pct_ci'][0]*100:.0f}–{out['median_pct_ci'][1]*100:.0f})")
     return out
 
 
 def _p_str(p: float) -> str:
-    """Round a tiny p-value up to a clean reporting threshold (e.g. 1e-4)."""
-    if p <= 0:
-        return "1e-4"
-    e = int(np.ceil(-np.log10(p)))
-    return f"1e-{max(e, 1)}" if p < 0.01 else f"{p:.3f}"
+    """Format a p-value honestly: 'p<1e-4' only when p really is below 1e-4."""
+    if p >= 0.01:
+        return f"p={p:.3f}"
+    e = int(np.floor(-np.log10(p)))     # largest e with 1e-e still >= p...
+    while 10.0 ** -e <= p:              # ...guard exact powers of ten
+        e -= 1
+    return f"p<1e-{e}"
 
 
 # ---------------------------------------------------------------------------

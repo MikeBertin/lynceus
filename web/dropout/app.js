@@ -337,7 +337,7 @@ function buildCalibration() {
 async function boot() {
   [D, META] = await Promise.all([
     fetch("dropout.json?v=3").then((r) => r.json()),
-    fetch("photoz_meta.json?v=1").then((r) => r.json()),
+    fetch("photoz_meta.json?v=2").then((r) => r.json()),
   ]);
   ZC = D.z_centres;
   sprite = new Image();

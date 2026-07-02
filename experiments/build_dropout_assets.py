@@ -180,6 +180,10 @@ def main() -> None:
            "y": round(float(np.clip(cy[i], -2, 4)), 2),
            "z": round(float(zall[i]), 2)} for i in idx]
 
+    # NB: photoz_metrics.json carries the bootstrap CIs only once
+    # experiments.significance has run; likewise the calibration block below
+    # (experiments.calibrate_photoz). Both are merged here so a full asset
+    # rebuild keeps them rather than silently dropping them.
     metrics = json.loads((config.MODELS_DIR / "photoz_metrics.json").read_text())
     out = {
         "tile": TILE, "strip_bands": STRIP_BANDS,
@@ -188,6 +192,10 @@ def main() -> None:
         "colourcolour": {"xlabel": "F115W − F150W", "ylabel": "F200W − F444W", "points": cc},
         "metrics": metrics,
     }
+    calib = config.MODELS_DIR / "photoz_calibration.json"
+    if calib.exists():
+        from experiments.calibrate_photoz import calibration_block
+        out["calibration"] = calibration_block(json.loads(calib.read_text()))
     (OUT / "dropout.json").write_text(json.dumps(out, separators=(",", ":")))
     print(f"\nWrote {OUT/'dropout.json'} ({len(gal)} galaxies, {len(cc)} colour-colour pts) "
           f"+ filmstrips.jpg")

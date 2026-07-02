@@ -106,9 +106,13 @@ def main() -> None:
     patch_web(result)
 
 
-def patch_web(result: dict) -> None:
-    """Push the calibration diagnostic into the dropout web payload."""
-    block = {
+def calibration_block(result: dict) -> dict:
+    """The web-facing summary of a saved calibration result.
+
+    Shared with experiments.build_dropout_assets so a full asset rebuild keeps
+    the calibration disclosure instead of silently dropping it.
+    """
+    return {
         "temperature": result["deploy_temperature"],
         "ks_raw": result["ks_raw"],
         "pit_hist": result["pit_hist_raw"],
@@ -116,17 +120,23 @@ def patch_web(result: dict) -> None:
         "t_nll": result["objective_tension"]["T_nll"],
         "t_pit": result["objective_tension"]["T_pit"],
     }
+
+
+def patch_web(result: dict) -> None:
+    """Push the calibration diagnostic into the dropout web payload."""
     dpath = config.WEB_DROPOUT_DIR / "dropout.json"
     d = json.loads(dpath.read_text())
-    d["calibration"] = block
+    d["calibration"] = calibration_block(result)
     d.get("metrics", {}).pop("temperature", None)   # drop any stale earlier value
     dpath.write_text(json.dumps(d, separators=(",", ":")))
 
+    # photoz_meta.json deliberately does NOT carry the temperature: app.js never
+    # applies one (we ship T=1), so advertising it there would be a landmine.
     mpath = config.WEB_DROPOUT_DIR / "photoz_meta.json"
     meta = json.loads(mpath.read_text())
-    meta["temperature"] = result["deploy_temperature"]
-    mpath.write_text(json.dumps(meta, separators=(",", ":")))
-    print(f"  patched {dpath.name} + {mpath.name}")
+    if meta.pop("temperature", None) is not None:   # scrub any stale earlier value
+        mpath.write_text(json.dumps(meta, separators=(",", ":")))
+    print(f"  patched {dpath.name}")
 
 
 if __name__ == "__main__":

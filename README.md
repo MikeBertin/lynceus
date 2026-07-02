@@ -58,22 +58,31 @@ core/                 # reusable package
   ssl.py              #   M2: SimCLR self-supervised contrastive training
   embed.py            #   M2: encoder embeddings -> UMAP 2-D layout
   anomaly.py          #   M3: kNN latent-space anomaly scoring
+  photoz.py           #   M4: photo-z featurisation, MLP, PDF calibration (PIT/coverage)
+  stats.py            #   bootstrap CIs + permutation null tests for the headline claims
 experiments/
   fetch_gz.py         #   M1: Galaxy Zoo visual labels + DJA JWST cutouts
   fetch_ceers.py      #   M1 alt: Sersic-fit labels (CEERS) + DJA cutout service
   fetch_data.py       #   M1: synthetic Sersic fallback / local-mosaic Cutout2D
-  fetch_atlas.py      #   M2: ~2.4k unlabelled JWST cutouts for the atlas
+  fetch_atlas.py      #   M2: unlabelled JWST cutouts for the atlas
   fetch_lrd.py        #   M3: known Little Red Dots (Kokorev+24) + embeddings
   train_vit.py        #   M1: CV metrics + final model + metrics.json
   train_atlas.py      #   M2: SimCLR encoder
   build_atlas.py      #   M2/M3: embed -> UMAP -> sprites + atlas.json + anomaly + lrds.json
   export_onnx.py      #   -> INT8 web/morphology/model.onnx
   build_web_assets.py #   gallery PNGs + attention maps + json
+  build_photoz_dataset.py # M4: CEERS fluxes + redshifts -> photoz.npz
+  train_photoz.py     #   M4: train the photo-z MLP, validate on spec-z
+  export_photoz_onnx.py   # M4: -> web/dropout/photoz.onnx
+  build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> web/dropout/
+  significance.py     #   error bars: bootstrap CIs + permutation nulls on every headline
+  calibrate_photoz.py #   M4: PIT + coverage calibration of the redshift PDFs
 web/
   morphology/         #   Demo A: classifier (onnxruntime-web, no build step)
-  atlas/              #   Demo B: self-supervised fly-through (canvas + sprite sheet)
+  atlas/              #   Demo B: self-supervised fly-through + anomaly hunt (WebGL)
+  dropout/            #   Demo D: photo-z dropout hunter (onnxruntime-web)
   index.html          #   landing page
-tests/                #   data + model unit tests
+tests/                #   data, model, stats + calibration unit tests
 ```
 
 ## Running it
