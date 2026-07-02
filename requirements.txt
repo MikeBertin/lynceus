@@ -1,14 +1,23 @@
 # Lynceus — Python core (training/export run offline; the web demo needs none of this).
-# Tested on Python 3.13 + Apple Silicon (MPS). Torch auto-selects mps/cuda/cpu.
-numpy
-astropy            # Sersic models, convolution, WCS, Cutout2D (real-data path)
-astroquery         # MAST / catalogue access for real CEERS/JADES cutouts
-scikit-learn       # StratifiedKFold + metrics
-pillow             # cutout PNGs
-matplotlib         # attention-map colouring
-torch
-torchvision
-timm               # ViT-Small backbone (ImageNet-pretrained)
-onnx
-onnxruntime        # ONNX check + INT8 dynamic quantisation for the browser
-pytest             # tests
+#
+# Pinned to the exact versions the published results were produced with.
+# Environment of record: Python 3.13 (3.14 has no torch wheels yet) on an
+# Apple M4 Mac mini — torch auto-selects MPS via core.config.get_device().
+#
+#   python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
+#
+numpy==2.4.6
+scipy==1.18.0            # numerics under sklearn/umap — pinned, it moves results
+scikit-learn==1.9.0      # k-fold CV, kNN probes + anomaly scoring
+umap-learn==0.5.12       # M2: 512-D -> 2-D atlas layout
+torch==2.12.1
+torchvision==0.27.1      # timm companion; must pair with the torch version
+timm==1.0.27             # ViT-Small + ResNet-18 backbones
+onnx==1.22.0
+onnxscript==0.7.0        # needed by torch.onnx.export (even with dynamo=False)
+onnxruntime==1.27.0      # ONNX check + INT8 dynamic quantisation for the browser
+astropy==8.0.0           # FITS, WCS, Cutout2D, Sersic models
+pillow==12.2.0           # cutout PNGs + sprite sheets
+matplotlib==3.11.0       # attention-map colouring
+requests==2.34.2         # DJA grizli cutout service
+pytest==9.1.1            # tests

@@ -87,6 +87,23 @@ tests/                #   data, model, stats + calibration unit tests
 
 ## Running it
 
+The whole pipeline is a `Makefile` — `make help` lists every target, one per
+milestone, with data-fetch and training separated (and the DJA rate-limit and
+rough costs noted inline). Requirements are **pinned** to the versions the
+published numbers were produced with (Python 3.13, Apple MPS).
+
+```bash
+make venv        # python3.13 venv + pinned requirements
+make m1-data m1  # Galaxy Zoo labels + JWST cutouts -> ViT -> web demo
+make m2-data m2  # ~10k cutouts -> SimCLR (the long run) -> atlas
+make m3-data m3  # Little Red Dots -> anomaly overlay
+make m4-data m4  # CEERS catalogue -> photo-z net -> dropout demo
+make stats       # error bars, null tests + PDF calibration -> web JSON
+make test serve  # unit tests; demos at http://localhost:8137
+```
+
+Or step by step:
+
 ```bash
 python3.13 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt

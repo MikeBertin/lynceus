@@ -49,8 +49,8 @@ photo-z calibration, reproducibility) before — or alongside — publishing.
   PyTorch **MPS**. All training is device-agnostic via `core.config.get_device()`.
 - **Python:** system python is **3.14** (too new for torch wheels). Use the repo
   venv on **3.13**: `projects/lynceus/.venv` (made with `python3.13 -m venv`).
-  Always call `.venv/bin/python`. Deps in `requirements.txt` (+ `onnxscript`,
-  `umap-learn`, `requests`, `astropy`/`astroquery`, `pytest` — all installed).
+  Always call `.venv/bin/python`. `requirements.txt` is **pinned** to the exact
+  working versions (all installed; `make venv` recreates from scratch).
 - **Background shells** start from a fresh cwd, not the persisted one — use
   **absolute paths** (`/Users/m/.openclaw/workspace/projects/lynceus/...`).
 - **Foreground `sleep` is blocked.** To wait on a background job, launch a watcher
@@ -321,17 +321,23 @@ Saves `models/photoz_calibration.json`; patches a `calibration` block into
 honest verdict in the dropout "honest numbers" card (app.js v4). Tests:
 `tests/test_calibration.py` (5) — suite **12 passing**.
 
-### #3 — reproducibility hardening
-- **Pin the env.** `requirements.txt` is loose; pin exact versions (torch, timm,
-  umap-learn, onnxruntime, scikit-learn, astropy, numpy). Record: python **3.13**
-  in `.venv` (system 3.14 is too new for torch); Apple **MPS**.
-- **One-command repro.** A `Makefile`/`experiments/run_all.py` documenting the DAG
-  per milestone (fetch → train → export → build), with the network/time costs and
-  the DJA rate-limit caveat noted.
-- **Expand tests** (only 3 today). Good targets: `asinh_stretch(colour=True)`
-  preserves band ratios (the Lupton property — the whole M3 fix); `photoz.featurize`
-  shape/determinism + equals a known vector; `point_estimates` peak/refine logic;
-  `knn_anomaly` orders a planted outlier correctly.
+### #3 — reproducibility hardening — ✅ DONE
+- **Env pinned.** `requirements.txt` now pins every direct dep to the exact
+  working versions (numpy 2.4.6, torch 2.12.1, timm 1.0.27, scikit-learn 1.9.0,
+  umap-learn 0.5.12, onnxruntime 1.27.0, …), with python 3.13 + MPS recorded in
+  the header. Previously-missing deps added (umap-learn, onnxscript, requests,
+  scipy); unused `astroquery` dropped.
+- **One-command repro: `Makefile`.** One target per milestone with data-fetch
+  and training separated (`m1-data m1 … m4-data m4`), `stats` (significance +
+  calibration — safe to re-run any time), `venv`, `test`, `serve`, `help`.
+  Costs + the DJA rate-limit caveat are in the header comments; catalogue
+  downloads are real file targets so make skips them when present.
+- **Tests: 3 → 21.** New: `test_data.py` — `asinh_stretch(colour=True)`
+  preserves band ratios *and* the per-channel stretch destroys them (the M3
+  fix, both directions); `test_photoz.py` — featurize shape/determinism,
+  brightness-scale invariance (+2 dex only in the last feature), non-detection
+  masking, `point_estimates` two-mode logic, `soft_labels`; `test_anomaly.py` —
+  planted-outlier ordering, `exclude_self` semantics, `nearest_distance`.
 
 ### #4 — a `RESEARCH.md` (the on-ramp made explicit)
 Short doc of open questions the toolkit could actually attack, e.g.: is the SSL
