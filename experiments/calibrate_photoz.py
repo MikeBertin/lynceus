@@ -40,8 +40,13 @@ PIT_BINS = 10
 DEPLOY_T = 1.0                                 # see module docstring — no scaling shipped
 
 
-def val_pdfs() -> tuple[np.ndarray, np.ndarray]:
-    """Raw (T=1) PDFs and spec-z truths for the held-out spectroscopic set."""
+def val_pdfs(with_eazy: bool = False):
+    """Raw (T=1) PDFs and spec-z truths for the held-out spectroscopic set.
+
+    With ``with_eazy=True`` also returns the EAZY template ``z_phot`` for the
+    same galaxies — the baseline our net distils (used by the Q2 interloper
+    comparison in experiments/interlopers.py).
+    """
     ckpt = torch.load(config.MODELS_DIR / "photoz.pt", map_location="cpu",
                       weights_only=False)
     z = np.load(config.DATA_DIR / "photoz" / "photoz.npz", allow_pickle=True)
@@ -53,6 +58,8 @@ def val_pdfs() -> tuple[np.ndarray, np.ndarray]:
     with torch.no_grad():
         pdf = pdf_from_logits(model(torch.from_numpy(Xva))).numpy()
     m = np.isfinite(yva) & (yva >= 0)
+    if with_eazy:
+        return pdf[m], yva[m], z["z_phot"][is_val][m]
     return pdf[m], yva[m]
 
 

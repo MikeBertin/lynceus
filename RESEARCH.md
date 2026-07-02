@@ -13,7 +13,7 @@ question that toolkit can attack, ordered by cost.
 | # | Question | Cost | Status |
 |---|----------|------|--------|
 | Q1 | Is the anomaly score an LRD **selection function**? | cached data, hours | ✅ **done** — AUC 0.70; an enricher (10× at top-2%), not a selector; misses the faint/less-red 28% |
-| Q2 | Does the net beat EAZY on **interloper rejection**? | cached data, hours | queued |
+| Q2 | Does the net beat EAZY on **interloper rejection**? | cached data, hours | ✅ **done** — honest null: inherits its teacher's interlopers (10/12 shared), PDFs are confidently wrong |
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | queued |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | queued |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
@@ -105,7 +105,31 @@ interloper rate (or the converse trade-off made explicit) — CIs that separate.
 A null result is publishable-honest too: "a distilled emulator inherits its
 teacher's interlopers" is worth knowing.
 
-**Status.** Queued.
+**Status / results.** ✅ Done — `python -m experiments.interlopers`
+(writes `models/interlopers.json`). **The null, and it's clean.**
+
+- **Point estimates are twins** (as a distillation must be): at z>4, EAZY
+  82.9% complete / 6.3% interlopers vs ours 81.1% / 5.9% — CIs fully overlap.
+  Same story at z>6 (70.5%/9.0% vs 66.7%/8.2%, n=78 truths, wide CIs).
+- **The PDF confidence cut buys ~nothing**: P(z>4)>0.9 drops completeness
+  83→56% while interlopers go 6.3→5.2% (CI 2–9%, overlapping everything).
+  At z>6, P>0.9 reads 5.9% but on 34 selected (CI 0–15%) — noise.
+- **Why (the diagnosis, and the real finding):**
+  1. *The interlopers are inherited.* 10 of our 12 z>4 interlopers are also
+     EAZY's (5/6 at z>6). The net trained on EAZY labels, so EAZY's mistakes
+     were mislabelled *in training* — the student learned them faithfully.
+  2. *The PDFs are confidently wrong on exactly those galaxies.* Median
+     P(z<2) is 0.038 for interlopers vs 0.008 for true high-z — a 5× whisper —
+     but only 8% of interlopers carry meaningful (>0.2) low-z mass, identical
+     to true high-z (9%). The two-humped-PDF safety net is real in the median
+     and useless as a veto. Consistent with the calibration study: the net's
+     uncertainty is *generic width*, not instance-specific doubt.
+- **What would actually help** (candidate M4b, if ever needed): train on
+  spec-z (or SED-fit posteriors) instead of point labels; or ensemble/augment
+  with the medium bands EAZY underweights. Distillation cannot beat the
+  teacher where the teacher defines the truth.
+- Caveats: spec-z sample is selection-biased (bright, confirmable); this
+  measures *relative* behaviour on identical galaxies, not survey rates.
 
 ## Q3 — A ranked spectroscopic follow-up candidate list
 

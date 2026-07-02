@@ -353,8 +353,15 @@ only consider going public once something is definitely in hand.**
   1.8, F444W/F200W 4.2 vs 6.0). Verdict in RESEARCH.md: an *enricher*, not a
   *selector* — selects the bright/red end, a measured selection bias that any
   Q3 candidate list must disclose.
-- **Q2 next** (interloper rates, PDF-aware selection vs EAZY — all cached), then
-  **Q3** (candidate list; run anomaly-ranked AND nearest-to-known-LRD rankings).
+- **Q2 DONE** — `experiments/interlopers.py`: an honest **null**. Point
+  estimates are twins of EAZY (z>4: 81% complete / 5.9% interlopers vs 83% /
+  6.3%, CIs overlap); the PDF confidence cut trades completeness 83→56% for no
+  real interloper gain. Diagnosis: **10/12 interlopers are EAZY's own**
+  (inherited via the training labels) and the PDFs are *confidently wrong* on
+  them (median P(z<2) 0.038 vs 0.008 — a whisper, not a veto). Full writeup +
+  what-would-help in RESEARCH.md Q2.
+- **Q3 next** (candidate list; run anomaly-ranked AND nearest-to-known-LRD
+  rankings side by side, carrying Q1's bright/red selection-bias caveat).
 - **Q4 is the pre-publish gate** if Q3 finds anything: retrain minus one field,
   check the enrichment survives on the held-out field.
 
