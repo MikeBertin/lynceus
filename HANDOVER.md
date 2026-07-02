@@ -360,8 +360,19 @@ only consider going public once something is definitely in hand.**
   (inherited via the training labels) and the PDFs are *confidently wrong* on
   them (median P(z<2) 0.038 vs 0.008 — a whisper, not a veto). Full writeup +
   what-would-help in RESEARCH.md Q2.
-- **Q3 next** (candidate list; run anomaly-ranked AND nearest-to-known-LRD
-  rankings side by side, carrying Q1's bright/red selection-bias caveat).
+- **Q3 DONE** — `experiments/candidates.py` → `research/` (candidates.csv +
+  two contact sheets, committed). The two rankings are **disjoint** (0 overlap
+  in top-100s). Anomaly list: ~⅓ artefacts but real exotica (two extreme
+  emission-line-looking green objects, an interacting pair, an LRD-like red
+  dot) — novelty unverified vs literature. LRD-like list: **clean failure,
+  mechanism found** — the per-cutout percentile stretch amplifies empty-field
+  sky noise to colour static; LRD cutouts (r_eff~0.4px dots on empty fields)
+  embed as that texture, so retrieval returns noise (median luminance 49 vs 10
+  random; ρ(ldist,lum)=−0.20). This also *explains Q1's missed faint 28%*.
+  Proposed fix: **M3b** — detection-anchored cutouts + noise-aware stretch
+  (fixed physical scale, empty sky stays dark) + centroid-colour features,
+  then re-run Q1/Q3. Full verdict in RESEARCH.md (notebook-grade methods
+  story; not yet the go-public "something").
 - **Q4 is the pre-publish gate** if Q3 finds anything: retrain minus one field,
   check the enrichment survives on the held-out field.
 

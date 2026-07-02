@@ -14,7 +14,7 @@ question that toolkit can attack, ordered by cost.
 |---|----------|------|--------|
 | Q1 | Is the anomaly score an LRD **selection function**? | cached data, hours | ✅ **done** — AUC 0.70; an enricher (10× at top-2%), not a selector; misses the faint/less-red 28% |
 | Q2 | Does the net beat EAZY on **interloper rejection**? | cached data, hours | ✅ **done** — honest null: inherits its teacher's interlopers (10/12 shared), PDFs are confidently wrong |
-| Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | queued |
+| Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | queued |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
@@ -153,9 +153,52 @@ LRD candidates (compact + red + high anomaly + plausible photo-z) would be the
 Also the honest failure mode: if the top of the list is all artefacts, the
 anomaly score is a data-quality detector, and that's the finding.
 
-**Status.** Unblocked — Q1 gives the operating point (top 1–2%, ~10×
-enrichment, expected mostly bright/red candidates) and the bias caveat to
-carry. Run the anomaly-ranked and nearest-to-known-LRD rankings side by side.
+**Status / results.** ✅ Done — `python -m experiments.candidates` writes
+`research/candidates.csv` + two contact sheets (`research/sheet_anomaly.jpg`,
+`research/sheet_lrdlike.jpg`). Both outcomes at once: real targets *and* a
+diagnosed failure.
+
+- **The two rankings are completely disjoint** — zero overlap between the
+  top-100 anomaly-ranked and top-100 LRD-like-ranked lists. They probe
+  different directions: isolation vs proximity-to-exemplars.
+- **Anomaly sheet (visual census of the top 32):** roughly ⅓ artefacts
+  (diffraction spikes, guide-star stripes, noise blobs) — the anomaly score is
+  partly a data-quality detector, as anticipated. But the rest are real and
+  some are striking: two bright green compact objects (#5, #14 — extreme
+  emission-line galaxies by appearance, [OIII]-blob/"green pea"-like), an
+  interacting pair (#21/#22 — apparently the same system entering twice, so
+  the atlas has near-duplicate catalogue entries), several edge-on red disks,
+  and one compact orange-red dot (#6) that is morphologically LRD-like.
+  Novelty **unverified** — claiming any of these as new requires cross-matching
+  the literature (not done; would be the next step for a real follow-up case).
+- **LRD-like sheet: a clean method failure, mechanism diagnosed.** The top-32
+  are almost all full-frame colour **static** (plus one star). Mechanism: LRDs
+  are tiny (r_eff ~0.4 px) dots on near-empty fields; the per-cutout percentile
+  stretch **amplifies empty-sky noise to full range** when there is nothing
+  bright to anchor it; the encoder embeds that static as a coherent texture;
+  the 216 known-LRD cutouts live in/near that texture region; so
+  nearest-to-LRD retrieval returns noise. Quantified: median cutout luminance
+  49 (top-100 LRD-like) vs 10 (random); Spearman(nearest-LRD distance,
+  luminance) = −0.20 on a 1k sample.
+- **This closes the loop on Q1's missed tail**: faint LRDs embed as
+  noise-texture, not as red dots — which is *why* no anomaly threshold reaches
+  the faint 28%, and why the score only selects the bright/red end.
+- **The 4 in-atlas Kokorev "matches"** (mean anomaly percentile 42, initially
+  puzzling) resolve the same way: at 0.3–1.4″ separation they are mostly
+  bright GZ galaxies *adjacent* to an LRD — the cutout embeds the neighbour.
+- **M3b (the concrete method fix this earns):** make the representation
+  point-source aware — detection-anchored small cutouts; a noise-aware stretch
+  (fixed physical surface-brightness scale instead of per-cutout percentiles,
+  so empty sky stays dark); and/or explicit centroid-colour features. Then
+  re-run Q1+Q3: if supervised retrieval starts returning compact red things,
+  the candidate list becomes real.
+
+**Verdict for the go-public question.** Q1–Q3 together are a coherent,
+honest *methods* story (a validated-but-biased selector, an inherited-label
+null, a diagnosed retrieval failure with a fix) — notebook-grade, not yet the
+"definitely have something". The something, if it comes, is M3b + a re-run Q3
+list, or the anomaly sheet's emission-line objects surviving a literature
+cross-match.
 
 ## Q4 — Does the encoder generalise across fields?
 
