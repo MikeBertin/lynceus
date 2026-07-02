@@ -21,8 +21,8 @@ TILE = 48  # sprite thumbnail size (px); kept modest so the ~10k-galaxy
 LRD_DIR = config.DATA_DIR / "lrd"
 
 
-def load_encoder():
-    ckpt = torch.load(config.MODELS_DIR / "ssl_encoder.pt", map_location="cpu")
+def load_encoder(name: str = "ssl_encoder.pt"):
+    ckpt = torch.load(config.MODELS_DIR / name, map_location="cpu")
     enc = timm.create_model(ckpt["backbone"], pretrained=False, num_classes=0)
     enc.load_state_dict(ckpt["state_dict"])
     return enc.eval()

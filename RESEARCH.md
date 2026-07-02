@@ -12,10 +12,11 @@ question that toolkit can attack, ordered by cost.
 
 | # | Question | Cost | Status |
 |---|----------|------|--------|
-| Q1 | Is the anomaly score an LRD **selection function**? | cached data, hours | ✅ **done** — AUC 0.70; an enricher (10× at top-2%), not a selector; misses the faint/less-red 28% |
+| Q1 | Is the anomaly score an LRD **selection function**? | cached data, hours | ✅ **done** — AUC 0.70; an enricher (10× at top-2%), not a selector; misses the faint/less-red 28% → **fixed by M3b** |
 | Q2 | Does the net beat EAZY on **interloper rejection**? | cached data, hours | ✅ **done** — honest null: inherits its teacher's interlopers (10/12 shared), PDFs are confidently wrong |
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
-| Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | queued |
+| M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
+| Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | queued — **the pre-publish gate** |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
 ---
@@ -198,7 +199,85 @@ honest *methods* story (a validated-but-biased selector, an inherited-label
 null, a diagnosed retrieval failure with a fix) — notebook-grade, not yet the
 "definitely have something". The something, if it comes, is M3b + a re-run Q3
 list, or the anomaly sheet's emission-line objects surviving a literature
-cross-match.
+cross-match. *(Update: M3b is now done — see the M3b section. The fix worked;
+what remains before "definitely have something" is the star veto + literature
+cross-match, and Q4 as the pre-publish gate.)*
+
+## M3b — the point-source-aware representation (the Q3 fix, executed)
+
+**What.** Q3 diagnosed the failure: the per-cutout percentile stretch amplifies
+empty-field sky noise to full-range colour static; faint LRDs (r_eff ~0.4 px on
+near-empty fields) embed as that texture, so supervised retrieval returns noise
+and the anomaly score can't reach the faint 28%. M3b changes the
+representation, not the model class:
+
+1. **Raw cubes cached once** (`experiments/fetch_raw.py` → `data/atlas/raw/`,
+   `data/lrd/raw/`; 9,889 fetched, 0 failures). Every stretch experiment is now
+   a local rebuild — the DJA service is never needed for this again.
+2. **Noise-aware stretch** (`core.data.asinh_stretch_snr`): per-band sky
+   subtraction, then the shared intensity is expressed in units of its own
+   MAD-estimated sky σ — asinh softening at 2σ, saturation at 300σ, 1σ noise
+   floor. Empty sky is *black* by construction; the Lupton-style linear
+   redistribution keeps flux ratios (colour) exactly as before.
+3. **Detection-anchored 64 px crop** (`core.data.centre_anchor_crop`): snap to
+   the smoothed intensity peak within ±8 px of the catalogue centre (a wider
+   window latches onto bright neighbours), so the target fills ~3.5× more of
+   the frame.
+4. SimCLR retrained from scratch on the new cutouts (80 epochs, NT-Xent → 1.78
+   vs 1.81 shipped), atlas + LRDs re-embedded, Q1 + Q3 re-run. Everything is
+   `make m3b-data` + `make m3b`; the shipped M3 artefacts are untouched
+   (`*_m3b` files throughout). Tests cover the new stretch/crop properties
+   (25 passing).
+
+**Q1 re-run — the selection function is transformed** (`lrd_selection --m3b`,
+`models/lrd_selection_m3b.json`):
+
+- **AUC 0.702 → 0.910** (bootstrap 95% CI 0.890–0.928).
+- Operating points (completeness, enrichment): top-1% 14.4% / 14.4×; top-2%
+  36.6% / **18.3×**; top-5% 59.3% / 11.9×; top-10% **73.6%** / 7.4×; top-20%
+  87.0% / 4.4×.
+- **The unreachable tail is gone: 28.2% → 1.9%** of LRDs below the atlas
+  median (n=4).
+- **The brightness selection bias is gone**: Spearman(score, log F444W)
+  0.33 → **−0.09**, score~Av 0.18 → 0.04. The four missed LRDs are, if
+  anything, *brighter* than the caught ones (0.45 vs 0.21 µJy median) — small-n
+  curiosities, not a systematic faint-end blind spot.
+- kNN-morphology probe on the m3b embeddings: **61.6% ± 0.8%** vs 62.0% ± 0.7%
+  shipped (field 63.0% vs 63.4%) — point-source awareness cost nothing on the
+  atlas's general structure.
+
+**Q3 re-run — retrieval now fails in the *right* way** (`candidates --m3b`,
+`research/candidates_m3b.csv` + `sheet_*_m3b.jpg`):
+
+- The LRD-like sheet went from 32/32 colour static to **32/32 point sources**:
+  ~22 are stars (unmistakable six-spike JWST PSF), ~9–10 are **compact
+  orange/red dots** — exactly candidate-shaped (e.g. #18, #20–22, #24, #29,
+  #30, #32).
+- The luminance diagnostic flipped: top-100 LRD-like median 8.9 vs random 12.8
+  (was 49 vs 10). Retrievals are now *darker* than random — dark-field point
+  sources; the residual ρ(ldist, lum) = +0.46 just says bright extended
+  galaxies are far from LRDs, which is correct physics.
+- **The contaminant class is the real one.** Stars/brown dwarfs are *the*
+  known contaminant in photometric LRD searches (Kokorev+24 do explicit
+  brown-dwarf vetting) — the encoder now makes the same confusion the
+  literature fights, instead of a pipeline artefact. That is what "the
+  representation is trustworthy" looks like at this stage.
+- Anomaly list: qualitatively as before (~⅓ artefacts + real exotica; the two
+  top-100 lists still nearly disjoint, overlap 1). The 4 in-atlas Kokorev
+  positional matches still embed the bright *neighbour* (0.3–1.4″ ≫ the
+  ±8 px ≈ 0.2″ anchor window) — unchanged caveat.
+
+**What M3b earns / next steps.**
+
+1. **A star veto** turns the LRD-like list into a genuine candidate list:
+   diffraction-spike/PSF morphology, point-source colour vs the stellar locus,
+   or a Gaia/point-source-catalogue cross-match. With ~⅓ of the top-32 already
+   compact-red, even a crude veto should yield a clean top-20.
+2. **Literature cross-match** of the surviving compact-red dots (novelty check)
+   — this remains the "definitely have something" gate from Q3.
+3. **Q4 (cross-field generalisation) before any public claim** — now more
+   important, not less: the M3b numbers are strong enough that the depth/PSF
+   fingerprint question is the main remaining threat.
 
 ## Q4 — Does the encoder generalise across fields?
 

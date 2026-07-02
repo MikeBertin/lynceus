@@ -18,10 +18,12 @@ the repo is private; this is the notebook's evidence):
   sheet_anomaly.jpg              contact sheet, top 32 by anomaly
   sheet_lrdlike.jpg              contact sheet, top 32 by LRD-likeness
 
-    python -m experiments.candidates
+    python -m experiments.candidates          # the shipped M3 embeddings
+    python -m experiments.candidates --m3b    # the M3b point-source-aware rerun
 """
 from __future__ import annotations
 
+import argparse
 import csv
 
 import numpy as np
@@ -33,16 +35,18 @@ K_ANOM = 20
 MATCH_ARCSEC = 1.5          # positional match radius for "already in Kokorev"
 N_SHEET = 32                # tiles per contact sheet (8 x 4)
 N_CSV = 100                 # rows per ranking in the CSV
-TILE = 120                  # native cutout size
+TILE = 120                  # sheet tile size (cutouts resized to this)
 PAD = 18                    # caption strip under each tile
 
 OUT = config.ROOT / "research"
+CUTS = config.ATLAS_CUTOUTS          # png source; --m3b swaps in cutouts_m3b
 
 
-def load_atlas():
-    rows = [r for r in csv.DictReader(open(config.ATLAS_DIR / "atlas_meta.csv"))
-            if (config.ATLAS_CUTOUTS / f"{r['id']}.npy").exists()]
-    feats = np.load(config.ATLAS_DIR / "embeddings.npy")
+def load_atlas(sfx: str = ""):
+    meta = config.ATLAS_DIR / f"atlas_meta{sfx}.csv"
+    rows = [r for r in csv.DictReader(open(meta))
+            if (CUTS / f"{r['id']}.npy").exists()]
+    feats = np.load(config.ATLAS_DIR / f"embeddings{sfx}.npy")
     assert len(rows) == len(feats)
     return rows, feats
 
@@ -75,8 +79,8 @@ def contact_sheet(rows, order, scores, title, path, cols=8):
     d.text((6, 6), title, fill=(230, 233, 242))
     for j, i in enumerate(order[:n]):
         x, y = (j % cols) * TILE, 26 + (j // cols) * (TILE + PAD)
-        png = config.ATLAS_CUTOUTS / f"{rows[i]['id']}.png"
-        sheet.paste(Image.open(png).convert("RGB"), (x, y))
+        png = CUTS / f"{rows[i]['id']}.png"
+        sheet.paste(Image.open(png).convert("RGB").resize((TILE, TILE), Image.NEAREST), (x, y))
         d.text((x + 3, y + TILE + 2),
                f"#{j+1} {scores[i]:.3f} {field(rows[i]['ra'])[:3]}",
                fill=(154, 163, 184))
@@ -85,9 +89,18 @@ def contact_sheet(rows, order, scores, title, path, cols=8):
 
 
 def main() -> None:
+    global CUTS
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--m3b", action="store_true",
+                    help="use the M3b embeddings + cutouts (noise-aware stretch, anchored crop)")
+    args = ap.parse_args()
+    sfx = "_m3b" if args.m3b else ""
+    if args.m3b:
+        CUTS = config.ATLAS_DIR / "cutouts_m3b"
+
     OUT.mkdir(exist_ok=True)
-    rows, feats = load_atlas()
-    lrd_emb = np.load(config.DATA_DIR / "lrd" / "lrd_emb.npy")
+    rows, feats = load_atlas(sfx)
+    lrd_emb = np.load(config.DATA_DIR / "lrd" / f"lrd_emb{sfx}.npy")
 
     araw = anomaly.knn_anomaly(feats, feats, k=K_ANOM, exclude_self=True)
     ldist = anomaly.nearest_distance(feats, lrd_emb)     # small = LRD-like
@@ -107,7 +120,7 @@ def main() -> None:
     both = set(rank_anom[:N_CSV]) & set(rank_like[:N_CSV])
     print(f"overlap of the two top-{N_CSV} lists: {len(both)} galaxies")
 
-    with open(OUT / "candidates.csv", "w", newline="") as f:
+    with open(OUT / f"candidates{sfx}.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["ranking", "rank", "id", "ra", "dec", "field", "anomaly",
                     "lrd_dist", "dominant", "smooth", "featured", "merger", "in_both_top100"])
@@ -119,33 +132,38 @@ def main() -> None:
                             round(float(araw[i]), 4), round(float(ldist[i]), 4),
                             r["dominant"], r["smooth"], r["featured"], r["merger"],
                             int(i in both)])
-    print(f"  wrote candidates.csv (2 x {N_CSV} rows)")
+    print(f"  wrote candidates{sfx}.csv (2 x {N_CSV} rows)")
 
     contact_sheet(rows, rank_anom, araw, "top anomalies (not in Kokorev+24) - rank, anomaly, field",
-                  OUT / "sheet_anomaly.jpg")
+                  OUT / f"sheet_anomaly{sfx}.jpg")
     contact_sheet(rows, rank_like, ldist, "most LRD-like (not in Kokorev+24) - rank, cosine dist to nearest LRD, field",
-                  OUT / "sheet_lrdlike.jpg")
+                  OUT / f"sheet_lrdlike{sfx}.jpg")
 
     # --- diagnostic: what does "LRD-like" actually retrieve? ------------------
-    # The known-LRD cutouts are tiny dots on near-empty fields; the per-cutout
-    # percentile stretch amplifies empty-field sky noise to full-range colour
-    # static, and the encoder embeds that static as a coherent texture. So
-    # nearest-to-LRD retrieval returns noise. Quantify it via mean luminance
-    # (static = high mean pixel value, real dark sky = low).
+    # Mean cutout luminance separates the two regimes. Under the shipped M3
+    # stretch, near-empty fields become full-range colour static (high
+    # luminance), and retrieval returning *brighter*-than-random cutouts means
+    # it matches that noise texture — the Q3 failure. Under the M3b stretch,
+    # empty sky stays dark; LRD-like retrievals should then be *darker* than
+    # random (point sources on dark fields), with the residual correlation just
+    # saying that big bright galaxies are far from LRDs.
     from PIL import Image as PILImage
     rng = np.random.default_rng(0)
     def lum(idx):
         return np.array([np.asarray(PILImage.open(
-            config.ATLAS_CUTOUTS / f"{rows[i]['id']}.png").convert("L"), float).mean()
+            CUTS / f"{rows[i]['id']}.png").convert("L"), float).mean()
             for i in idx])
     top100, rand100 = rank_like[:100], rng.choice(len(rows), 100, replace=False)
     samp = rng.choice(len(rows), 1000, replace=False)
     from scipy.stats import spearmanr
     rho = spearmanr(ldist[samp], lum(samp)).statistic
+    l_top, l_rand = np.median(lum(top100)), np.median(lum(rand100))
+    verdict = ("'LRD-like' retrieves amplified empty-field noise, not red dots"
+               if l_top > 2 * l_rand else
+               "LRD-like retrievals are dark-field point sources (not noise-texture)")
     print(f"diagnostic: median cutout luminance, top-100 LRD-like "
-          f"{np.median(lum(top100)):.1f} vs random {np.median(lum(rand100)):.1f} "
-          f"(spearman ldist~lum on 1k: rho={rho:.2f}) — 'LRD-like' retrieves "
-          f"amplified empty-field noise, not red dots")
+          f"{l_top:.1f} vs random {l_rand:.1f} "
+          f"(spearman ldist~lum on 1k: rho={rho:.2f}) — {verdict}")
 
 
 if __name__ == "__main__":

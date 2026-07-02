@@ -14,10 +14,12 @@ this is a selection function *relative to this atlas*).
 
 All cached data; no refetch/retrain.
 
-    python -m experiments.lrd_selection
+    python -m experiments.lrd_selection          # the shipped M3 embeddings
+    python -m experiments.lrd_selection --m3b    # the M3b point-source-aware rerun
 """
 from __future__ import annotations
 
+import argparse
 import json
 
 import numpy as np
@@ -31,8 +33,14 @@ TOP_FRACS = (0.01, 0.02, 0.05, 0.10, 0.20)   # "inspect the top X% of the atlas"
 
 
 def main() -> None:
-    feats = np.load(config.ATLAS_DIR / "embeddings.npy")
-    lrd = np.load(config.DATA_DIR / "lrd" / "lrd_emb.npy")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--m3b", action="store_true",
+                    help="use the M3b embeddings (noise-aware stretch + anchored crop)")
+    args = ap.parse_args()
+    sfx = "_m3b" if args.m3b else ""
+
+    feats = np.load(config.ATLAS_DIR / f"embeddings{sfx}.npy")
+    lrd = np.load(config.DATA_DIR / "lrd" / f"lrd_emb{sfx}.npy")
     araw = anomaly.knn_anomaly(feats, feats, k=K_ANOM, exclude_self=True)
     lraw = anomaly.knn_anomaly(lrd, feats, k=K_ANOM)
 
@@ -65,9 +73,10 @@ def main() -> None:
 
     # Characterise that missed tail against the Kokorev catalogue: is the score
     # blind to a random subset, or to a *kind* of LRD?
-    tail = characterise_tail(araw, lraw)
+    tail = characterise_tail(araw, lraw, sfx)
 
     out = {
+        "variant": "m3b" if args.m3b else "m3",
         "k": K_ANOM, "seed": SEED,
         "n_lrd": int(len(lraw)), "n_atlas": int(len(araw)),
         "auc": round(auc, 3), "auc_ci": [round(ci["lo"], 3), round(ci["hi"], 3)],
@@ -75,12 +84,12 @@ def main() -> None:
         "frac_lrd_below_atlas_median": round(below_median, 3),
         "missed_tail": tail,
     }
-    path = config.MODELS_DIR / "lrd_selection.json"
+    path = config.MODELS_DIR / f"lrd_selection{sfx}.json"
     path.write_text(json.dumps(out, indent=2))
     print(f"\nSaved {path}")
 
 
-def characterise_tail(araw: np.ndarray, lraw: np.ndarray) -> dict:
+def characterise_tail(araw: np.ndarray, lraw: np.ndarray, sfx: str = "") -> dict:
     """Compare missed (below atlas-median) vs caught (top-decile) LRDs on the
     Kokorev catalogue's physical columns — brightness, dust, colour."""
     import csv
@@ -88,7 +97,8 @@ def characterise_tail(araw: np.ndarray, lraw: np.ndarray) -> dict:
     from scipy.stats import spearmanr
 
     cat = fits.open(config.DATA_DIR / "lrd_kokorev.fits")[1].data
-    rows = list(csv.DictReader(open(config.DATA_DIR / "lrd" / "lrd_meta.csv")))
+    meta = config.DATA_DIR / "lrd" / f"lrd_meta{sfx}.csv"
+    rows = list(csv.DictReader(open(meta)))
     # our cached LRD order -> catalogue rows, matched by position
     idx = np.array([np.argmin((cat["ra"] - float(r["ra"])) ** 2 +
                               (cat["dec"] - float(r["dec"])) ** 2) for r in rows])
@@ -118,7 +128,10 @@ def characterise_tail(araw: np.ndarray, lraw: np.ndarray) -> dict:
     print(f"  dust Av      {tail['av']['missed']} vs {tail['av']['caught']}"
           f"          (score~Av: rho={tail['spearman_score_vs_av']})")
     print(f"  F444W/F200W  {tail['f444w_over_f200w']['missed']} vs {tail['f444w_over_f200w']['caught']}")
-    print("  -> the score selects the bright, red end of the LRD population.")
+    if tail["spearman_score_vs_logf444w"] >= 0.2:
+        print("  -> the score selects the bright, red end of the LRD population.")
+    else:
+        print(f"  -> no meaningful brightness selection (rho~0; n_missed={tail['n_missed']}).")
     return tail
 
 

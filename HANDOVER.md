@@ -91,6 +91,9 @@ experiments/          # one-shot scripts (run as `python -m experiments.X`)
   fetch_lrd.py        #   M3: 216 Kokorev+24 LRDs in our fields, fetched + embedded
   build_atlas.py      #   M2/M3: embed -> UMAP -> sprites + atlas.json + anomaly + lrds.json
   restretch_atlas.py  #   M3: re-fetch atlas cutouts in place with colour stretch
+  fetch_raw.py        #   M3b: cache RAW cubes (atlas+LRD) — stretches now local forever
+  build_m3b_cutouts.py#   M3b: raw -> snr-stretch + anchored 64px crop -> cutouts_m3b/
+  embed_m3b.py        #   M3b: embed m3b cutouts with ssl_encoder_m3b.pt
   build_photoz_dataset.py # M4: CEERS fluxes+z -> data/photoz/photoz.npz
   train_photoz.py     #   M4: train photo-z MLP, validate on spec-z -> models/photoz.pt
   export_photoz_onnx.py   # M4: photoz.pt -> web/dropout/photoz.onnx (+ meta)
@@ -373,8 +376,25 @@ only consider going public once something is definitely in hand.**
   (fixed physical scale, empty sky stays dark) + centroid-colour features,
   then re-run Q1/Q3. Full verdict in RESEARCH.md (notebook-grade methods
   story; not yet the go-public "something").
-- **Q4 is the pre-publish gate** if Q3 finds anything: retrain minus one field,
-  check the enrichment survives on the held-out field.
+- **M3b DONE** — the Q3 fix, executed end-to-end (see RESEARCH.md M3b for the
+  full writeup). Raw cubes now cached (`data/atlas/raw/`, `data/lrd/raw/` —
+  9,889 cubes, stretch changes are local forever; `make m3b-data`). New
+  representation: `core.data.asinh_stretch_snr` (sky-RMS units, 2σ soften /
+  300σ cap / 1σ floor — empty sky stays black, colour preserved) +
+  `centre_anchor_crop` (64px, ±8px snap) → `cutouts_m3b/`; SimCLR retrained
+  (`models/ssl_encoder_m3b.pt`, NT-Xent 1.78), embeddings in
+  `embeddings_m3b.npy` / `lrd_emb_m3b.npy`; `lrd_selection --m3b`,
+  `candidates --m3b` (`make m3b`). **Results: AUC 0.702→0.910 (CI 0.890–0.928),
+  top-2% = 18.3× enrichment at 36.6% completeness, below-median tail 28.2%→1.9%,
+  brightness bias gone (ρ 0.33→−0.09); kNN-morph unchanged (61.6%±0.8%).
+  LRD-like retrieval now returns point sources — ~2/3 stars (diffraction
+  spikes) + ~1/3 compact red dots — i.e. the literature's own contaminant
+  class, not noise-texture.** Shipped M3 assets untouched (all `*_m3b` files;
+  the web demo still uses the original encoder). Next: a **star veto** on the
+  LRD-like list, literature cross-match of the survivors, then **Q4** as the
+  pre-publish gate.
+- **Q4 is the pre-publish gate** if Q3/M3b candidates are announced: retrain
+  minus one field, check the enrichment survives on the held-out field.
 
 ### Publishing — PAUSED, ready to go (do NOT publish without an explicit ask)
 The user paused here intentionally. Two things to settle first (see §8):

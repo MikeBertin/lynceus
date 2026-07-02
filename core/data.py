@@ -105,6 +105,85 @@ def asinh_stretch(img: np.ndarray, lo_pct: float = 45.0, hi_pct: float = 99.8,
     return np.clip(out, 0.0, 1.0).astype(np.float32)
 
 
+def _robust_sigma(x: np.ndarray) -> float:
+    """Sky-noise scale via the median absolute deviation (robust to sources)."""
+    med = np.median(x)
+    return float(1.4826 * np.median(np.abs(x - med)) + 1e-12)
+
+
+def asinh_stretch_snr(img: np.ndarray, soft_snr: float = 2.0,
+                      cap_snr: float = 300.0, floor_snr: float = 1.0) -> np.ndarray:
+    """M3b: noise-aware, colour-preserving asinh stretch into [0, 1].
+
+    The per-cutout *percentile* stretch (``asinh_stretch``) normalises every
+    cutout to fill [0, 1] — so a near-empty field has its sky noise amplified to
+    full-range colour static, and tiny sources (the faint Little Red Dots,
+    r_eff < 1 px) embed as that noise texture rather than as red dots
+    (RESEARCH.md Q3). Here the scale is physical instead: everything is in
+    units of the cutout's own sky RMS, so empty sky is *dark* no matter what
+    else is (or isn't) in the frame.
+
+    Per-band sky (median) is subtracted; the shared mean intensity is divided
+    by its MAD-estimated sky sigma; ``asinh(x / soft_snr)`` softens above
+    ``soft_snr`` sigma and saturates at ``cap_snr`` sigma; pixels below
+    ``floor_snr`` sigma are floored to 0 (noise stays black). The stretched
+    intensity is redistributed onto the bands linearly, exactly as in the
+    colour mode of ``asinh_stretch``, so flux ratios (= colour) survive.
+    """
+    f = img.astype(np.float32)
+    C = f.shape[0]
+    skies = np.median(f.reshape(C, -1), axis=1)
+    f = f - skies[:, None, None]
+    intensity = f.mean(axis=0)
+    sigma = _robust_sigma(intensity)
+    x = np.clip(intensity - floor_snr * sigma, 0.0, None)
+    stretched = np.arcsinh(x / (soft_snr * sigma)) / np.arcsinh(cap_snr / soft_snr)
+    stretched = np.clip(stretched, 0.0, 1.0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        scale = np.where(intensity > 1e-9, stretched / intensity, 0.0)
+    out = np.clip(f, 0.0, None) * scale[None]
+    return np.clip(out, 0.0, 1.0).astype(np.float32)
+
+
+def centre_anchor_crop(raw: np.ndarray, out_px: int = 64,
+                       search_px: int = 8, smooth: float = 1.5) -> tuple[int, int]:
+    """M3b: detection anchor — (cy, cx) of the source at the cutout centre.
+
+    Cutouts are fetched at catalogue RA/Dec, so the target sits within a couple
+    of pixels of the centre; the anchor just snaps onto its smoothed intensity
+    peak. The search window is deliberately tiny (``+-search_px``) — a wider
+    window latches onto bright *neighbours*, which is exactly the failure mode
+    the M3b crop exists to fix (the four Kokorev "matches" that embedded the
+    galaxy next door, RESEARCH.md Q3).
+    """
+    from scipy.ndimage import gaussian_filter
+
+    C, H, W = raw.shape
+    skies = np.median(raw.reshape(C, -1), axis=1)
+    intensity = (raw - skies[:, None, None]).mean(axis=0)
+    sm = gaussian_filter(intensity, smooth)
+    cy0, cx0 = H // 2, W // 2
+    win = sm[cy0 - search_px:cy0 + search_px, cx0 - search_px:cx0 + search_px]
+    py, px = np.unravel_index(int(np.argmax(win)), win.shape)
+    cy, cx = py + cy0 - search_px, px + cx0 - search_px
+    h = out_px // 2
+    return (int(np.clip(cy, h, H - h)), int(np.clip(cx, h, W - h)))
+
+
+def m3b_cutout(raw: np.ndarray, out_px: int = 64, **stretch_kw) -> np.ndarray:
+    """Raw service cube -> the M3b representation: SNR stretch + anchored crop.
+
+    Stretch first (the sky sigma is estimated on the full frame, where sky
+    pixels dominate even when a big galaxy fills the crop), then crop. The
+    stretch is physical, so cropping doesn't change the stretched values.
+    """
+    raw = np.nan_to_num(raw)
+    st = asinh_stretch_snr(raw, **stretch_kw)
+    cy, cx = centre_anchor_crop(raw, out_px=out_px)
+    h = out_px // 2
+    return st[:, cy - h:cy + h, cx - h:cx + h]
+
+
 def _save_record(rec_id: str, label: str, source: str, ra: float, dec: float,
                  redshift: float, stretched: np.ndarray) -> CutoutRecord:
     """Persist a normalised (C, H, W) cutout as .npy + .png and return its record."""

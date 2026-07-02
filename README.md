@@ -66,6 +66,9 @@ experiments/
   fetch_data.py       #   M1: synthetic Sersic fallback / local-mosaic Cutout2D
   fetch_atlas.py      #   M2: unlabelled JWST cutouts for the atlas
   fetch_lrd.py        #   M3: known Little Red Dots (Kokorev+24) + embeddings
+  fetch_raw.py        #   M3b: cache the raw cubes (stretch experiments go offline)
+  build_m3b_cutouts.py#   M3b: noise-aware stretch + detection-anchored crop
+  embed_m3b.py        #   M3b: re-embed atlas + LRDs with the M3b encoder
   train_vit.py        #   M1: CV metrics + final model + metrics.json
   train_atlas.py      #   M2: SimCLR encoder
   build_atlas.py      #   M2/M3: embed -> UMAP -> sprites + atlas.json + anomaly + lrds.json
@@ -97,6 +100,7 @@ make venv        # python3.13 venv + pinned requirements
 make m1-data m1  # Galaxy Zoo labels + JWST cutouts -> ViT -> web demo
 make m2-data m2  # ~10k cutouts -> SimCLR (the long run) -> atlas
 make m3-data m3  # Little Red Dots -> anomaly overlay
+make m3b-data m3b # raw cubes -> point-source-aware encoder -> Q1+Q3 rerun
 make m4-data m4  # CEERS catalogue -> photo-z net -> dropout demo
 make stats       # error bars, null tests + PDF calibration -> web JSON
 make test serve  # unit tests; demos at http://localhost:8137

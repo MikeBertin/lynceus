@@ -19,7 +19,7 @@
 
 PY := .venv/bin/python
 
-.PHONY: help venv test serve m1 m1-data m2 m2-data m3 m3-data m4 m4-data stats all
+.PHONY: help venv test serve m1 m1-data m2 m2-data m3 m3-data m3b-data m3b m4 m4-data stats all
 
 help:            ## show this help
 	@grep -E '^[a-z0-9-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -62,6 +62,17 @@ m3-data: data/lrd_kokorev.fits  ## fetch + embed the 216 known Little Red Dots (
 
 m3:              ## rebuild atlas assets with anomaly scores + LRD overlay
 	$(PY) -m experiments.build_atlas
+
+# --- M3b: point-source-aware representation (RESEARCH.md Q3 -> M3b) ----------
+m3b-data:        ## fetch + cache the RAW cubes (network; makes all stretches local forever)
+	$(PY) -m experiments.fetch_raw
+
+m3b:             ## noise-aware cutouts -> retrain SimCLR (the other big run) -> rerun Q1+Q3
+	$(PY) -m experiments.build_m3b_cutouts
+	$(PY) -m experiments.train_atlas --cutouts-dir data/atlas/cutouts_m3b --out ssl_encoder_m3b.pt --epochs 80
+	$(PY) -m experiments.embed_m3b
+	$(PY) -m experiments.lrd_selection --m3b
+	$(PY) -m experiments.candidates --m3b
 
 # --- M4: the dropout hunter (photo-z) -----------------------------------------
 data/ceers_morpho.fits.gz:
