@@ -16,6 +16,7 @@ question that toolkit can attack, ordered by cost.
 | Q2 | Does the net beat EAZY on **interloper rejection**? | cached data, hours | ✅ **done** — honest null: inherits its teacher's interlopers (10/12 shared), PDFs are confidently wrong |
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
+| Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8, high P(z>4)) |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | queued — **the pre-publish gate** |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
@@ -199,9 +200,11 @@ honest *methods* story (a validated-but-biased selector, an inherited-label
 null, a diagnosed retrieval failure with a fix) — notebook-grade, not yet the
 "definitely have something". The something, if it comes, is M3b + a re-run Q3
 list, or the anomaly sheet's emission-line objects surviving a literature
-cross-match. *(Update: M3b is now done — see the M3b section. The fix worked;
-what remains before "definitely have something" is the star veto + literature
-cross-match, and Q4 as the pre-publish gate.)*
+cross-match. *(Update: M3b and Q3b are now done — see those sections. The fix
+worked, and Q3b delivered 3–4 strong uncatalogued candidates plus two
+independent rediscoveries of published LRDs. What remains before
+"definitely have something": a manual check against the 2025–26 LRD samples,
+and Q4 as the pre-publish gate.)*
 
 ## M3b — the point-source-aware representation (the Q3 fix, executed)
 
@@ -269,15 +272,78 @@ representation, not the model class:
 
 **What M3b earns / next steps.**
 
-1. **A star veto** turns the LRD-like list into a genuine candidate list:
-   diffraction-spike/PSF morphology, point-source colour vs the stellar locus,
-   or a Gaia/point-source-catalogue cross-match. With ~⅓ of the top-32 already
-   compact-red, even a crude veto should yield a clean top-20.
-2. **Literature cross-match** of the surviving compact-red dots (novelty check)
-   — this remains the "definitely have something" gate from Q3.
+1. **A star veto** — ✅ done, see Q3b below.
+2. **Literature cross-match** — ✅ done, see Q3b below.
 3. **Q4 (cross-field generalisation) before any public claim** — now more
    important, not less: the M3b numbers are strong enough that the depth/PSF
    fingerprint question is the main remaining threat.
+
+## Q3b — star veto + literature cross-match + photo-z (the Q3 deliverable, realised)
+
+The three follow-ups the M3b list earned, run end-to-end. Everything scripted
+and re-runnable; outputs under `research/` (vetted/crossmatch/photoz CSVs +
+`sheet_vetted.jpg`).
+
+**Star veto** (`experiments/star_veto.py`). Three independent, disclosed
+tests: (i) *PSF halo + diffraction spikes* from the cached raw cubes —
+`mu_halo` (mean SNR-stretched intensity, 5–26 px annulus) and `m6sig` (m=6
+azimuthal Fourier mode vs the other modes); (ii) *colour* — F444W/F200W
+aperture ratio ≥ 1.5 (LRDs are red by definition; known-LRD 5th pct = 1.9);
+(iii) *Gaia DR3* cone (1″) — significant parallax/PM = kinematic star.
+Thresholds calibrated so **93% of the 216 known LRDs survive their own veto**
+(the disclosed completeness cost). Result over the top-100 LRD-like:
+**32 star_psf + 14 star_gaia + 44 not-red → 10 survivors**, visually all
+compact orange-red dots (one elongated streak).
+
+**Literature cross-match** (`experiments/candidate_crossmatch.py`). SIMBAD +
+NED + the machine-checkable LRD samples — crucially the **Perger+25 VizieR
+table, which is a compilation of the major published LRD samples through
+~2024** (Akins+24: 420, Kokorev+24: 219, Kocevski+24: 165, Greene+24,
+Matthee+24, Labbé+23, … 17 refs), plus the Euclid LRD list and the RUBIES
+broad-Balmer census. Results:
+
+- **2/10 are published LRDs we independently rediscovered** — Akins+24
+  COSMOS-Web 758982 (z_phot 5.46) and 758452 (z_phot 5.99), at 0.14″. They
+  were *not* in Kokorev v1.1, so they were never in our known set: the
+  pipeline found real, previously-unseen published LRDs on its own. That is
+  the cleanest end-to-end validation available without a telescope.
+- **8/10 are in no machine-checkable LRD sample**; two (#62, #97) have no
+  SIMBAD entry at all; #87 is a COSMOS2015 emission-line galaxy.
+
+**Photo-z sanity check** (`experiments/candidate_photoz.py`). First a
+validation the check depends on: the M4 net on the Kokorev *catalogue*
+photometry of the 216 known LRDs gives **σ_NMAD 0.042** vs their z_phot and
+**P(z>4)>0.5 for 94%** — the EAZY-distilled net reads V-shaped LRD SEDs
+about as well as ordinary galaxies (it was never shown one in training).
+Then 9-band aperture photometry from service cutouts (r=10 px, sky-RMS
+errors), per-band flux calibration = median catalogue/aperture ratio over 48
+known LRDs (fixes units + point-source aperture loss in one factor; factors
+came out consistent at ~0.010 with the expected mild PSF trend). The two
+Akins rediscoveries come back at z 5.85/6.19 vs published 5.99/5.46 —
+consistent. The 8 novel survivors split:
+
+| rank | id | field | z_peak | P(z>4) | reading |
+|---:|---|---|---:|---:|---|
+| 49 | atl041542 | UDS | **8.4** | **0.99** | strongest new candidate |
+| 100 | atl007048 | COSMOS | 5.2 | **1.00** | high-z but *elongated* — likely dusty edge-on, not LRD morphology |
+| 87 | atl015287 | COSMOS | 6.8 | 0.83 | strong; COSMOS2015 EmG |
+| 57 | atl026058 | GOODS-S | 5.6 | 0.70 | strong |
+| 97 | atl039645 | UDS | 7.3 | 0.47 | extreme red (F444W/F200W≈23), bimodal PDF — ambiguous |
+| 42 | atl008513 | COSMOS | 1.0 | 0.35 | low-z favoured |
+| 62 | atl041002 | UDS | 1.2 | 0.36 | low-z favoured |
+| 67 | atl039298 | UDS | 2.6 | 0.00 | intermediate z, not LRD-z |
+
+**Bottom line: 3–4 strong, previously-uncatalogued LRD candidates**
+(#49, #57, #87, arguably #100) plus two independent rediscoveries that
+validate the whole chain — anomaly score → retrieval → veto → photo-z.
+
+**Caveats, all load-bearing.** The aperture photometry is
+plausibility-grade, not measurement-grade; LRD photo-zs are notoriously
+degenerate even with full catalogues; faint brown dwarfs below Gaia can
+still pass the veto; and the literature coverage ends at the Perger+25
+compilation cutoff (~late 2024) — the 2025–26 samples (e.g. Kocevski+25's
+systematic ~300) need a **manual check** before any novelty claim. And Q4
+(below) is still the pre-publish gate.
 
 ## Q4 — Does the encoder generalise across fields?
 
