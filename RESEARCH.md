@@ -17,7 +17,7 @@ question that toolkit can attack, ordered by cost.
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
 | Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8), absent from every checked photometric+spectroscopic LRD sample on our fields (Kokorev, full Kocevski+24, full Akins-CW, RUBIES) |
-| Q3c | **From candidates to confirmations** (archival spectra → selection replay → SED) | cached + archive queries | 🔄 **in progress** — Step 1 (archival-spectrum search) ✅ **done**: 0/10 have a public NIRSpec spectrum (validated: 90/260 known LRDs do, median 0.01″) → all 10 are genuinely unobserved; Step 2 (selection replay) next |
+| Q3c | **From candidates to confirmations** (archival spectra → selection replay → SED) | cached + archive queries | 🔄 **Steps 1–2 done, and they revise Q3b.** Step 1: 0/10 have a public NIRSpec spectrum (validated on known LRDs). Step 2 (catalogue-grade selection replay): **0/8 novel candidates survive** — 5 are real galaxies that are *not red* in catalogue photometry (F277−F444≈0 vs LRDs' ≈1), 3 have no JWST counterpart; only the 2 already-known Akins LRDs pass. The Q3b "3–4 new candidates" were inflated by plausibility-grade aperture photometry |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | ✅ **done — passes** — leave-one-field-out: LRD enrichment survives on all 3 held-out fields (AUC drops ≤0.03, CIs overlap); not a depth artefact |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
@@ -359,6 +359,17 @@ consistent. The 8 novel survivors split:
 their footprints — plus two independent rediscoveries that validate the whole
 chain: anomaly score → retrieval → veto → cross-match → photo-z.
 
+> **⚠ REVISED BY Q3c Step 2 (catalogue-grade replay) — read this.** This "3–4
+> strong candidates" claim does **not** survive catalogue-grade photometry. The
+> Q3b redness rested on plausibility-grade aperture photometry of service
+> cutouts; when the same positions are measured in the DJA/COSMOS-Web parent
+> catalogues, **none of the 8 novel candidates is red or compact enough to pass
+> any published LRD cut** (5 are ordinary galaxies with F277W−F444W ≈ 0; 3 have
+> no catalogued JWST counterpart). The two *rediscoveries* (atl006594/atl006181
+> = Akins CW-758982/758452) remain real and still validate the method. Net:
+> Q3b is a validated **method** demonstration, not a set of new discoveries.
+> Full detail in Q3c → Step 2 below.
+
 **Caveats, all load-bearing.** The aperture photometry is plausibility-grade,
 not measurement-grade; LRD photo-zs are notoriously degenerate even with full
 catalogues; faint brown dwarfs below Gaia can still pass the veto. The
@@ -428,6 +439,52 @@ cuts but absent* = genuinely new; *fails their cuts* = absence explained. Also
 confirms each is a real detected source (our aperture photometry is only
 plausibility-grade).
 
+**Status / results.** ✅ Done — `python -m experiments.candidate_selection_replay`
+(auto-fetches the parent catalogues → `research/candidates_selection_replay.csv`).
+**The honest, sobering result: 0/8 novel candidates survive catalogue-grade
+photometry.** This materially revises Q3b (see the revision note there).
+
+- **Parent catalogues.** The van der Wel+25 DJA "morpho-phot" catalogues
+  (`gds`, `primer-uds-north/south`, `primer-cosmos-west/east`; ~354k sources)
+  carry catalogue-grade multi-band fluxes *and* single-Sérsic sizes in one file.
+  Their row count equals the plain `_phot.fits` detection lists, so they *are*
+  the parent detection catalogues — a non-match is a genuine absence, not a
+  morphology-subset artefact. COSMOS-Web sources outside PRIMER are recovered
+  from the Akins+24 COSMOS-Web table (which carries their COSMOS-Web photometry).
+- **The replay is validated both ways.** Known Kokorev LRDs recover at 110/111
+  (UDS) and 26/27 (GOODS-S), come out **red** (median F277W−F444W ≈ 1.0) and
+  **compact** (~100% by r_h < 1.5 r_h,stars). And the two Akins rediscoveries,
+  fed their COSMOS-Web photometry, **pass the Akins cut** (F277W−F444W = 1.56 /
+  1.92, C444 = 0.55 / 0.57, SNR_F444W = 137 / 158, brown-dwarf χ² rejected). So
+  the machinery passes true LRDs and is trustworthy when it fails a candidate.
+- **Verdict for all 10:**
+
+  | verdict | ids | reading |
+  |---|---|---|
+  | published LRD (2) | atl006594, atl006181 | the Akins COSMOS-Web rediscoveries; pass Akins (already "known", not novel) |
+  | below cuts (5) | atl041542, atl041002, atl039298, atl015287, atl007048 | real JWST galaxies, but **not red** in catalogue photometry (F277W−F444W ≈ −0.1…+0.2) and mostly extended → fail *every* published cut |
+  | no JWST counterpart (3) | atl008513, atl026058, atl039645 | no catalogued JWST source within 1–8″ → spurious atlas detection / off-footprint |
+
+- **Why Q3b over-called it.** The atlas (hence candidate) positions come from
+  **Galaxy Zoo CANDELS** — relatively bright, human-classified galaxies — and
+  the Q3b redness (`r44_20` = F444/F200 = 3–23) came from *plausibility-grade*
+  aperture photometry on service cutouts, exactly the caveat the M3b/Q3b notes
+  flagged. Catalogue-grade photometry deflates it: at the same positions,
+  F277W−F444W ≈ 0, not the ≈1 of real LRDs. The five bright matches (SNR 8–294)
+  are ordinary galaxies whose *cutout appearance* embedded near the LRD locus;
+  three "candidates" aren't catalogued JWST sources at all.
+- **Net for the novelty question.** "Absent from the LRD selections" is now
+  **explained, not novelty**: the measurable candidates fail the cuts because
+  they are not red/compact, and three are not real detections. The only genuine
+  LRDs the anomaly→retrieval chain surfaced are the two Akins rediscoveries —
+  which remain a clean, real validation of the *method*, just not a new
+  discovery. Caveats: compactness is unified as Kocevski's r_h < 1.5 r_h,stars
+  (a disclosed stand-in for the papers' various aperture-ratio compactness
+  measures), but the "below cuts" verdicts are driven by **colour** (the
+  dominant LRD discriminator), so they are robust to the compactness definition;
+  Akins' brown-dwarf SED veto is only fully replayable for sources in the Akins
+  table.
+
 **Step 3 — SED/slope/MIRI strengthening → a ranked target list.** Full-SED
 template fit (LRD vs brown-dwarf vs dusty-galaxy), measure β_UV/β_opt (doubles
 as the Kocevski replay), MIRI F770W/F1800W where COSMOS-Web has it. Present the
@@ -436,10 +493,17 @@ correct scientific unit. The caveat is intrinsic to every photometric LRD
 sample; the response is to maximise archival evidence and frame the residual as
 targets, not to pretend it is gone.
 
-**Status.** Step 1 ✅ done (clean null — see its results above; all 10 candidates
-are spectroscopically unobserved, machinery validated on 90/260 known LRDs).
-Step 2 (parent-catalog selection replay) is the agreed next action; Step 3
-follows.
+**Status.** Steps 1–2 ✅ done. Step 1: clean null (all 10 spectroscopically
+unobserved). Step 2: catalogue-grade replay **collapses the novel candidate
+list to zero** — 5 are real-but-not-red galaxies, 3 are non-detections, and the
+only survivors are the 2 already-known Akins LRDs. **Step 3 (SED/MIRI) is now
+moot for a discovery claim** — there is no novel candidate left to strengthen.
+The standing conclusion for Q3c: the anomaly→retrieval→veto→cross-match chain is
+a validated *method* (it independently rediscovered 2 published LRDs), but on
+these fields, with catalogue-grade photometry, it yields **no new LRD**. The
+faint-LRD frontier is a fundamentally different (fainter, JWST-catalogue-native)
+population than our Galaxy-Zoo-seeded atlas can reach — which points to M5 and a
+JWST-detected parent sample rather than more work on this candidate list.
 
 ## Q4 — Does the encoder generalise across fields?
 

@@ -31,17 +31,24 @@ representation** (see §7):
   **Q3** (candidate list — diagnosed the retrieval failure) → done.
 - **M3b** (the Q3 fix: point-source-aware representation) → done, **now shipped
   in the demo**. Lifted AUC 0.70→0.91, killed the faint-tail blind spot.
-- **Q3b** (star veto → literature cross-match → photo-z) → done. Produced
-  **3–4 strong, previously-uncatalogued LRD candidates** plus **2 independent
-  rediscoveries** of published LRDs (Akins-CW). Literature check complete for
-  our fields (Kokorev, full Kocevski+24, full Akins-CW, RUBIES).
+- **Q3b** (star veto → literature cross-match → photo-z) → done. *Originally*
+  read as 3–4 new candidates + 2 rediscoveries — but see Q3c Step 2: the "new
+  candidates" do **not** survive catalogue-grade photometry.
+- **Q3c** (candidates → confirmations) → **Steps 1–2 done, and they revise Q3b.**
+  Step 1 (archival spectra): 0/10 have a public NIRSpec spectrum. Step 2
+  (catalogue-grade selection replay vs DJA/COSMOS-Web parent catalogues):
+  **0/8 novel candidates survive** — 5 are real galaxies that are *not red*
+  (F277−F444≈0 vs LRDs' ≈1), 3 have no JWST counterpart; only the 2 already-known
+  Akins LRDs pass. The Q3b redness was an artefact of plausibility-grade aperture
+  photometry. **Net: the pipeline is a validated *method* (it rediscovered 2
+  published LRDs), but yields no new LRD on these Galaxy-Zoo-seeded fields.**
 - **Q4** (cross-field generalisation, the pre-publish gate) → **passes.** The
   anomaly signal survives on fields the encoder never trained on.
 - **Q5** = M5 (image+spectra contrastive) → not started; the big future bet.
 
-Recent commits (newest first): `9ebff21` ship M3b in demo · `14abae8`
-spectroscopic residual (Akins-CW + RUBIES) · `f8766bc` Q4 passes · `bccd293`
-Kocevski cross-match · `07a3662` Q4 scaffolding · `ff3c659` Q3b · `8206ec4` M3b.
+Recent commits (newest first): `81417b2` Q3c Step 1 (archival-spectrum null) ·
+`9ebff21` ship M3b in demo · `14abae8` spectroscopic residual (Akins-CW +
+RUBIES) · `f8766bc` Q4 passes · `ff3c659` Q3b · `8206ec4` M3b.
 
 **Test suite: 25 passing.** Start every session with:
 ```bash
@@ -52,10 +59,28 @@ cd /Users/m/.openclaw/workspace/projects/lynceus && .venv/bin/python -m pytest -
 
 ## 2. NEXT SESSION — start here
 
-The open question the user is actively pursuing: **how to address the honest
-caveat that "absence from a photometric selection can mean *below their cuts*,
-and only a spectrum truly confirms an LRD."** That caveat splits into two
-separable problems with different fixes. The agreed plan, in priority order:
+**The Q3c verdict is in, and it revises Q3b: there is no new LRD in this
+candidate list.** Steps 1–2 are done (details below). Catalogue-grade photometry
+collapses all 8 "novel" candidates (5 not-red galaxies, 3 non-detections); only
+the 2 already-known Akins LRDs survive. The pipeline is a validated *method*
+(it rediscovered 2 published LRDs with no labels) but is **not** a discovery
+engine on these Galaxy-Zoo-seeded fields. So the decision for next session is
+**strategic, not another step of this candidate list:**
+
+- **Don't chase Step 3.** SED/MIRI strengthening has nothing left to strengthen —
+  no candidate survives Step 2. Skip it.
+- **The real lesson → M5 / a JWST-native parent.** The candidates failed largely
+  because the atlas is seeded from **Galaxy Zoo CANDELS** (bright, HST-classified
+  galaxies), so it can't reach the faint, JWST-catalogue-native LRD population.
+  A genuine LRD hunt wants a faint JWST-detected parent sample (DJA/COSMOS-Web
+  source lists) as the atlas, not GZ positions — and image+spectra contrastive
+  (M5) is the paper-shaped bet. This is the recommended direction.
+- **Publish?** Still a standing option, but the honest framing is now "a
+  validated anomaly-detection *method* that rediscovers known LRDs", not "we
+  found new LRDs". Adjust the demo/README copy accordingly before any publish.
+
+Below: the completed Step 1–2 record. (Original Step 2/3 plan retained for
+context, struck through where superseded.)
 
 ### Step 1 — archival-spectrum search ✅ DONE (2026-07-03)
 **Result: a clean null — none of the 10 is spectroscopically observed yet.**
@@ -73,25 +98,28 @@ can't be discharged from the archive today; all 10 stay a **follow-up target
 list**, and this same re-run is the confirmation test when the next NIRSpec
 release lands. Full detail: RESEARCH.md Q3c Step 1.
 
-### Step 2 (agreed next action) — parent-catalog cross-match + selection-function replay
-Turns "absent" from a bare positional non-match into a defensible novelty claim.
-Instead of only checking the LRD *sub-selections*, cross-match against the
-**parent photometric catalogs** (DJA / COSMOS-Web / JADES source lists — every
-detected object), pull each candidate's catalog-grade fluxes, then **apply each
-paper's published cuts** (Akins: F277W−F444W>1.5 + compactness + BD rejection;
-Kocevski: β_UV/β_opt slopes + r_eff<1.5× stellar PSF; Kokorev: its flux/compactness
-cuts). Verdict per candidate: *passes their cuts but absent* = genuinely new;
-*fails their cuts* = absence explained ("below their limit"), say so. This also
-confirms each candidate is a real detected source, not noise — our own aperture
-photometry is only plausibility-grade (see §5 caveat).
+### Step 2 — parent-catalog selection replay ✅ DONE (2026-07-04)
+**Result: 0/8 novel candidates survive catalogue-grade photometry.**
+`python -m experiments.candidate_selection_replay` (auto-fetches the parent
+catalogues → `research/candidates_selection_replay.csv`). Cross-matched each
+candidate to the **DJA van der Wel+25 "morpho-phot" parent catalogues** (fluxes
++ Sérsic sizes; row count = the plain `_phot.fits` detection lists, so a
+non-match is a genuine absence), recovered COSMOS-Web-outside-PRIMER sources from
+the Akins table, and replayed the published cuts (Akins F277W−F444W>1.5+compact;
+Kocevski β_UV<−0.37 & β_opt>0+compact; Kokorev red1/red2+compact). **Validated
+both ways:** known Kokorev LRDs recover red (median F277W−F444W≈1.0) + compact
+(~100%); the 2 Akins rediscoveries *pass* Akins on COSMOS-Web photometry. Verdict:
+2 published-LRD (the rediscoveries), **5 below-cuts** (real galaxies, F277W−F444W
+≈0 — *not red*), **3 no-JWST-counterpart** (spurious/off-footprint). Root cause:
+Q3b's redness came from plausibility-grade aperture photometry; catalogue-grade
+photometry deflates it. Full detail: RESEARCH.md Q3c Step 2. Compactness is
+unified as r_h<1.5 r_h,stars (disclosed stand-in); "below-cuts" is colour-driven,
+so robust. Uses the DJA parent catalogues (§5); ~2.5 GB, gitignored, auto-fetched.
 
-### Step 3 — SED / slope / MIRI strengthening → ranked target list
-On whatever survives: full-SED template fit (LRD vs brown-dwarf vs dusty-galaxy,
-report which wins), measure β_UV/β_opt (doubles as the Kocevski replay), use MIRI
-F770W/F1800W where COSMOS-Web has it (breaks the LRD/BD degeneracy). Present the
-result as a **prioritized spectroscopic-follow-up target list** — the honest and
-correct scientific unit; the caveat is intrinsic to every photometric LRD sample,
-so the response is to maximize archival evidence and frame the residual as targets.
+### ~~Step 3 — SED / slope / MIRI strengthening~~ (superseded — nothing survives Step 2)
+Was: strengthen whatever survived Step 2 into a ranked target list. Moot — no
+novel candidate passed Step 2. See §2 top for the real next direction (M5 / a
+JWST-native parent atlas).
 
 ### Standing options (user's call, not blocking)
 - **Publish** — the bar the user set ("something definitely in hand") is met.
@@ -168,6 +196,7 @@ experiments/             # one-shot scripts (run as `python -m experiments.X`)
   candidate_crossmatch.py#   Q3b literature cross-match (auto-downloads catalogs)
   candidate_photoz.py    #   Q3b photo-z sanity check (9-band aperture phot)
   candidate_specsearch.py#   Q3c Step 1 archival-spectrum search vs DJA-Spec; --validate
+  candidate_selection_replay.py # Q3c Step 2 parent-catalog replay of Akins/Kocevski/Kokorev cuts
   q4_generalise.py       #   Q4 leave-one-field-out generalisation eval; --field/--all
   # --- M4 dropout ---
   build_photoz_dataset.py, train_photoz.py, export_photoz_onnx.py,
@@ -230,6 +259,15 @@ Step-2 selection replay use parent-catalog fluxes instead.
   extractions (the union of all msaexp-reduced programs); 587 cols incl.
   ra/dec/`z_best`/`grade`(3=secure)/Balmer-line fluxes/`beta`. Position-searchable
   master of every public spectrum, so it subsumes RUBIES/JADES/CEERS/etc.
+- **DJA parent photometric catalogues (Q3c Step 2, auto-downloaded, ~2.5 GB):**
+  `data/dja_phot/{root}_morpho-phot.fits.gz` for `gds-grizli-v7.2`,
+  `primer-uds-north/south-grizli-v7.2`, `primer-cosmos-west/east-grizli-v7.0`
+  from `s3.amazonaws.com/aurelien-sepp/` (van der Wel+25 morphology+photometry;
+  ~354k sources; HDU1 = fluxes `{band}_flux_aper_1`/`_tot_1` in µJy + `flux_radius`
+  px @0.04″; HDU2 = single-Sérsic `RADIUS` in **deg** + `SERSIC`). Row count = the
+  plain `{root}_phot.fits` detection lists, so these *are* the parent detection
+  catalogues. **PRIMER-COSMOS ≠ COSMOS-Web** — COSMOS-Web-only sources (e.g. the
+  2 Akins LRDs) miss PRIMER and are recovered from `lrd_akins24_cosmosweb.ecsv`.
 
 **Fields:** GOODS-S (RA~53.1, b−54°, `#5ec27a`), COSMOS (RA~150.1, b+42°,
 `#ff9e64`), UDS (RA~34.4, b−60°, `#c792ea`). All high galactic latitude.
@@ -291,12 +329,15 @@ Vanilla JS, no build step, static server. Hard-won gotchas — **all have bitten
   mildly over-dispersed but a 90% credible interval covers ~88% of the truth;
   ships **T=1 (unscaled)** and discloses the calibration (NLL wants T≈1.5 widen,
   PIT wants T≈0.24 sharpen — they conflict, so don't fake it).
-- **The research arc's headline (Q3b):** 3–4 strong previously-uncatalogued LRD
-  candidates (atl041542 UDS z≈8.4 P(z>4)=0.99; atl026058 GOODS-S z≈5.6; atl015287
-  COSMOS z≈6.8; atl007048 z≈5.2 elongated) + **2 independent rediscoveries**
-  (Akins-CW 758982/758452, matched at 0.14"). Absent from every checked
-  photometric+spectroscopic LRD sample on our fields, inside their footprints.
-  **Full detail + all caveats in RESEARCH.md (Q1–Q4 + M3b + Q3b sections).**
+- **The research arc's headline — REVISED by Q3c Step 2.** Q3b *originally* read
+  as 3–4 new candidates + 2 rediscoveries. Catalogue-grade photometry (Q3c Step 2)
+  **removes the new candidates**: measured in the DJA/COSMOS-Web parent catalogues
+  they are not red (F277W−F444W≈0 vs LRDs' ≈1) or are not catalogued JWST sources.
+  What stands is the **2 independent rediscoveries** of published Akins-CW LRDs
+  (758982/758452, 0.14"), which pass the Akins cuts — a real, label-free
+  validation of the anomaly→retrieval **method**, not a new discovery. Honest
+  net: a validated LRD-*rediscovery* pipeline; no new LRD on these fields.
+  **Full detail + all caveats in RESEARCH.md (Q1–Q4 + M3b + Q3b + Q3c sections).**
 
 ---
 
