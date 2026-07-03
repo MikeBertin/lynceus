@@ -61,9 +61,9 @@ async function boot() {
   CLASS_COLORS.merger = css("--c-merger");
   setupGL();
   try {
-    atlas = await fetch("atlas.json?v=5").then((r) => r.json());
+    atlas = await fetch("atlas.json?v=6").then((r) => r.json());
     sprites = new Image();
-    await new Promise((res, rej) => { sprites.onload = res; sprites.onerror = rej; sprites.src = "sprites.jpg?v=3"; });
+    await new Promise((res, rej) => { sprites.onload = res; sprites.onerror = rej; sprites.src = "sprites.jpg?v=4"; });
     pts = atlas.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
     uploadPositions(); uploadColors();
     $("#count").textContent = `${atlas.count.toLocaleString()} galaxies`;
@@ -446,9 +446,9 @@ window.addEventListener("resize", resize);
 
 // ---- M3: Little Red Dots overlay + weirdest strip -------------------------
 function loadLRDs() {
-  fetch("lrds.json?v=5").then((r) => r.json()).then((d) => {
+  fetch("lrds.json?v=6").then((r) => r.json()).then((d) => {
     lrdTile = d.tile; lrdCols = d.cols;
-    lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg?v=3";
+    lrdSheet = new Image(); lrdSheet.onload = markDirty; lrdSheet.src = "lrd_sprites.jpg?v=4";
     lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
     const ci = d.enrichment_ci ? ` (95% CI ${d.enrichment_ci[0]}–${d.enrichment_ci[1]}×, ${fmtP(d.p_value)})` : "";
     lrdStatHTML =

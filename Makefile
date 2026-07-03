@@ -67,10 +67,12 @@ m3:              ## rebuild atlas assets with anomaly scores + LRD overlay
 m3b-data:        ## fetch + cache the RAW cubes (network; makes all stretches local forever)
 	$(PY) -m experiments.fetch_raw
 
-m3b:             ## noise-aware cutouts -> retrain SimCLR (the other big run) -> rerun Q1+Q3
+m3b:             ## noise-aware cutouts -> retrain SimCLR -> ship the atlas + rerun Q1/Q3/Q4
 	$(PY) -m experiments.build_m3b_cutouts
 	$(PY) -m experiments.train_atlas --cutouts-dir data/atlas/cutouts_m3b --out ssl_encoder_m3b.pt --epochs 80
 	$(PY) -m experiments.embed_m3b
+	$(PY) -m experiments.build_atlas --m3b          # the SHIPPED atlas web assets
+	$(PY) -m experiments.significance --m3b          # headline numbers + CIs into web JSON
 	$(PY) -m experiments.lrd_selection --m3b
 	$(PY) -m experiments.candidates --m3b
 

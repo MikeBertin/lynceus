@@ -27,13 +27,15 @@ Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
   kNN latent-space anomaly scoring on the SSL embeddings (`core/anomaly.py`); the atlas gains
   an **anomaly** colour mode and a "18 weirdest galaxies" strip. **216 real Little Red Dots**
   (Kokorev et al. 2024, github.com/VasilyKokorev/lrd_phot) in GOODS-S/COSMOS/UDS are embedded
-  with the same encoder and overlaid: they're **5× over-represented** among the top-10%
-  anomalies (95% CI 4.4–5.7×, p<0.0001 vs a random-galaxy null; median LRD at the 90th
+  with the same encoder and overlaid: they're **7.4× over-represented** among the top-10%
+  anomalies (95% CI 6.8–7.9×, p<0.0001 vs a random-galaxy null; median LRD at the 96th
   percentile) — the encoder rediscovers them with no labels.
-  A colour-preserving asinh stretch (Lupton-style: per-band sky subtraction, a shared intensity
-  stretch, linear per-band scaling) keeps the real flux ratios, so the encoder keys on both
-  their **compactness** and their **redness** — up from ~2× under the earlier per-channel stretch
-  that had washed colour out, and sharper still (3.4× → 5×) on the larger ~9.7k-galaxy atlas.
+  The shipped atlas uses the **M3b point-source-aware representation**: a noise-aware asinh stretch
+  (per-band sky subtraction; the shared intensity scaled by the cutout's own sky RMS, so empty sky
+  stays dark instead of amplifying to colour static) plus a detection-anchored 64px crop. This
+  sharpened the enrichment from ~5× (an earlier colour-preserving-but-percentile stretch) to 7.4×,
+  and — crucially — the signal survives leave-one-field-out (the anomaly enrichment holds on a deep
+  field the encoder never trained on; see RESEARCH.md Q4), so it is about galaxies, not survey depth.
 
 - **M4 — The dropout hunter (photometric redshifts). _Built._**
   A small MLP (`core/photoz.py`) reads a galaxy's redshift from nine JWST/HST band fluxes, output as

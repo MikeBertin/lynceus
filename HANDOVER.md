@@ -19,7 +19,7 @@ not published* (see §8 + §9).
 |---|---|---|
 | **M1 — Morphology** | In-browser ViT classifies a real JWST cutout (featured / smooth / merger) with attention maps | **81.0%** 5-fold CV vs 33% baseline, on real Galaxy Zoo labels |
 | **M2 — Atlas** | Self-supervised (SimCLR) 2-D embedding of **~9,700** real JWST galaxies you fly through (**WebGL**-rendered) | kNN-morphology **62%** vs 39% — structure emerges with no labels |
-| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | LRDs **5×** over-represented in the top-10% anomalies (95% CI 4.4–5.7×, p<0.0001 vs random-galaxy null); 2× → 3.4× colour-aware → 5× on the larger atlas |
+| **M3 — Anomaly hunt** | Latent-space outlier score + 216 real Little Red Dots overlaid | **SHIPPED = M3b:** LRDs **7.4×** over-represented in the top-10% anomalies (95% CI 6.8–7.9×, p<0.0001; median LRD at the 96th pct); point-source-aware repr, survives leave-one-field-out (Q4). (History: 2× → 3.4× → 5× → 7.4×.) |
 | **M4 — Dropout hunter** | In-browser neural **photo-z** over 9 JWST/HST bands; filter scrubber shows the Lyman break sweeping + galaxies dropping out; redshift PDF + Lyman-break colour–colour diagram | **σ_NMAD ≈ 0.040** vs ~1,800 held-out spec-z (EAZY template ceiling 0.027) |
 
 Demos under `web/`: `web/morphology/`, `web/atlas/` (also hosts the anomaly hunt,
@@ -213,10 +213,18 @@ gotchas — **all of these have bitten us**:
   vs 41%** (regions loosely separable — survey-depth fingerprint). Encoders kept:
   `ssl_encoder.pt` (current, 9.7k colour), `ssl_encoder_2389.pt` (colour, old size),
   `ssl_encoder_perchannel.pt` (old colour-blind). All gitignored.
-- M3: anomaly = mean cosine distance to 20 nearest in 512-D space. 216 LRDs are
+- **M3 — SHIPPED IS NOW M3b (the point-source-aware representation).** The web
+  atlas ships the M3b encoder/embeddings: enrichment **7.4×** (CI 6.8–7.9×,
+  p<0.0001; median LRD at the **96th** percentile), and it survives
+  leave-one-field-out (Q4). Rebuild the shipped assets with `make m3b` (or
+  `build_atlas --m3b` + `significance --m3b`); web assets versioned
+  atlas.json/lrds.json `?v=6`, sprites/lrd_sprites `?v=4`, app.js `?v=16`.
+  The paragraph below is the *original M3* history (still reproducible via the
+  plain `m3` target); the chain is now **2× → 3.4× → 5× → 7.4×**.
+- M3 (original): anomaly = mean cosine distance to 20 nearest in 512-D space. 216 LRDs are
   **5×** over-represented in the top-10% anomalies (**50%** of the 216 LRDs land in
   the top decile vs 10% by chance → 5×; **95% CI 4.4–5.7×**, permutation **p<0.0001**
-  vs a random-216-galaxy null) on the 9.7k atlas — up the chain **2× → 3.4× → 5×**.
+  vs a random-216-galaxy null) on the 9.7k atlas.
   The **median** LRD sits at the **90th** percentile of atlas anomaly (equivalently:
   50% in the top decile). NB the old "70th percentile" figure was the *mean* of the
   per-LRD percentiles, mislabelled "median" in `build_atlas.py` — now fixed (it writes

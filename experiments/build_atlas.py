@@ -1,9 +1,11 @@
 """Build the M2 atlas web assets: embed -> UMAP -> sprite sheet + atlas.json.
 
-    python -m experiments.build_atlas
+    python -m experiments.build_atlas          # the shipped M3 representation
+    python -m experiments.build_atlas --m3b    # the point-source-aware M3b one
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import math
@@ -29,17 +31,26 @@ def load_encoder(name: str = "ssl_encoder.pt"):
 
 
 def main() -> None:
-    meta = config.ATLAS_DIR / "atlas_meta.csv"
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--m3b", action="store_true",
+                    help="build from the M3b point-source-aware representation")
+    args = ap.parse_args()
+    sfx = "_m3b" if args.m3b else ""
+    atlas_cut = config.ATLAS_DIR / ("cutouts_m3b" if args.m3b else "cutouts")
+    lrd_cut = LRD_DIR / ("cutouts_m3b" if args.m3b else "cutouts")
+    enc_name = f"ssl_encoder{sfx}.pt"
+
+    meta = config.ATLAS_DIR / f"atlas_meta{sfx}.csv"
     rows = [r for r in csv.DictReader(open(meta))
-            if (config.ATLAS_CUTOUTS / f"{r['id']}.npy").exists()]
-    paths = [config.ATLAS_CUTOUTS / f"{r['id']}.npy" for r in rows]
-    cache = config.ATLAS_DIR / "embeddings.npy"
+            if (atlas_cut / f"{r['id']}.npy").exists()]
+    paths = [atlas_cut / f"{r['id']}.npy" for r in rows]
+    cache = config.ATLAS_DIR / f"embeddings{sfx}.npy"
     if cache.exists() and np.load(cache).shape[0] == len(rows):
         feats = np.load(cache)
         print(f"Loaded cached embeddings {feats.shape}; running UMAP...")
     else:
         print(f"Embedding {len(rows)} cutouts...")
-        feats = embed_paths(load_encoder(), paths, device=config.get_device())
+        feats = embed_paths(load_encoder(enc_name), paths, device=config.get_device())
         np.save(cache, feats)
         print(f"  features {feats.shape}; running UMAP...")
     n = len(rows)
@@ -50,10 +61,12 @@ def main() -> None:
     unit = lambda v: np.clip((v - a_lo) / (a_hi - a_lo + 1e-9), 0, 1)
     a_atlas = unit(araw)
 
-    has_lrd = (LRD_DIR / "lrd_emb.npy").exists() and (LRD_DIR / "lrd_meta.csv").exists()
+    lrd_emb_path = LRD_DIR / f"lrd_emb{sfx}.npy"
+    lrd_meta_path = LRD_DIR / f"lrd_meta{sfx}.csv"
+    has_lrd = lrd_emb_path.exists() and lrd_meta_path.exists()
     if has_lrd:
-        lrd_emb = np.load(LRD_DIR / "lrd_emb.npy")
-        lrd_rows = list(csv.DictReader(open(LRD_DIR / "lrd_meta.csv")))
+        lrd_emb = np.load(lrd_emb_path)
+        lrd_rows = list(csv.DictReader(open(lrd_meta_path)))
         xy_all = normalise_coords(umap_2d(np.vstack([feats, lrd_emb])))
         xy, xy_lrd = xy_all[:n], xy_all[n:]
         lraw = anomaly.knn_anomaly(lrd_emb, feats, k=20)
@@ -69,7 +82,7 @@ def main() -> None:
     cols = math.ceil(math.sqrt(n))
     sheet = Image.new("RGB", (cols * TILE, math.ceil(n / cols) * TILE), (4, 5, 10))
     for i, r in enumerate(rows):
-        thumb = Image.open(config.ATLAS_CUTOUTS / f"{r['id']}.png").resize(
+        thumb = Image.open(atlas_cut / f"{r['id']}.png").resize(
             (TILE, TILE), Image.BILINEAR)
         sheet.paste(thumb, ((i % cols) * TILE, (i // cols) * TILE))
     config.WEB_ATLAS_DIR.mkdir(parents=True, exist_ok=True)
@@ -120,7 +133,7 @@ def main() -> None:
         lcols = math.ceil(math.sqrt(nl))
         lsheet = Image.new("RGB", (lcols * TILE, math.ceil(nl / lcols) * TILE), (4, 5, 10))
         for j, r in enumerate(lrd_rows):
-            png = LRD_DIR / "cutouts" / f"{r['id']}.png"
+            png = lrd_cut / f"{r['id']}.png"
             if png.exists():
                 lsheet.paste(Image.open(png).resize((TILE, TILE), Image.BILINEAR),
                              ((j % lcols) * TILE, (j // lcols) * TILE))

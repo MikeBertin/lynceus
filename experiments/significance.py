@@ -13,10 +13,12 @@ Turns Lynceus's three bare point estimates into defensible numbers, all from the
 
 Writes ``models/significance.json`` and prints copy-ready strings.
 
-    python -m experiments.significance
+    python -m experiments.significance          # the shipped M3 representation
+    python -m experiments.significance --m3b     # the M3b point-source-aware one
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 
@@ -48,9 +50,9 @@ def _field(ra):
 # ---------------------------------------------------------------------------
 # M3 — LRD anomaly enrichment
 # ---------------------------------------------------------------------------
-def lrd_enrichment() -> dict:
-    feats = np.load(config.ATLAS_DIR / "embeddings.npy")
-    lrd = np.load(config.DATA_DIR / "lrd" / "lrd_emb.npy")
+def lrd_enrichment(sfx: str = "") -> dict:
+    feats = np.load(config.ATLAS_DIR / f"embeddings{sfx}.npy")
+    lrd = np.load(config.DATA_DIR / "lrd" / f"lrd_emb{sfx}.npy")
 
     # exactly as experiments/build_atlas.py
     araw = anomaly.knn_anomaly(feats, feats, k=K_ANOM, exclude_self=True)
@@ -100,9 +102,9 @@ def _p_str(p: float) -> str:
 # ---------------------------------------------------------------------------
 # M2 — kNN probes (mean ± std across folds)
 # ---------------------------------------------------------------------------
-def knn_probes() -> dict:
-    feats = _l2(np.load(config.ATLAS_DIR / "embeddings.npy"))
-    rows = list(csv.DictReader(open(config.ATLAS_DIR / "atlas_meta.csv")))
+def knn_probes(sfx: str = "") -> dict:
+    feats = _l2(np.load(config.ATLAS_DIR / f"embeddings{sfx}.npy"))
+    rows = list(csv.DictReader(open(config.ATLAS_DIR / f"atlas_meta{sfx}.csv")))
     y_morph = np.array([r["dominant"] for r in rows])
     y_field = np.array([_field(r["ra"]) for r in rows])
 
@@ -192,13 +194,20 @@ def patch_web_assets(result: dict) -> None:
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--m3b", action="store_true",
+                    help="compute the atlas numbers from the M3b representation")
+    args = ap.parse_args()
+    sfx = "_m3b" if args.m3b else ""
+
     result = {
+        "variant": "m3b" if args.m3b else "m3",
         "seed": SEED, "n_boot": 10000, "n_perm": 10000,
-        "lrd_enrichment": lrd_enrichment(),
-        "knn_probes": knn_probes(),
-        "photoz": photoz_ci(),
+        "lrd_enrichment": lrd_enrichment(sfx),
+        "knn_probes": knn_probes(sfx),
+        "photoz": photoz_ci(),          # M4 is independent of the atlas stretch
     }
-    out = config.MODELS_DIR / "significance.json"
+    out = config.MODELS_DIR / f"significance{sfx}.json"
     out.write_text(json.dumps(result, indent=2))
     print(f"\nSaved {out}")
     patch_web_assets(result)
