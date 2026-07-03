@@ -13,6 +13,14 @@ from core import config
 from core.ssl import train_simclr
 
 
+def _field(ra: str) -> str:
+    ra = float(ra)
+    if 33 <= ra <= 36: return "UDS"
+    if 52 <= ra <= 54: return "GOODS-S"
+    if 149 <= ra <= 151: return "COSMOS"
+    return "?"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--epochs", type=int, default=100)
@@ -22,12 +30,18 @@ def main() -> None:
                     help="cutout cache to train on (e.g. the M3b cutouts_m3b)")
     ap.add_argument("--out", default="ssl_encoder.pt",
                     help="checkpoint name under models/")
+    ap.add_argument("--exclude-field", default=None,
+                    help="hold a field out of training (Q4: UDS/GOODS-S/COSMOS)")
     args = ap.parse_args()
 
     from pathlib import Path
     cutdir = Path(args.cutouts_dir)
     meta = config.ATLAS_DIR / "atlas_meta.csv"
     rows = list(csv.DictReader(open(meta)))
+    if args.exclude_field:
+        n0 = len(rows)
+        rows = [r for r in rows if _field(r["ra"]) != args.exclude_field]
+        print(f"Holding out {args.exclude_field}: {n0} -> {len(rows)} training cutouts")
     paths = [cutdir / f"{r['id']}.npy" for r in rows]
     paths = [p for p in paths if p.exists()]
     device = config.get_device()
