@@ -412,8 +412,14 @@ only consider going public once something is definitely in hand.**
   `data/lrd_kocevski24.dat` (auto-downloaded by the script). Remaining before
   any claim: check vs purely-2025/26 spectroscopic releases (later
   RUBIES/NEXUS) and Q4.
-- **Q4 is the pre-publish gate** if Q3/M3b candidates are announced: retrain
-  minus one field, check the enrichment survives on the held-out field.
+- **Q4 DONE — passes.** `train_atlas.py --exclude-field` trained 3
+  leave-one-field-out M3b encoders (`ssl_encoder_m3b_no{UDS,GOODS-S,COSMOS}.pt`,
+  NT-Xent 1.81–1.84); `q4_generalise.py` scores each held-out field with the
+  held-out vs the all-field encoder on identical galaxies (`models/
+  q4_generalise.json`). **LRD enrichment survives on all three** — AUC drops
+  only 0.01–0.03, every held-out enrichment CI overlaps the all-field one, and
+  kNN-morph is flat. The anomaly selector is about galaxies, not survey depth.
+  The pre-publish gate is cleared.
 
 ### Publishing — PAUSED, ready to go (do NOT publish without an explicit ask)
 The user paused here intentionally. Two things to settle first (see §8):

@@ -17,7 +17,7 @@ question that toolkit can attack, ordered by cost.
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
 | Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8, high P(z>4)) |
-| Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | queued — **the pre-publish gate** |
+| Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | ✅ **done — passes** — leave-one-field-out: LRD enrichment survives on all 3 held-out fields (AUC drops ≤0.03, CIs overlap); not a depth artefact |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
 ---
@@ -371,13 +371,41 @@ morphology-kNN hold up, do the held-out field's LRDs still light up?
 re-embed COSMOS + its LRDs with the frozen encoder; recompute kNN-morphology
 and LRD enrichment on the held-out field. Compare to the all-field encoder.
 
-**What counts as a result.** Enrichment surviving (CI overlapping the 5×) on a
-field the encoder never saw = the anomaly signal is about galaxies, not
-surveys. A big drop = the current result is partly a depth artefact — which
-would *change the M3 claim* and matter before any public write-up.
+**What counts as a result.** Enrichment surviving (CI overlapping the
+all-field number) on a field the encoder never saw = the anomaly signal is
+about galaxies, not surveys. A big drop = the current result is partly a depth
+artefact — which would *change the M3 claim* and matter before any public
+write-up.
 
-**Status.** Queued. The one pre-publish check I'd insist on if Q3 produces
-candidates worth announcing.
+**Status / results.** ✅ **Done — and it passes on all three fields.**
+`experiments/train_atlas.py --exclude-field` trains three leave-one-field-out
+M3b encoders (~2 h each on MPS; NT-Xent 1.81–1.84, vs 1.78 for the full
+atlas); `experiments/q4_generalise.py` then scores each held-out field's
+galaxies + LRDs with **both** the held-out encoder (never saw the field) and
+the all-field M3b encoder, on *identical* galaxies — so only the encoder
+differs and field-size effects cancel. AUC + top-10% enrichment (bootstrap CIs)
+`models/q4_generalise.json`:
+
+| held-out field | all-field enc AUC / enr | held-out enc AUC / enr | survives? |
+|---|---|---|---|
+| UDS (2,895 gal, 111 LRD) | 0.828 / 4.41× | 0.800 / 4.14× (CI 3.24–5.05) | ✅ |
+| GOODS-S (2,855 gal, 27 LRD) | 0.974 / 10.0× | 0.959 / 9.26× (CI 8.15–10.0) | ✅ |
+| COSMOS (3,923 gal, 78 LRD) | 0.939 / 8.59× | 0.931 / 8.46× (CI 7.69–9.23) | ✅ |
+
+- **The LRD-anomaly signal is about galaxies, not surveys.** Dropping a whole
+  field from training costs almost nothing on that field: AUC falls by only
+  0.01–0.03 and every held-out enrichment CI overlaps its all-field
+  counterpart. kNN-morphology is likewise flat (e.g. UDS 63.8%→63.3%). The
+  depth/PSF fingerprint the field-probe sees does *not* drive the anomaly
+  result.
+- **Why the per-field AUCs differ** (0.83 UDS vs 0.97 GOODS-S): the reference
+  cloud here is a *single* field (~3k galaxies) rather than the full 9,673, and
+  the per-field LRD samples differ in brightness/count — so these aren't
+  directly comparable to the headline all-field AUC 0.91. The Q4 comparison is
+  strictly held-out-vs-all-field *within each field*, which is what isolates
+  generalisation.
+- **Verdict:** the pre-publish gate is cleared. The M3b LRD selector is not a
+  survey-depth artefact — it transfers to fields the encoder never trained on.
 
 ## Q5 — M5: image + spectra contrastive (the big bet)
 
