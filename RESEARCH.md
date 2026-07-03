@@ -17,6 +17,7 @@ question that toolkit can attack, ordered by cost.
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
 | Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8), absent from every checked photometric+spectroscopic LRD sample on our fields (Kokorev, full Kocevski+24, full Akins-CW, RUBIES) |
+| Q3c | **From candidates to confirmations** (archival spectra → selection replay → SED) | cached + archive queries | ⏭ **next** — Step 1 (archival-spectrum search) is the agreed next action |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | ✅ **done — passes** — leave-one-field-out: LRD enrichment survives on all 3 held-out fields (AUC drops ≤0.03, CIs overlap); not a depth artefact |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
@@ -366,6 +367,41 @@ literature check is now essentially complete for our fields — full Kocevski+24
 (UDS), Kokorev, Perger and Euclid — but the honest limit remains: **"absent
 from a selection" can mean below their cuts, not non-existent. Only a spectrum
 proves an LRD.** Q4 (below) is the last gate — ✅ now passed.
+
+## Q3c — from candidates to confirmations (the roadmap)
+
+**Question.** How do we address the Q3b residual — "absence from a photometric
+selection can mean *below their cuts*, and only a spectrum truly confirms an
+LRD"? It splits into two separable problems: **novelty** ("below their cuts")
+and **identity** ("only a spectrum confirms"), with different fixes.
+
+**Step 1 — archival-spectrum search (highest value, do first).** A candidate
+with an existing public NIRSpec spectrum can be confirmed or rejected *today,
+for free* — the literal answer to "only a spectrum confirms." Search the 10
+survivors by position against DJA-Spec / the DAWN spectroscopic archive,
+**RUBIES** (UDS+EGS; it observed ~4,500 sources but flagged only 36 as LRDs, so
+an un-flagged spectrum of one of our UDS candidates is plausible), JADES, CEERS,
+UNCOVER, CAPERS. A hit is potentially decisive; it is also the on-ramp to M5.
+
+**Step 2 — selection-function replay (fixes the novelty claim).** Cross-match
+the candidates against the *parent photometric catalogues* (DJA / COSMOS-Web /
+JADES source lists — every detected object, not the LRD sub-selection), pull
+catalogue-grade fluxes, and apply each paper's *published cuts* (Akins:
+F277W−F444W>1.5 + compactness + BD rejection; Kocevski: β_UV/β_opt slopes +
+r_eff<1.5× stellar PSF; Kokorev: its cuts). Verdict per candidate: *passes their
+cuts but absent* = genuinely new; *fails their cuts* = absence explained. Also
+confirms each is a real detected source (our aperture photometry is only
+plausibility-grade).
+
+**Step 3 — SED/slope/MIRI strengthening → a ranked target list.** Full-SED
+template fit (LRD vs brown-dwarf vs dusty-galaxy), measure β_UV/β_opt (doubles
+as the Kocevski replay), MIRI F770W/F1800W where COSMOS-Web has it. Present the
+result as a **prioritised spectroscopic-follow-up target list** — the honest and
+correct scientific unit. The caveat is intrinsic to every photometric LRD
+sample; the response is to maximise archival evidence and frame the residual as
+targets, not to pretend it is gone.
+
+**Status.** Not started. Step 1 is the agreed next action.
 
 ## Q4 — Does the encoder generalise across fields?
 
