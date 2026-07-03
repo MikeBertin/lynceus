@@ -408,10 +408,16 @@ only consider going public once something is definitely in hand.**
   first on Kokorev catalogue photometry: σ_NMAD 0.042, 94% P(z>4)>0.5): **3–4
   strong new candidates** — atl041542 (UDS, z≈8.4, P(z>4)=0.99), atl026058
   (GOODS-S, z≈5.6), atl015287 (COSMOS, z≈6.8), atl007048 (z≈5.2 but
-  elongated). 9-band cutouts cached under `data/*/bands9/`; Kocevski table at
-  `data/lrd_kocevski24.dat` (auto-downloaded by the script). Remaining before
-  any claim: check vs purely-2025/26 spectroscopic releases (later
-  RUBIES/NEXUS) and Q4.
+  elongated). 9-band cutouts cached under `data/*/bands9/`. **Literature check
+  now complete for our fields:** local catalogues `data/lrd_kocevski24.dat`
+  (Kocevski+24 341) and `data/lrd_akins24_cosmosweb.ecsv` (Akins-CW 434 full,
+  closes the Perger residual) + RUBIES spectroscopic census (UDS+EGS, VizieR)
+  + Perger + Euclid — all auto-downloaded by `candidate_crossmatch.py`. NEXUS
+  ruled out (NEP field, no overlap). Every field covered by ≥1 photometric and
+  (UDS) spectroscopic sample; the 8 novel candidates are absent from all of
+  them. Self-validated: the 2 rediscoveries match full Akins at 0.14",
+  119/216 known LRDs match Kocevski, 15/216 match RUBIES. Only true residual:
+  "absent from a selection ≠ non-existent; a spectrum is the only proof."
 - **Q4 DONE — passes.** `train_atlas.py --exclude-field` trained 3
   leave-one-field-out M3b encoders (`ssl_encoder_m3b_no{UDS,GOODS-S,COSMOS}.pt`,
   NT-Xent 1.81–1.84); `q4_generalise.py` scores each held-out field with the

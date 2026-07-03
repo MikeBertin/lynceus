@@ -16,7 +16,7 @@ question that toolkit can attack, ordered by cost.
 | Q2 | Does the net beat EAZY on **interloper rejection**? | cached data, hours | ✅ **done** — honest null: inherits its teacher's interlopers (10/12 shared), PDFs are confidently wrong |
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
-| Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8, high P(z>4)) |
+| Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8), absent from every checked photometric+spectroscopic LRD sample on our fields (Kokorev, full Kocevski+24, full Akins-CW, RUBIES) |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | ✅ **done — passes** — leave-one-field-out: LRD enrichment survives on all 3 held-out fields (AUC drops ≤0.03, CIs overlap); not a depth artefact |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
@@ -297,28 +297,37 @@ compact orange-red dots (one elongated streak).
 
 **Literature cross-match** (`experiments/candidate_crossmatch.py`). SIMBAD +
 NED + the published LRD samples. Two catalogue sources:
-(a) the **Perger+25 VizieR table**, a compilation of the major samples through
-~2024 (Akins+24: 420, Kokorev+24: 219, Kocevski+24: 165, Greene+24,
-Matthee+24, Labbé+23, … 17 refs), plus the Euclid and RUBIES broad-Balmer
-lists; and (b) the **full Kocevski+24 341-LRD Table 3**, pulled from the
-author's GitHub (`dalekocevski/Kocevski24`) because it is *not* on VizieR —
-the single most valuable non-VO check, since **254 of its 341 LRDs fall in our
-three fields** (PRIMER→COSMOS+UDS, JADES→GOODS-S) and only 165 of it had
-reached the Perger compilation. Cross-match validated: **119/216 of our known
-Kokorev LRDs match a Kocevski source within 2″** (median 0.1″) — the
-catalogues genuinely overlap, so a *non*-match is a real absence, not a
-coordinate bug. Results:
+SIMBAD + NED + the published LRD samples, assembled so that **every one of our
+three fields is covered by at least one photometric and (for UDS) one
+spectroscopic LRD catalogue**:
+
+- the **full Kocevski+24 341-LRD Table 3** (`dalekocevski/Kocevski24`, GitHub,
+  not on VizieR) — **254 of its 341 in our fields** via PRIMER→COSMOS+UDS,
+  JADES→GOODS-S; only 165 had reached Perger;
+- the **full Akins+24 COSMOS-Web 434-LRD Table 1** (`hollisakins/akins24_cw`,
+  GitHub ECSV, not on VizieR) — complete COSMOS coverage, closing the
+  14-source residual Perger left (it had 420 of the 434);
+- the **RUBIES full spectroscopic census** (Hviding+25, VizieR J/A+A/702/A57 —
+  80 NIRSpec LRDs in UDS+EGS) — the spectroscopic check for our UDS candidates;
+- plus the Perger+25 compilation and the Euclid LRD list.
+
+NEXUS (the other big 2025/26 spectroscopic LRD sample) is in the NEP field —
+no footprint overlap, correctly excluded. Two cross-match validations confirm
+the machinery: **119/216 of our known Kokorev LRDs match a Kocevski source**
+(median 0.1″), **15/216 match a RUBIES source**, and both rediscoveries match
+the **full Akins catalogue at 0.14″** (CW-758982, CW-758452) — so a non-match
+is a real absence, not a coordinate bug. Results:
 
 - **2/10 are published LRDs we independently rediscovered** — Akins+24
-  COSMOS-Web 758982 (z_phot 5.46) and 758452 (z_phot 5.99), at 0.14″. They
-  were *not* in Kokorev v1.1, so they were never in our known set: the
-  pipeline found real, previously-unseen published LRDs on its own. That is
-  the cleanest end-to-end validation available without a telescope.
-- **8/10 are in none of the checked LRD samples** — including the full
-  Kocevski+24 (nearest Kocevski LRD is 22–90″ away, i.e. inside the survey
-  footprint but not selected). Two (#62, #97) have no SIMBAD entry at all;
-  #87 is a COSMOS2015 emission-line galaxy; the rest resolve to generic
-  catalogued galaxies (phot-z sources), not to LRDs or stars.
+  COSMOS-Web CW-758982 (z_phot 5.46) and CW-758452 (z_phot 5.99), at 0.14″.
+  They were *not* in Kokorev v1.1, so they were never in our known set: the
+  pipeline found real, previously-unseen published LRDs on its own — the
+  cleanest end-to-end validation available without a telescope.
+- **8/10 are in none of the checked samples** — including full Kocevski+24,
+  full Akins-CW, and the RUBIES spectroscopic census. Nearest catalogued LRD
+  is 22–130″ away in-field (in-footprint, unselected). Two (#62, #97) have no
+  SIMBAD entry at all; #87 is a COSMOS2015 emission-line galaxy; the rest
+  resolve to generic catalogued galaxies (phot-z sources), not LRDs or stars.
 
 **Photo-z sanity check** (`experiments/candidate_photoz.py`). First a
 validation the check depends on: the M4 net on the Kokorev *catalogue*
@@ -344,21 +353,19 @@ consistent. The 8 novel survivors split:
 | 67 | atl039298 | UDS | 2.6 | 0.00 | intermediate z, not LRD-z |
 
 **Bottom line: 3–4 strong, previously-uncatalogued LRD candidates**
-(#49, #57, #87, arguably #100) — absent from *both* the largest photometric
-LRD catalogues covering our fields (Kokorev+24 v1.1 and the full Kocevski+24
-341) while inside their footprints — plus two independent rediscoveries that
-validate the whole chain: anomaly score → retrieval → veto → cross-match →
-photo-z.
+(#49, #57, #87, arguably #100) — absent from *every* photometric and
+(for UDS) spectroscopic LRD catalogue covering our fields while sitting inside
+their footprints — plus two independent rediscoveries that validate the whole
+chain: anomaly score → retrieval → veto → cross-match → photo-z.
 
-**Caveats, all load-bearing.** The aperture photometry is
-plausibility-grade, not measurement-grade; LRD photo-zs are notoriously
-degenerate even with full catalogues; faint brown dwarfs below Gaia can still
-pass the veto. The literature coverage now includes the two major photometric
-samples on our fields (Kokorev+24, full Kocevski+24) plus the Perger+25
-compilation, Euclid and RUBIES-broad-Balmer — but purely-2025/26
-spectroscopic releases (later RUBIES/NEXUS) are not exhaustively checked, and
-"absent from a selection" can mean *below their cuts* rather than non-existent.
-And Q4 (below) is still the pre-publish gate.
+**Caveats, all load-bearing.** The aperture photometry is plausibility-grade,
+not measurement-grade; LRD photo-zs are notoriously degenerate even with full
+catalogues; faint brown dwarfs below Gaia can still pass the veto. The
+literature check is now essentially complete for our fields — full Kocevski+24
+(COSMOS+UDS+GOODS-S), full Akins-CW (COSMOS), RUBIES spectroscopic census
+(UDS), Kokorev, Perger and Euclid — but the honest limit remains: **"absent
+from a selection" can mean below their cuts, not non-existent. Only a spectrum
+proves an LRD.** Q4 (below) is the last gate — ✅ now passed.
 
 ## Q4 — Does the encoder generalise across fields?
 
