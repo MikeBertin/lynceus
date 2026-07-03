@@ -296,19 +296,29 @@ Thresholds calibrated so **93% of the 216 known LRDs survive their own veto**
 compact orange-red dots (one elongated streak).
 
 **Literature cross-match** (`experiments/candidate_crossmatch.py`). SIMBAD +
-NED + the machine-checkable LRD samples — crucially the **Perger+25 VizieR
-table, which is a compilation of the major published LRD samples through
-~2024** (Akins+24: 420, Kokorev+24: 219, Kocevski+24: 165, Greene+24,
-Matthee+24, Labbé+23, … 17 refs), plus the Euclid LRD list and the RUBIES
-broad-Balmer census. Results:
+NED + the published LRD samples. Two catalogue sources:
+(a) the **Perger+25 VizieR table**, a compilation of the major samples through
+~2024 (Akins+24: 420, Kokorev+24: 219, Kocevski+24: 165, Greene+24,
+Matthee+24, Labbé+23, … 17 refs), plus the Euclid and RUBIES broad-Balmer
+lists; and (b) the **full Kocevski+24 341-LRD Table 3**, pulled from the
+author's GitHub (`dalekocevski/Kocevski24`) because it is *not* on VizieR —
+the single most valuable non-VO check, since **254 of its 341 LRDs fall in our
+three fields** (PRIMER→COSMOS+UDS, JADES→GOODS-S) and only 165 of it had
+reached the Perger compilation. Cross-match validated: **119/216 of our known
+Kokorev LRDs match a Kocevski source within 2″** (median 0.1″) — the
+catalogues genuinely overlap, so a *non*-match is a real absence, not a
+coordinate bug. Results:
 
 - **2/10 are published LRDs we independently rediscovered** — Akins+24
   COSMOS-Web 758982 (z_phot 5.46) and 758452 (z_phot 5.99), at 0.14″. They
   were *not* in Kokorev v1.1, so they were never in our known set: the
   pipeline found real, previously-unseen published LRDs on its own. That is
   the cleanest end-to-end validation available without a telescope.
-- **8/10 are in no machine-checkable LRD sample**; two (#62, #97) have no
-  SIMBAD entry at all; #87 is a COSMOS2015 emission-line galaxy.
+- **8/10 are in none of the checked LRD samples** — including the full
+  Kocevski+24 (nearest Kocevski LRD is 22–90″ away, i.e. inside the survey
+  footprint but not selected). Two (#62, #97) have no SIMBAD entry at all;
+  #87 is a COSMOS2015 emission-line galaxy; the rest resolve to generic
+  catalogued galaxies (phot-z sources), not to LRDs or stars.
 
 **Photo-z sanity check** (`experiments/candidate_photoz.py`). First a
 validation the check depends on: the M4 net on the Kokorev *catalogue*
@@ -334,16 +344,21 @@ consistent. The 8 novel survivors split:
 | 67 | atl039298 | UDS | 2.6 | 0.00 | intermediate z, not LRD-z |
 
 **Bottom line: 3–4 strong, previously-uncatalogued LRD candidates**
-(#49, #57, #87, arguably #100) plus two independent rediscoveries that
-validate the whole chain — anomaly score → retrieval → veto → photo-z.
+(#49, #57, #87, arguably #100) — absent from *both* the largest photometric
+LRD catalogues covering our fields (Kokorev+24 v1.1 and the full Kocevski+24
+341) while inside their footprints — plus two independent rediscoveries that
+validate the whole chain: anomaly score → retrieval → veto → cross-match →
+photo-z.
 
 **Caveats, all load-bearing.** The aperture photometry is
 plausibility-grade, not measurement-grade; LRD photo-zs are notoriously
-degenerate even with full catalogues; faint brown dwarfs below Gaia can
-still pass the veto; and the literature coverage ends at the Perger+25
-compilation cutoff (~late 2024) — the 2025–26 samples (e.g. Kocevski+25's
-systematic ~300) need a **manual check** before any novelty claim. And Q4
-(below) is still the pre-publish gate.
+degenerate even with full catalogues; faint brown dwarfs below Gaia can still
+pass the veto. The literature coverage now includes the two major photometric
+samples on our fields (Kokorev+24, full Kocevski+24) plus the Perger+25
+compilation, Euclid and RUBIES-broad-Balmer — but purely-2025/26
+spectroscopic releases (later RUBIES/NEXUS) are not exhaustively checked, and
+"absent from a selection" can mean *below their cuts* rather than non-existent.
+And Q4 (below) is still the pre-publish gate.
 
 ## Q4 — Does the encoder generalise across fields?
 

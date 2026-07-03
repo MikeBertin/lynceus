@@ -397,17 +397,21 @@ only consider going public once something is definitely in hand.**
   in RESEARCH.md Q3b; scripts `star_veto.py`, `candidate_crossmatch.py`,
   `candidate_photoz.py`; outputs in `research/`). Top-100 LRD-like → 46 stars
   (PSF halo/spikes + Gaia astrometry) + 44 not-red → **10 survivors**, all
-  compact red dots. Cross-match (SIMBAD + Perger+25 VizieR compilation =
-  union of the major LRD samples through ~2024 + Euclid + RUBIES): **2/10
-  are Akins+24 LRDs independently rediscovered** (not in Kokorev v1.1 = never
-  in our known set; our photo-z agrees with theirs) and **8/10 are in no
-  machine-checkable LRD sample**. Photo-z (M4 net, validated first on Kokorev
-  catalogue photometry: σ_NMAD 0.042, 94% P(z>4)>0.5): **3–4 strong new
-  candidates** — atl041542 (UDS, z≈8.4, P(z>4)=0.99), atl026058 (GOODS-S,
-  z≈5.6), atl015287 (COSMOS, z≈6.8), atl007048 (z≈5.2 but elongated). 9-band
-  cutouts cached under `data/*/bands9/`. Remaining before any claim: manual
-  check vs 2025–26 LRD samples (Kocevski+25 systematic ~300 — not on VizieR)
-  and Q4.
+  compact red dots. Cross-match (SIMBAD + Perger+25 VizieR compilation +
+  the **full Kocevski+24 341-LRD Table 3**, pulled from GitHub
+  `dalekocevski/Kocevski24` since it is not on VizieR — 254 of 341 in our
+  fields, the big non-VO check; validated by 119/216 known-LRD self-matches
+  at median 0.1″): **2/10 are Akins+24 LRDs independently rediscovered** (not
+  in Kokorev v1.1 = never in our known set; our photo-z agrees with theirs)
+  and **8/10 are in none of the checked LRD samples** — incl. full Kocevski+24
+  (nearest 22–90″: in-footprint but unselected). Photo-z (M4 net, validated
+  first on Kokorev catalogue photometry: σ_NMAD 0.042, 94% P(z>4)>0.5): **3–4
+  strong new candidates** — atl041542 (UDS, z≈8.4, P(z>4)=0.99), atl026058
+  (GOODS-S, z≈5.6), atl015287 (COSMOS, z≈6.8), atl007048 (z≈5.2 but
+  elongated). 9-band cutouts cached under `data/*/bands9/`; Kocevski table at
+  `data/lrd_kocevski24.dat` (auto-downloaded by the script). Remaining before
+  any claim: check vs purely-2025/26 spectroscopic releases (later
+  RUBIES/NEXUS) and Q4.
 - **Q4 is the pre-publish gate** if Q3/M3b candidates are announced: retrain
   minus one field, check the enrichment survives on the held-out field.
 

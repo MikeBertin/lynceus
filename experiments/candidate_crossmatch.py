@@ -7,18 +7,21 @@ For each veto survivor (``research/candidates_vetted.csv``, verdict
   already excluded 1.5" matches by construction; this catches edge cases);
 * **SIMBAD TAP** (2") — is the source catalogued at all, and as what
   (``otype``: a QSO/AGN type is interesting, a known star kills it);
-* **VizieR LRD tables** (2") — crucially the **Perger+25 list
-  (J/A+A/693/L2)**, which is a *compilation* of the major published LRD
-  samples through 2024: Akins+24 COSMOS-Web (420), Kokorev+24 (219),
-  Kocevski+24 (165), Greene+24, Matthee+24, Labbe+23 and others (17 refs).
-  Plus the Euclid LRD sample (Bisigello+) and the RUBIES broad-Balmer-line
-  census (Hviding+25, the spectroscopic LRD-rich sample);
+* **Kocevski+24** (2") — the full 341-LRD Table 3 (ApJ 986/126), fetched from
+  the author's GitHub since it is not on VizieR. 254 of the 341 land in our
+  fields (PRIMER->COSMOS+UDS, JADES->GOODS-S), so it is the single most valuable
+  non-VO check; only 165 of it reached the Perger compilation;
+* **VizieR LRD tables** (2") — the **Perger+25 list (J/A+A/693/L2)**, a
+  *compilation* of the major published LRD samples through 2024: Akins+24
+  COSMOS-Web (420), Kokorev+24 (219), Kocevski+24 (165), Greene+24, Matthee+24,
+  Labbe+23 and others (17 refs). Plus the Euclid LRD sample (Bisigello+) and
+  the RUBIES broad-Balmer-line census (Hviding+25);
 * **NED** (2") — complementary coverage of the CANDELS-era literature.
 
-Honest limitation, disclosed in the output: coverage of the published LRD
-literature ends at the Perger+25 compilation cutoff (~late 2024) plus RUBIES;
-LRD samples published in 2025-26 (e.g. the Kocevski+25 systematic ~300) are
-not machine-checkable here and need a manual pass before any novelty claim.
+Honest limitation, disclosed in the output: coverage spans the major
+photometric LRD samples through the Perger+25 cutoff (~late 2024) *plus* the
+full Kocevski+24. Purely-2025/26 spectroscopic releases are not exhaustively
+checked, and "absent from a selection" can mean below-their-cuts.
 
     python -m experiments.candidate_crossmatch
 
@@ -46,6 +49,15 @@ LRD_TABLES = {                       # VizieR table -> short label
     "J/A+A/711/A24/tabled1": "Euclid_LRD",
     "J/A+A/702/A57/tableb1": "RUBIES_broadBalmer",
 }
+
+# Kocevski+24 (341 LRDs, ApJ 986/126) is NOT on VizieR — its full Table 3 is
+# on the author's GitHub. 254 of the 341 fall in our fields (UDS/GOODS-S/COSMOS
+# via PRIMER+JADES), so it is the highest-value non-VO check. Fetched once to a
+# local file (data/ is gitignored). Validated: 119/216 of our known Kokorev
+# LRDs match a Kocevski source within 2" (median 0.1") — the catalogues overlap
+# and the cross-match is sound, so a *non*-match is a real absence.
+KOCEVSKI_URL = "https://raw.githubusercontent.com/dalekocevski/Kocevski24/main/Kocevski24.Table3.dat"
+KOCEVSKI_DAT = config.DATA_DIR / "lrd_kocevski24.dat"
 
 
 def _tap_csv(url: str, adql: str, retries: int = 3) -> list[dict]:
@@ -127,10 +139,37 @@ def kokorev_sep(ra: float, dec: float, cat) -> float:
     return float(np.sqrt(d2.min()) * 3600.0)
 
 
+def load_kocevski():
+    """(ra, dec, id, z) for the 341 Kocevski+24 LRDs; downloads once if absent."""
+    if not KOCEVSKI_DAT.exists():
+        import urllib.request
+        print(f"fetching Kocevski+24 Table 3 -> {KOCEVSKI_DAT}")
+        urllib.request.urlretrieve(KOCEVSKI_URL, KOCEVSKI_DAT)
+    rows = [l.split() for l in open(KOCEVSKI_DAT)
+            if l.strip() and not l.startswith("#")]
+    # ID may be 1-2 whitespace tokens; the 11 trailing fields are numeric
+    ra = np.array([float(r[-11]) for r in rows])
+    dec = np.array([float(r[-10]) for r in rows])
+    zid = [" ".join(r[:-11]) for r in rows]
+    z = np.array([float(r[-8]) for r in rows])
+    return ra, dec, zid, z
+
+
+def kocevski_match(ra: float, dec: float, koc) -> str:
+    kra, kdec, kid, kz = koc
+    sep = np.sqrt(((kra - ra) * np.cos(np.radians(dec))) ** 2
+                  + (kdec - dec) ** 2) * 3600.0
+    j = int(sep.argmin())
+    if sep[j] < RADIUS_ARCSEC:
+        return f"{kid[j]} z={kz[j]:.2f} {sep[j]:.2f}\""
+    return ""                              # nearest is > radius: not in Kocevski
+
+
 def main() -> None:
     from astropy.io import fits
 
     cat = fits.open(config.DATA_DIR / "lrd_kokorev.fits")[1].data
+    koc = load_kocevski()
     rows = [r for r in csv.DictReader(open(OUT / "candidates_vetted.csv"))
             if r["verdict"] == "candidate"]
     print(f"cross-matching {len(rows)} veto survivors (radius {RADIUS_ARCSEC}\")...\n")
@@ -140,34 +179,37 @@ def main() -> None:
         ra, dec = float(r["ra"]), float(r["dec"])
         m = {
             "kokorev_sep_arcsec": round(kokorev_sep(ra, dec, cat), 2),
+            "kocevski24": kocevski_match(ra, dec, koc),
             "simbad": simbad(ra, dec),
             "lrd_catalogs": vizier_lrds(ra, dec),
             "ned": ned(ra, dec),
         }
         in_lrd_cat = bool(m["lrd_catalogs"]) and "query_failed" not in m["lrd_catalogs"]
         known_star = any(s in m["simbad"] for s in ("[*", "[BD", "Star"))
-        m["novelty"] = ("in_published_LRD_sample" if in_lrd_cat or
-                        m["kokorev_sep_arcsec"] < RADIUS_ARCSEC else
+        m["novelty"] = ("in_published_LRD_sample" if in_lrd_cat or bool(m["kocevski24"])
+                        or m["kokorev_sep_arcsec"] < RADIUS_ARCSEC else
                         "known_star" if known_star else
-                        "not_in_machine_checkable_LRD_samples")
+                        "not_in_any_checked_LRD_sample")
         out_rows.append({**r, **m})
         print(f"  #{r['rank']:>3} {r['id']} {r['field']:<8} kokorev={m['kokorev_sep_arcsec']}\" "
-              f"| simbad: {m['simbad'] or '-'} | lrd-cats: {m['lrd_catalogs'] or '-'} "
-              f"| ned: {m['ned'] or '-'}")
+              f"| kocevski24: {m['kocevski24'] or '-'} | simbad: {m['simbad'] or '-'} "
+              f"| lrd-cats: {m['lrd_catalogs'] or '-'} | ned: {m['ned'] or '-'}")
         time.sleep(0.5)
 
     with open(OUT / "candidates_crossmatch.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(out_rows[0].keys()))
         w.writeheader(); w.writerows(out_rows)
 
-    novel = [r for r in out_rows if r["novelty"] == "not_in_machine_checkable_LRD_samples"]
-    print(f"\n{len(novel)}/{len(out_rows)} survivors are in no machine-checkable "
-          f"LRD sample (Kokorev v1.1 local; Perger+25 compilation = Akins+24 + "
-          f"Kokorev+24 + Kocevski+24 + Greene+24 + Matthee+24 + Labbe+23 et al.; "
-          f"Euclid; RUBIES).")
-    print("CAVEAT: coverage ends at the Perger+25 compilation cutoff (~late 2024) "
-          "— 2025-26 LRD samples (e.g. Kocevski+25's systematic ~300) need a "
-          "manual check before any novelty claim.")
+    novel = [r for r in out_rows if r["novelty"] == "not_in_any_checked_LRD_sample"]
+    print(f"\n{len(novel)}/{len(out_rows)} survivors are in NONE of the checked LRD "
+          f"samples:\n  - Kokorev+24 v1.1 (local FITS)\n  - Kocevski+24 341-LRD "
+          f"Table 3 (local, GitHub; 254 in our fields — the big non-VO check)\n"
+          f"  - Perger+25 VizieR compilation (Akins+24 420, Kokorev+24, Greene+24, "
+          f"Matthee+24, Labbe+23 et al.)\n  - Euclid LRD; RUBIES broad-Balmer.")
+    print("CAVEAT: coverage is the major photometric samples through the Perger+25 "
+          "cutoff (~late 2024) + Kocevski+24. Purely-2025/26 spectroscopic samples "
+          "(e.g. later RUBIES/NEXUS releases) are not exhaustively checked; and "
+          "'absent from a selection' can mean below-their-cuts, not non-existent.")
     print(f"wrote {OUT / 'candidates_crossmatch.csv'}")
 
 
