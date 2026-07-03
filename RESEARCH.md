@@ -17,7 +17,7 @@ question that toolkit can attack, ordered by cost.
 | Q3 | A ranked **spectroscopic follow-up list** | cached data, hours | ✅ **done** — anomaly list: real exotica amid ~⅓ artefacts; supervised LRD-retrieval fails (noise-texture matching, mechanism diagnosed → M3b) |
 | M3b | **Point-source-aware representation** (the Q3 fix) | refetch + retrain, ~hours | ✅ **done** — AUC 0.70→**0.91**, missed tail 28%→**1.9%**, retrieval now returns point sources (stars + compact red dots), not noise |
 | Q3b | **Star veto + literature cross-match + photo-z** on the M3b list | cached + cheap queries, hours | ✅ **done** — 10 survivors: **2 published LRDs independently rediscovered** (Akins+24, consistent z) + **4 strong new candidates** (z≈5–8), absent from every checked photometric+spectroscopic LRD sample on our fields (Kokorev, full Kocevski+24, full Akins-CW, RUBIES) |
-| Q3c | **From candidates to confirmations** (archival spectra → selection replay → SED) | cached + archive queries | ⏭ **next** — Step 1 (archival-spectrum search) is the agreed next action |
+| Q3c | **From candidates to confirmations** (archival spectra → selection replay → SED) | cached + archive queries | 🔄 **in progress** — Step 1 (archival-spectrum search) ✅ **done**: 0/10 have a public NIRSpec spectrum (validated: 90/260 known LRDs do, median 0.01″) → all 10 are genuinely unobserved; Step 2 (selection replay) next |
 | Q4 | Does the encoder **generalise across fields**? | retrain, ~hours MPS | ✅ **done — passes** — leave-one-field-out: LRD enrichment survives on all 3 held-out fields (AUC drops ≤0.03, CIs overlap); not a depth artefact |
 | Q5 | **M5: image+spectra contrastive** (NIRSpec) | new data, weeks | the big bet |
 
@@ -383,6 +383,41 @@ survivors by position against DJA-Spec / the DAWN spectroscopic archive,
 an un-flagged spectrum of one of our UDS candidates is plausible), JADES, CEERS,
 UNCOVER, CAPERS. A hit is potentially decisive; it is also the on-ramp to M5.
 
+**Status / results.** ✅ Done — `python -m experiments.candidate_specsearch
+--validate` (writes `research/candidates_specsearch.csv`). **A clean null: none
+of the 10 is spectroscopically observed yet.**
+
+- **One search covers them all.** The DAWN spectroscopic archive (DJA-Spec) is
+  the *union* of every public NIRSpec program reduced with msaexp — RUBIES,
+  JADES, CEERS, UNCOVER, CAPERS, PRIMER — so a single cone-search against its
+  master emission-line table (`dja_msaexp_emission_lines_v4.4`, **80,367
+  extractions** with RA/Dec, `z_best`, DJA `grade`, Balmer-line fluxes and UV
+  slope `beta`; S3, position-searchable) subsumes the individual releases the
+  roadmap listed. No per-archive queries needed.
+- **The machinery is validated the same way Q3b was.** Cross-matching the 216
+  (of 260) known **Kokorev LRDs** against DJA-Spec recovers **90/260 with a
+  public spectrum within 1″, at median separation 0.01″** — a pinpoint match.
+  Spectra are found wherever they exist, so a candidate *non*-match is a real
+  absence, not a coordinate/units bug. (It also quantifies the landscape: ~35%
+  of already-known photometric LRDs on these fields have since been observed
+  spectroscopically.)
+- **0/10 candidates have a public NIRSpec spectrum.** Nearest public spectrum to
+  any candidate is **3.4″** (atl008513) — a different, resolved source; the
+  result is unchanged at a generous 2″ radius. Even the two Akins-CW
+  rediscoveries (atl006594/atl006181), though *photometrically* published, have
+  no NIRSpec (nearest 55″/26″) — consistent with COSMOS-Web LRDs being
+  photometrically selected.
+- **What this means.** The literal "only a spectrum confirms" cannot be
+  discharged from the archive today: all 10 survivors are genuinely
+  *unobserved*, not previously-confirmed objects we missed. That is the
+  expected and honest outcome — it leaves the candidate list intact as a
+  **prioritised spectroscopic-follow-up target list** (Step 3's scientific
+  unit) and points the remaining evidence-gathering at **Step 2** (parent-
+  catalog selection replay, to convert "absent" into a defensible novelty
+  claim) and Step 3 (SED/slope/MIRI). It is also the M5 on-ramp: when these
+  fields' next NIRSpec release lands, this exact search re-run is the
+  confirmation test.
+
 **Step 2 — selection-function replay (fixes the novelty claim).** Cross-match
 the candidates against the *parent photometric catalogues* (DJA / COSMOS-Web /
 JADES source lists — every detected object, not the LRD sub-selection), pull
@@ -401,7 +436,10 @@ correct scientific unit. The caveat is intrinsic to every photometric LRD
 sample; the response is to maximise archival evidence and frame the residual as
 targets, not to pretend it is gone.
 
-**Status.** Not started. Step 1 is the agreed next action.
+**Status.** Step 1 ✅ done (clean null — see its results above; all 10 candidates
+are spectroscopically unobserved, machinery validated on 90/260 known LRDs).
+Step 2 (parent-catalog selection replay) is the agreed next action; Step 3
+follows.
 
 ## Q4 — Does the encoder generalise across fields?
 

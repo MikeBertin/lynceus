@@ -57,20 +57,23 @@ caveat that "absence from a photometric selection can mean *below their cuts*,
 and only a spectrum truly confirms an LRD."** That caveat splits into two
 separable problems with different fixes. The agreed plan, in priority order:
 
-### Step 1 (agreed next action) — archival-spectrum search
-**Highest value, do first.** A candidate that already has a public NIRSpec
-spectrum can be **confirmed or rejected today, for free** — the literal answer
-to "only a spectrum confirms." Search the 10 survivors
-(`research/candidates_crossmatch.csv`, verdict `candidate`) by position against:
-- **DJA-Spec / DAWN JWST spectroscopic archive** (reduced NIRSpec, position-searchable);
-- **RUBIES** (UDS+EGS; observed ~4,500 sources, only 36 flagged LRDs — so a
-  non-LRD-flagged spectrum of one of our UDS candidates is genuinely plausible);
-- JADES / CEERS / UNCOVER / CAPERS spectroscopic releases.
-If a spectrum exists, look at it (V-shaped continuum? broad Balmer?) — this is
-also the on-ramp to M5. Candidate positions are in the crossmatch CSV; UDS
-candidates (atl041542, atl039645, atl041002, atl039298) are the RUBIES-footprint ones.
+### Step 1 — archival-spectrum search ✅ DONE (2026-07-03)
+**Result: a clean null — none of the 10 is spectroscopically observed yet.**
+`python -m experiments.candidate_specsearch --validate`
+(→ `research/candidates_specsearch.csv`). The DAWN spectroscopic archive
+(**DJA-Spec**) is the *union* of every public NIRSpec program reduced with
+msaexp (RUBIES/JADES/CEERS/UNCOVER/CAPERS/PRIMER), so one cone-search against
+its master emission-line table (`dja_msaexp_emission_lines_v4.4`, 80,367
+extractions w/ RA/Dec, `z_best`, `grade`, Balmer lines, `beta`; on S3) covers
+them all. **Validated** exactly as Q3b: 90/260 known Kokorev LRDs have a
+DJA-Spec spectrum within 1″ (median 0.01″ — pinpoint), so a non-match is real.
+**0/10 candidates matched** (nearest 3.4″; unchanged at 2″). Even the two
+Akins-CW *photometric* rediscoveries have no NIRSpec (55″/26″). So the caveat
+can't be discharged from the archive today; all 10 stay a **follow-up target
+list**, and this same re-run is the confirmation test when the next NIRSpec
+release lands. Full detail: RESEARCH.md Q3c Step 1.
 
-### Step 2 — parent-catalog cross-match + selection-function replay
+### Step 2 (agreed next action) — parent-catalog cross-match + selection-function replay
 Turns "absent" from a bare positional non-match into a defensible novelty claim.
 Instead of only checking the LRD *sub-selections*, cross-match against the
 **parent photometric catalogs** (DJA / COSMOS-Web / JADES source lists — every
@@ -164,6 +167,7 @@ experiments/             # one-shot scripts (run as `python -m experiments.X`)
   star_veto.py           #   Q3b star veto (PSF spikes + colour + Gaia)
   candidate_crossmatch.py#   Q3b literature cross-match (auto-downloads catalogs)
   candidate_photoz.py    #   Q3b photo-z sanity check (9-band aperture phot)
+  candidate_specsearch.py#   Q3c Step 1 archival-spectrum search vs DJA-Spec; --validate
   q4_generalise.py       #   Q4 leave-one-field-out generalisation eval; --field/--all
   # --- M4 dropout ---
   build_photoz_dataset.py, train_photoz.py, export_photoz_onnx.py,
@@ -220,6 +224,12 @@ Step-2 selection replay use parent-catalog fluxes instead.
   - RUBIES broad-Balmer census — VizieR `J/A+A/702/A57/tableb1` (UDS+EGS spec).
   - Perger+25 compilation `J/A+A/693/L2`, Euclid LRD `J/A+A/711/A24`.
   - **NEXUS is the NEP field — no overlap, correctly excluded.**
+- **DJA-Spec master NIRSpec table (Q3c Step 1, auto-downloaded, ~130 MB):**
+  `data/dja_msaexp_emission_lines_v4.4.csv.gz` from
+  `s3.amazonaws.com/msaexp-nirspec/extractions/` — 80,367 public NIRSpec
+  extractions (the union of all msaexp-reduced programs); 587 cols incl.
+  ra/dec/`z_best`/`grade`(3=secure)/Balmer-line fluxes/`beta`. Position-searchable
+  master of every public spectrum, so it subsumes RUBIES/JADES/CEERS/etc.
 
 **Fields:** GOODS-S (RA~53.1, b−54°, `#5ec27a`), COSMOS (RA~150.1, b+42°,
 `#ff9e64`), UDS (RA~34.4, b−60°, `#c792ea`). All high galactic latitude.

@@ -1,0 +1,11 @@
+id,field,ra,dec,novelty_photometric,spec_match,spec_sep_arcsec
+atl006594,COSMOS,150.05369,2.405816,in_published_LRD_sample,none,55.4
+atl006181,COSMOS,150.05868,2.399345,in_published_LRD_sample,none,26.1
+atl008513,COSMOS,150.17903,2.440051,not_in_any_checked_LRD_sample,none,3.38
+atl041542,UDS,34.452312,-5.161188,not_in_any_checked_LRD_sample,none,6.44
+atl026058,GOODS-S,53.200711,-27.734697,not_in_any_checked_LRD_sample,none,31.83
+atl041002,UDS,34.358988,-5.16619,not_in_any_checked_LRD_sample,none,10.6
+atl039298,UDS,34.290951,-5.181698,not_in_any_checked_LRD_sample,none,12.06
+atl015287,COSMOS,150.10156,2.219143,not_in_any_checked_LRD_sample,none,7.17
+atl039645,UDS,34.372126,-5.178422,not_in_any_checked_LRD_sample,none,23.35
+atl007048,COSMOS,150.16998,2.413571,not_in_any_checked_LRD_sample,none,49.62
