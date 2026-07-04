@@ -2,7 +2,8 @@
 
 A from-scratch astrophysics-ML project: machine learning on JWST deep-field
 galaxies, with a serious Python core and self-contained, no-build browser demos.
-Sibling to Chiron (physics), Empedocles (EAs), Plutus (quant). **This file is the
+Lynceus is a **stand-alone** project — present it on its own, not as part of a
+family. **This file is the
 single source of truth for picking the project back up — read it top to bottom.**
 The deep research detail lives in `RESEARCH.md` (private notebook); this file is
 orientation + the next-session roadmap + the hard-won reference gotchas.
@@ -123,9 +124,9 @@ JWST-native parent atlas).
 
 ### Standing options (user's call, not blocking)
 - **Publish** — the bar the user set ("something definitely in hand") is met.
-  Only two mechanical items remain (see §9): Pages layout (mirror
-  Chiron/Empedocles) + the `og:image` social card. **Do NOT publish without an
-  explicit ask.**
+  Only two mechanical items remain (see §9): Pages layout + the `og:image`
+  social card. **Do NOT publish without an explicit ask.** Present Lynceus
+  **stand-alone** — no "companion to"/"sibling" framing anywhere public.
 - **M5 — image+spectra contrastive (NIRSpec).** The genuine new-science bet
   (AstroCLIP lineage). Step 1 above starts touching the same NIRSpec data.
 
@@ -367,8 +368,10 @@ Vanilla JS, no build step, static server. Hard-won gotchas — **all have bitten
   `research/*.csv` + `research/sheet_*.jpg`. Atlas first-load ~5.6 MB — Pages-lean.
 - **To publish** (only on explicit ask): `gh repo edit MikeBertin/lynceus
   --visibility public` + enable Pages. Two mechanical items first:
-  1. **Pages layout.** Landing is `web/index.html`; siblings publish at
-     `mikebertin.github.io/<name>` with landing at root. Mirror how
-     Chiron/Empedocles actually do it (move `web/` to root, `/docs`, or gh-pages).
+  1. **Pages layout.** Landing is `web/index.html`; Pages would publish at
+     `mikebertin.github.io/lynceus` with the landing at root. Options: move
+     `web/` to repo root, use `/docs`, or a `gh-pages` branch. (The serving
+     *mechanism* can copy the user's existing GitHub Pages personal-site setup;
+     just don't add any cross-project framing to the content.)
   2. **`og:image`.** Generate a 1200×630 social card (an atlas render works) and
      add `<meta property="og:image">` to all four pages once the absolute URL is known.

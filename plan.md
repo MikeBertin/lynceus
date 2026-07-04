@@ -1,7 +1,6 @@
 # Lynceus — roadmap
 
 A serious research core + interactive browser demos, on JWST deep-field galaxies.
-Sibling to Chiron / Empedocles / Plutus / Agora. Arc: **"B built on A"**.
 
 ## Milestones
 

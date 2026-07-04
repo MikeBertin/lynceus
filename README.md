@@ -11,10 +11,6 @@ self-supervised **embedding atlas** and an **anomaly hunt** for the mysterious
 
 🔒 *Private while in progress — not yet published.*
 
-Companion to [Chiron](https://mikebertin.github.io/chiron/) (computational physics),
-[Empedocles](https://mikebertin.github.io/empedocles/) (evolutionary algorithms) and
-Plutus (quantitative finance).
-
 ## The demos
 
 | | | |
