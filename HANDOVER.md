@@ -202,7 +202,7 @@ experiments/             # one-shot scripts (run as `python -m experiments.X`)
   # --- M4 dropout ---
   build_photoz_dataset.py, train_photoz.py, export_photoz_onnx.py,
   build_dropout_assets.py, calibrate_photoz.py
-web/
+docs/                    # the site (GitHub Pages serves main //docs)
   index.html             #   landing (4 cards, all Live)
   shared/                #   theme.css (?v=2), notice.js, favicon.svg
   morphology/            #   Demo A: ONNX classifier
@@ -299,7 +299,8 @@ Vanilla JS, no build step, static server. Hard-won gotchas — **all have bitten
   `build_atlas --m3b` / `significance --m3b` updates the UI number automatically
   (only the prose in `index.html` is hand-written).
 - **Preview:** the preview tool reads the **workspace-level**
-  `projects/.claude/launch.json`. `lynceus-web` = port 8137, serves `lynceus/web`.
+  `projects/.claude/launch.json`. `lynceus-web` = port 8137, serves `lynceus/docs`
+  (updated from `lynceus/web` when the site moved to `docs/` for Pages).
   Verified this session: no console/network errors; anomaly mode shows LRDs
   piling into the hot zone at 7.36×/96th pct; morphology still separates; zoomed
   thumbnails render from the new M3b sprite sheet.
@@ -360,18 +361,21 @@ Vanilla JS, no build step, static server. Hard-won gotchas — **all have bitten
 - All work on `main`, pushed, **private**. Commit style: present-tense subject +
   body, ending `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>` (older
   commits used Opus 4.8).
-- **Committed web assets** (the demos need them; `data/`+`models/` are not
-  committed): `web/morphology/model.onnx` (22 MB); `web/atlas/sprites.jpg`
+- **Committed site assets** (the demos need them; `data/`+`models/` are not
+  committed): `docs/morphology/model.onnx` (22 MB); `docs/atlas/sprites.jpg`
   (~4.5 MB, 48px tiles, 9,673 galaxies), `atlas.json` (~1 MB), `lrds.json`,
-  `lrd_sprites.jpg`, `skygeom.json`; `web/dropout/photoz.onnx` (487 KB),
-  `dropout.json`, `filmstrips.jpg`; `web/shared/favicon.svg`;
-  `research/*.csv` + `research/sheet_*.jpg`. Atlas first-load ~5.6 MB — Pages-lean.
-- **To publish** (only on explicit ask): `gh repo edit MikeBertin/lynceus
-  --visibility public` + enable Pages. Two mechanical items first:
-  1. **Pages layout.** Landing is `web/index.html`; Pages would publish at
-     `mikebertin.github.io/lynceus` with the landing at root. Options: move
-     `web/` to repo root, use `/docs`, or a `gh-pages` branch. (The serving
-     *mechanism* can copy the user's existing GitHub Pages personal-site setup;
-     just don't add any cross-project framing to the content.)
-  2. **`og:image`.** Generate a 1200×630 social card (an atlas render works) and
-     add `<meta property="og:image">` to all four pages once the absolute URL is known.
+  `lrd_sprites.jpg`, `skygeom.json`; `docs/dropout/photoz.onnx` (487 KB),
+  `dropout.json`, `filmstrips.jpg`; `docs/shared/favicon.svg`; `docs/card.png`
+  (og:image); `research/*.csv` + `research/sheet_*.jpg`. Atlas first-load ~5.6 MB.
+- **Publish prep — DONE on branch `publish-prep`** (2026-07-04). Site moved
+  `web/` → `docs/`; Pages layout = **main //docs** (matches the user's other
+  Pages sites' serve-from-main choice while keeping the code root clean); config/
+  Makefile/README repointed; `og:image` card (`experiments/build_og_card.py` →
+  `docs/card.png`) + `<meta>` added to all four pages; README flipped to the live
+  link. **The one remaining step is the user's to run (outward-facing):**
+  ```
+  gh repo edit MikeBertin/lynceus --visibility public
+  gh api -X POST repos/MikeBertin/lynceus/pages -f source.branch=main -f source.path=/docs
+  ```
+  then merge `publish-prep` → `main`. **Do NOT flip visibility without an
+  explicit ask.** Present Lynceus **stand-alone** — no cross-project framing.

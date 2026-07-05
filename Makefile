@@ -31,7 +31,7 @@ test:            ## run the unit tests
 	$(PY) -m pytest -q
 
 serve:           ## serve the demos at http://localhost:8137
-	cd web && python3 -m http.server 8137
+	cd docs && python3 -m http.server 8137
 
 # --- M1: morphology (ViT on Galaxy Zoo labels + JWST cutouts) ---------------
 data/gz_candels.fits:

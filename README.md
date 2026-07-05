@@ -9,16 +9,16 @@ galaxies *look like*, runs **live in your browser** via ONNX, and the road ahead
 self-supervised **embedding atlas** and an **anomaly hunt** for the mysterious
 **Little Red Dots**.
 
-🔒 *Private while in progress — not yet published.*
+**▶ Live: [mikebertin.github.io/lynceus](https://mikebertin.github.io/lynceus/)** — four self-contained demos, no build step.
 
 ## The demos
 
 | | | |
 |---|---|---|
-| **[Morphology](web/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser — featured / smooth / merger (Galaxy Zoo labels) — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
-| **[Atlas](web/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of **~9,700 real JWST galaxies** (WebGL-rendered) ; colour by morphology / sky region / **anomaly**; watch structure the encoder found with **no labels** emerge. A kNN probe recovers morphology **62% ± 0.7%** (5-fold) vs 39% baseline. **Built.** |
-| **[Anomaly hunt](web/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (**7.4× enriched** in the top-10% anomalies, 95% CI 6.8–7.9×, p<0.0001 vs a random-galaxy null; median LRD at the 96th percentile). A **point-source-aware** representation — detection-anchored cutouts + a noise-aware stretch so empty sky stays dark — sharpened this from ~5×, and the signal survives on a field the encoder never trained on (leave-one-field-out). Pushed to hunt *new* LRDs, the pipeline **independently rediscovers two published ones** (Akins+24, matched to 0.14″) — validating the whole chain — but a **catalogue-grade** re-check finds the remaining candidates aren't red enough to be new (F277W−F444W ≈ 0, not the ≈1 of a real LRD): an honest, validated **method**, not a discovery claim. **Built** (in the atlas). |
-| **[Dropout hunter](web/dropout/)** | *Live* | A neural **photometric redshift** net (ONNX, in your browser) reads a galaxy's redshift from nine JWST/HST bands as the **Lyman break** sweeps through the filters; watch z>10 galaxies **drop out** of the bluer bands, see the redshift PDF (and its low-z-interloper degeneracy), and a Lyman-break colour–colour diagram. **σ_NMAD ≈ 0.040** (95% CI 0.037–0.044) vs ~1,800 held-out spectroscopic redshifts (EAZY template ceiling: 0.027). PDF calibration checked honestly (PIT + coverage): a 90% credible interval contains the truth ~88% of the time. **Built (M4).** |
+| **[Morphology](docs/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser — featured / smooth / merger (Galaxy Zoo labels) — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
+| **[Atlas](docs/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of **~9,700 real JWST galaxies** (WebGL-rendered) ; colour by morphology / sky region / **anomaly**; watch structure the encoder found with **no labels** emerge. A kNN probe recovers morphology **62% ± 0.7%** (5-fold) vs 39% baseline. **Built.** |
+| **[Anomaly hunt](docs/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (**7.4× enriched** in the top-10% anomalies, 95% CI 6.8–7.9×, p<0.0001 vs a random-galaxy null; median LRD at the 96th percentile). A **point-source-aware** representation — detection-anchored cutouts + a noise-aware stretch so empty sky stays dark — sharpened this from ~5×, and the signal survives on a field the encoder never trained on (leave-one-field-out). Pushed to hunt *new* LRDs, the pipeline **independently rediscovers two published ones** (Akins+24, matched to 0.14″) — validating the whole chain — but a **catalogue-grade** re-check finds the remaining candidates aren't red enough to be new (F277W−F444W ≈ 0, not the ≈1 of a real LRD): an honest, validated **method**, not a discovery claim. **Built** (in the atlas). |
+| **[Dropout hunter](docs/dropout/)** | *Live* | A neural **photometric redshift** net (ONNX, in your browser) reads a galaxy's redshift from nine JWST/HST bands as the **Lyman break** sweeps through the filters; watch z>10 galaxies **drop out** of the bluer bands, see the redshift PDF (and its low-z-interloper degeneracy), and a Lyman-break colour–colour diagram. **σ_NMAD ≈ 0.040** (95% CI 0.037–0.044) vs ~1,800 held-out spectroscopic redshifts (EAZY template ceiling: 0.027). PDF calibration checked honestly (PIT + coverage): a 90% credible interval contains the truth ~88% of the time. **Built (M4).** |
 
 ## The data, honestly
 
@@ -68,15 +68,15 @@ experiments/
   train_vit.py        #   M1: CV metrics + final model + metrics.json
   train_atlas.py      #   M2: SimCLR encoder
   build_atlas.py      #   M2/M3: embed -> UMAP -> sprites + atlas.json + anomaly + lrds.json
-  export_onnx.py      #   -> INT8 web/morphology/model.onnx
+  export_onnx.py      #   -> INT8 docs/morphology/model.onnx
   build_web_assets.py #   gallery PNGs + attention maps + json
   build_photoz_dataset.py # M4: CEERS fluxes + redshifts -> photoz.npz
   train_photoz.py     #   M4: train the photo-z MLP, validate on spec-z
-  export_photoz_onnx.py   # M4: -> web/dropout/photoz.onnx
-  build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> web/dropout/
+  export_photoz_onnx.py   # M4: -> docs/dropout/photoz.onnx
+  build_dropout_assets.py # M4: filmstrips + PDFs + colour-colour -> docs/dropout/
   significance.py     #   error bars: bootstrap CIs + permutation nulls on every headline
   calibrate_photoz.py #   M4: PIT + coverage calibration of the redshift PDFs
-web/
+docs/
   morphology/         #   Demo A: classifier (onnxruntime-web, no build step)
   atlas/              #   Demo B: self-supervised fly-through + anomaly hunt (WebGL)
   dropout/            #   Demo D: photo-z dropout hunter (onnxruntime-web)
@@ -128,7 +128,7 @@ curl -L -o data/lrd_kokorev.fits \
 python -m experiments.fetch_lrd                     # fetch + embed the LRDs
 python -m experiments.build_atlas                   # atlas + anomaly scores + lrds.json
 
-cd web && python3 -m http.server                    # open http://localhost:8000
+cd docs && python3 -m http.server                   # open http://localhost:8000
 ```
 
 No-download fallback (synthetic Sérsic galaxies): `python -m experiments.fetch_data --synthetic 160`.

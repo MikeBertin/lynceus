@@ -9,6 +9,6 @@ data/
 *.fits
 *.fits.gz
 
-# Model checkpoints + intermediate ONNX (regenerable). The *web* model is committed:
+# Model checkpoints + intermediate ONNX (regenerable). The *site* model is committed:
 models/
-!web/morphology/model.onnx
+!docs/morphology/model.onnx
