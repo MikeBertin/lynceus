@@ -39,7 +39,7 @@ The demo trains on **real JWST/NIRCam cutouts with real human visual-morphology 
 - A **synthetic Sérsic generator** is retained as a no-download fallback (and for CI/tests):
   `python -m experiments.fetch_data --synthetic 160`. A Sérsic-fit-labelled CEERS path
   (`fetch_ceers.py`) and a local-mosaic `Cutout2D` path (`fetch_data --real`) also exist.
-  See [`plan.md`](plan.md) for provenance and the M2–M4 roadmap.
+  See [`plan.md`](plan.md) for full provenance and the M1–M4 milestone details.
 
 ## Architecture
 
@@ -132,6 +132,23 @@ cd docs && python3 -m http.server                   # open http://localhost:8000
 ```
 
 No-download fallback (synthetic Sérsic galaxies): `python -m experiments.fetch_data --synthetic 160`.
+
+## Further work
+
+The honest result of the anomaly hunt — a method that **rediscovers** known Little Red Dots
+but surfaces no genuinely new one on these fields — points squarely at what comes next:
+
+- **A fainter, JWST-native parent sample.** The atlas is seeded from bright, human-classified
+  Galaxy Zoo galaxies, so it structurally can't reach the faint population where undiscovered
+  Little Red Dots live. Rebuilding it from a deep JWST-detected source list (DJA / COSMOS-Web)
+  is the prerequisite for turning a validated *rediscovery* method into a *discovery* one.
+- **Image + spectra contrastive learning.** Align the image embeddings with JWST/NIRSpec
+  spectra (AstroCLIP lineage) so the atlas inherits spectroscopic structure — redshift,
+  emission-line strength, AGN-ness — with no labels, and gains a redshift probe that could
+  beat the photometry-only net.
+- **Spectroscopic confirmation, for free, as it arrives.** A positional search against each
+  new public NIRSpec release (the DAWN spectroscopic archive) is a standing confirmation test
+  for any future candidate — no telescope time required.
 
 ## Credits & data
 
