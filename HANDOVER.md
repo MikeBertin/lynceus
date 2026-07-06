@@ -12,10 +12,11 @@ orientation + the next-session roadmap + the hard-won reference gotchas.
 
 ## 1. Status — where we are (2026-07)
 
-**Everything through the research validation arc is done, committed, and pushed.**
-Repo is **private** on GitHub: `git@github.com:MikeBertin/lynceus.git` (user
-`MikeBertin`, SSH). Default branch `main`. **Nothing is published yet** (no GitHub
-Pages) — deliberately paused at the user's call (see §9).
+**Everything through the research validation arc is done, committed, and pushed —
+and the project is PUBLIC (2026-07-05).** Repo: `git@github.com:MikeBertin/lynceus.git`
+(user `MikeBertin`, SSH), default branch `main`. Site live at
+**https://mikebertin.github.io/lynceus/** (GitHub Pages, main `/docs`, HTTPS).
+All four pages + card.png + ONNX models verified 200 on the live URL at publish.
 
 Four demos, all live and verified; the **shipped atlas now runs the M3b
 representation** (see §7):
@@ -76,9 +77,10 @@ engine on these Galaxy-Zoo-seeded fields. So the decision for next session is
   A genuine LRD hunt wants a faint JWST-detected parent sample (DJA/COSMOS-Web
   source lists) as the atlas, not GZ positions — and image+spectra contrastive
   (M5) is the paper-shaped bet. This is the recommended direction.
-- **Publish?** Still a standing option, but the honest framing is now "a
-  validated anomaly-detection *method* that rediscovers known LRDs", not "we
-  found new LRDs". Adjust the demo/README copy accordingly before any publish.
+- **~~Publish?~~ PUBLISHED (2026-07-05).** The user accepted the honest reframe
+  ("a validated anomaly-detection *method* that rediscovers known LRDs") and
+  took it public; demo/README copy carries that framing. See §9 for the live
+  URL and deploy mechanics.
 
 Below: the completed Step 1–2 record. (Original Step 2/3 plan retained for
 context, struck through where superseded.)
@@ -123,12 +125,11 @@ novel candidate passed Step 2. See §2 top for the real next direction (M5 / a
 JWST-native parent atlas).
 
 ### Standing options (user's call, not blocking)
-- **Publish** — the bar the user set ("something definitely in hand") is met.
-  Only two mechanical items remain (see §9): Pages layout + the `og:image`
-  social card. **Do NOT publish without an explicit ask.** Present Lynceus
-  **stand-alone** — no "companion to"/"sibling" framing anywhere public.
 - **M5 — image+spectra contrastive (NIRSpec).** The genuine new-science bet
   (AstroCLIP lineage). Step 1 above starts touching the same NIRSpec data.
+- *(Publish — done 2026-07-05; see §9. Keep presenting Lynceus **stand-alone** —
+  no "companion to"/"sibling" framing anywhere public. Remember `docs/` on
+  `main` auto-deploys now.)*
 
 House style to keep: serious `core/`, no-build demo, **honest numbers in the UI**,
 "things to notice" cards, versioned web assets, everything reproducible via the
@@ -358,24 +359,24 @@ Vanilla JS, no build step, static server. Hard-won gotchas — **all have bitten
 
 ## 9. Git & publishing
 
-- All work on `main`, pushed, **private**. Commit style: present-tense subject +
-  body, ending `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>` (older
-  commits used Opus 4.8).
+- All work on `main`, pushed, **PUBLIC** (flipped 2026-07-05 on the user's
+  explicit ask). Commit style: present-tense subject + body, ending
+  `Co-Authored-By: Claude <model name> <noreply@anthropic.com>` with the model
+  actually driving (history has Fable 5 and Opus 4.8).
 - **Committed site assets** (the demos need them; `data/`+`models/` are not
   committed): `docs/morphology/model.onnx` (22 MB); `docs/atlas/sprites.jpg`
   (~4.5 MB, 48px tiles, 9,673 galaxies), `atlas.json` (~1 MB), `lrds.json`,
   `lrd_sprites.jpg`, `skygeom.json`; `docs/dropout/photoz.onnx` (487 KB),
   `dropout.json`, `filmstrips.jpg`; `docs/shared/favicon.svg`; `docs/card.png`
   (og:image); `research/*.csv` + `research/sheet_*.jpg`. Atlas first-load ~5.6 MB.
-- **Publish prep — DONE on branch `publish-prep`** (2026-07-04). Site moved
-  `web/` → `docs/`; Pages layout = **main //docs** (matches the user's other
-  Pages sites' serve-from-main choice while keeping the code root clean); config/
-  Makefile/README repointed; `og:image` card (`experiments/build_og_card.py` →
-  `docs/card.png`) + `<meta>` added to all four pages; README flipped to the live
-  link. **The one remaining step is the user's to run (outward-facing):**
-  ```
-  gh repo edit MikeBertin/lynceus --visibility public
-  gh api -X POST repos/MikeBertin/lynceus/pages -f source.branch=main -f source.path=/docs
-  ```
-  then merge `publish-prep` → `main`. **Do NOT flip visibility without an
-  explicit ask.** Present Lynceus **stand-alone** — no cross-project framing.
+- **PUBLISHED (2026-07-05, on the user's explicit ask).** Site moved `web/` →
+  `docs/`; Pages = **main //docs**, HTTPS enforced; `og:image` card
+  (`experiments/build_og_card.py` → `docs/card.png`) + `<meta>` on all four
+  pages; README carries the live link. Flip was:
+  `gh repo edit MikeBertin/lynceus --visibility public
+  --accept-visibility-change-consequences` + `gh api -X POST
+  repos/MikeBertin/lynceus/pages -f 'source[branch]=main' -f 'source[path]=/docs'`.
+  Verified live: all four pages, card.png, both ONNX models, versioned assets →
+  200 at https://mikebertin.github.io/lynceus/. **Pages auto-deploys `docs/` on
+  every push to `main` now — anything committed there goes live in ~1 min.**
+  Present Lynceus **stand-alone** — no cross-project framing.

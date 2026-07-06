@@ -2,7 +2,9 @@
 
 **Private working notes** — the research on-ramp made explicit. Not written for
 an outside reader yet; goes public (in some cleaned-up form) only once one of
-these questions has a result worth showing. Repo stays private until then.
+these questions has a result worth showing. *(Update 2026-07-05: the repo and
+site are now public — the honest method-validation story was judged worth
+showing. This file remains the internal notebook.)*
 
 The toolkit in hand: a SimCLR encoder over ~9.7k real JWST cutouts with a
 validated anomaly score (LRDs 5× enriched, p<1e-4 — see `experiments/
