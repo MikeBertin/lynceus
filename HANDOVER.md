@@ -207,8 +207,9 @@ docs/                    # the site (GitHub Pages serves main //docs)
   index.html             #   landing (4 cards, all Live)
   shared/                #   theme.css (?v=2), notice.js, favicon.svg
   morphology/            #   Demo A: ONNX classifier
-  atlas/                 #   Demo B: atlas + anomaly + globe. app.js (?v=16),
-                         #     atlas.json/lrds.json (?v=6), sprites/lrd_sprites (?v=4)
+  atlas/                 #   Demo B: atlas + anomaly + globe. app.js (?v=17),
+                         #     atlas.json/lrds.json (?v=7), sprites/lrd_sprites (?v=5,
+                         #     64px native tiles); morphology gallery 224px (?v=2)
   dropout/               #   Demo D: photo-z dropout hunter
 tests/                   # test_data / _models / _photoz / _anomaly / _stats / _calibration (25)
 data/                    # GITIGNORED — all catalogs/cutouts/embeddings (regenerable)
@@ -287,8 +288,9 @@ Embeddings: `data/atlas/embeddings{,_m3b}.npy`, `data/lrd/lrd_emb{,_m3b}.npy`.
 Vanilla JS, no build step, static server. Hard-won gotchas — **all have bitten us:**
 - **Cache-busting is mandatory.** Every fetched JS/CSS/JSON is `?v=N`. **Change a
   file → bump its version** or the browser serves stale. Current atlas versions:
-  `app.js?v=16`, `atlas.json?v=6`, `lrds.json?v=6`, `sprites.jpg?v=4`,
-  `lrd_sprites.jpg?v=4`, `theme.css?v=2`.
+  `app.js?v=17`, `atlas.json?v=7`, `lrds.json?v=7`, `sprites.jpg?v=5`,
+  `lrd_sprites.jpg?v=5`, `theme.css?v=2`, morphology `gallery.json?v=2`
+  (+ per-image `?v=2` baked into its img/attn paths by `build_web_assets`).
 - **No `requestAnimationFrame` render loop** — it stalls in the headless preview.
   The atlas uses microtask-coalesced draws (`markDirty()` → `Promise.resolve().then(draw)`).
   (The globe's cosmetic auto-spin uses rAF; fine.)

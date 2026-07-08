@@ -17,16 +17,21 @@ from core.datasets import preprocess
 from core.models import build_model, AttentionRollout
 
 GALLERY_DIR = config.WEB_MORPH_DIR / "gallery"
+GALLERY_PX = 224   # display size for gallery PNGs. The stored cutouts are
+                   # native-resolution JWST (0.04"/px), so this is a LANCZOS
+                   # upscale — no new detail, but far cleaner on retina than
+                   # letting the browser stretch a 120 px image ~3x. Matches
+                   # the ViT input size; classification still uses the npy.
 
 
 def _attn_png(heat: np.ndarray, out_path) -> None:
-    """Render a (g, g) attention map as a magma-coloured PNG at cutout size."""
+    """Render a (g, g) attention map as a magma-coloured PNG at gallery size."""
     import matplotlib
     from PIL import Image
     h = heat - heat.min()
     h = h / (h.max() + 1e-8)
     img = Image.fromarray((h * 255).astype(np.uint8)).resize(
-        (config.CUTOUT_PX, config.CUTOUT_PX), Image.BICUBIC)
+        (GALLERY_PX, GALLERY_PX), Image.BICUBIC)
     h = np.asarray(img) / 255.0
     rgba = (matplotlib.colormaps["magma"](h) * 255).astype(np.uint8)
     Image.fromarray(rgba, mode="RGBA").save(out_path)
@@ -37,6 +42,8 @@ def main() -> None:
     ap.add_argument("--per-class", type=int, default=6)
     ap.add_argument("--seed", type=int, default=3)
     args = ap.parse_args()
+
+    from PIL import Image
 
     rows = load_manifest()
     ckpt = config.MODELS_DIR / "vit.pt"
@@ -67,16 +74,17 @@ def main() -> None:
             logits, heat = rollout.heatmap(x)
             probs = torch.softmax(logits, 1)[0].detach().numpy()
 
-            shutil.copyfile(config.CUTOUTS_DIR / r["png"],
-                            GALLERY_DIR / f"{r['id']}.png")
+            Image.open(config.CUTOUTS_DIR / r["png"]).resize(
+                (GALLERY_PX, GALLERY_PX), Image.LANCZOS).save(
+                GALLERY_DIR / f"{r['id']}.png")
             _attn_png(heat[0].numpy(), GALLERY_DIR / f"{r['id']}_attn.png")
             gallery.append({
                 "id": r["id"],
                 "label": label,
                 "label_name": morphology.CLASS_LABELS[label],
                 "redshift": round(float(r["redshift"]), 2),
-                "img": f"gallery/{r['id']}.png",
-                "attn": f"gallery/{r['id']}_attn.png",
+                "img": f"gallery/{r['id']}.png?v=2",     # ?v bumps with GALLERY_PX
+                "attn": f"gallery/{r['id']}_attn.png?v=2",
                 "probs": {c: round(float(probs[i]), 4)
                           for i, c in enumerate(morphology.CLASSES)},
             })

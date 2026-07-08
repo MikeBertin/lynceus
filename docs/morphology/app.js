@@ -16,7 +16,7 @@ async function boot() {
   try {
     [labels, gallery, metrics] = await Promise.all([
       fetch("labels.json").then((r) => r.json()),
-      fetch("gallery.json").then((r) => r.json()),
+      fetch("gallery.json?v=2").then((r) => r.json()),
       fetch("metrics.json").then((r) => r.json()).catch(() => null),
     ]);
     renderGallery();

@@ -115,7 +115,7 @@ python -m experiments.fetch_gz --per-class 300      # select + fetch real cutout
 
 python -m experiments.train_vit  --folds 5 --epochs 10
 python -m experiments.export_onnx
-python -m experiments.build_web_assets --per-class 6
+python -m experiments.build_web_assets --per-class 7
 pytest -q                                           # data + model tests
 
 # M2 — the self-supervised atlas

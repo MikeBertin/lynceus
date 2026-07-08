@@ -18,8 +18,10 @@ from PIL import Image
 from core import config, anomaly
 from core.embed import embed_paths, umap_2d, normalise_coords
 
-TILE = 48  # sprite thumbnail size (px); kept modest so the ~10k-galaxy
-           # sprites.jpg stays a lean first-load asset (~5 MB) for GitHub Pages
+TILE = 64  # sprite thumbnail size (px) — the M3b cutouts are 64 px native, so
+           # this ships them at full resolution (48 px threw a third of it away
+           # and read blurry once retina displays magnified the tiles 3-7x).
+           # ~10k tiles -> sprites.jpg ~8 MB, still Pages-lean.
 LRD_DIR = config.DATA_DIR / "lrd"
 
 
