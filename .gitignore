@@ -12,3 +12,4 @@ data/
 # Model checkpoints + intermediate ONNX (regenerable). The *site* model is committed:
 models/
 !docs/morphology/model.onnx
+HANDOVER.md
