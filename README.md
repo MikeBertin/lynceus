@@ -9,33 +9,32 @@ galaxies *look like*, runs **live in your browser** via ONNX, and the road ahead
 self-supervised **embedding atlas** and an **anomaly hunt** for the mysterious
 **Little Red Dots**.
 
-**▶ Live: [mikebertin.github.io/lynceus](https://mikebertin.github.io/lynceus/)** — four self-contained demos, no build step.
+**▶ Live: [mikebertin.github.io/lynceus](https://mikebertin.github.io/lynceus/)**: four self-contained demos, no build step.
 
 ## The demos
 
 | | | |
 |---|---|---|
-| **[Morphology](docs/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser — featured / smooth / merger (Galaxy Zoo labels) — with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
+| **[Morphology](docs/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser as featured, smooth or merger (Galaxy Zoo labels), with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
 | **[Atlas](docs/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of **~9,700 real JWST galaxies** (WebGL-rendered) ; colour by morphology / sky region / **anomaly**; watch structure the encoder found with **no labels** emerge. A kNN probe recovers morphology **62% ± 0.7%** (5-fold) vs 39% baseline. **Built.** |
-| **[Anomaly hunt](docs/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (**7.4× enriched** in the top-10% anomalies, 95% CI 6.8–7.9×, p<0.0001 vs a random-galaxy null; median LRD at the 96th percentile). A **point-source-aware** representation — detection-anchored cutouts + a noise-aware stretch so empty sky stays dark — sharpened this from ~5×, and the signal survives on a field the encoder never trained on (leave-one-field-out). Pushed to hunt *new* LRDs, the pipeline **independently rediscovers two published ones** (Akins+24, matched to 0.14″) — validating the whole chain — but a **catalogue-grade** re-check finds the remaining candidates aren't red enough to be new (F277W−F444W ≈ 0, not the ≈1 of a real LRD): an honest, validated **method**, not a discovery claim. **Built** (in the atlas). |
+| **[Anomaly hunt](docs/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (**7.4× enriched** in the top-10% anomalies, 95% CI 6.8–7.9×, p<0.0001 vs a random-galaxy null; median LRD at the 96th percentile). A **point-source-aware** representation (detection-anchored cutouts plus a noise-aware stretch so empty sky stays dark) sharpened this from ~5×, and the signal survives on a field the encoder never trained on (leave-one-field-out). Pushed to hunt *new* LRDs, the pipeline **independently rediscovers two published ones** (Akins+24, matched to 0.14″), validating the whole chain, but a **catalogue-grade** re-check finds the remaining candidates aren't red enough to be new (F277W−F444W ≈ 0, not the ≈1 of a real LRD): an honest, validated **method**, not a discovery claim. **Built** (in the atlas). |
 | **[Dropout hunter](docs/dropout/)** | *Live* | A neural **photometric redshift** net (ONNX, in your browser) reads a galaxy's redshift from nine JWST/HST bands as the **Lyman break** sweeps through the filters; watch z>10 galaxies **drop out** of the bluer bands, see the redshift PDF (and its low-z-interloper degeneracy), and a Lyman-break colour–colour diagram. **σ_NMAD ≈ 0.040** (95% CI 0.037–0.044) vs ~1,800 held-out spectroscopic redshifts (EAZY template ceiling: 0.027). PDF calibration checked honestly (PIT + coverage): a 90% credible interval contains the truth ~88% of the time. **Built (M4).** |
 
 ## The data, honestly
 
 The demo trains on **real JWST/NIRCam cutouts with real human visual-morphology labels**:
 
-- **Imagery — real JWST.** Cutouts (F200W + F356W + F444W of GOODS-S, COSMOS and UDS galaxies)
+- **Imagery: real JWST.** Cutouts (F200W + F356W + F444W of GOODS-S, COSMOS and UDS galaxies)
   are pulled by RA/Dec from the [DAWN JWST Archive](https://dawn-cph.github.io/dja/) grizli
-  cutout service — actual JWST pixels, no mosaic download. The RGB is our asinh composite of
+  cutout service: actual JWST pixels, no mosaic download. The RGB is our asinh composite of
   the three raw bands.
-- **Labels — real human votes.** The three classes are the canonical
+- **Labels: real human votes.** The three classes are the canonical
   [Galaxy Zoo](https://data.galaxyzoo.org/): CANDELS split (Simmons et al. 2017):
   `featured` (disk/structured), `smooth` (elliptical/early-type) and `merger`
   (merging/disturbed), taken as the majority volunteer vote with ≥ 20 classifiers.
 - **One honest caveat.** Galaxy Zoo classified the *HST/CANDELS* imaging; the ViT is shown the
   *JWST* view of the same galaxies (cross-matched by position). Morphology is largely
-  consistent across the two, but the labels and the pixels come from different telescopes —
-  stated plainly rather than hidden.
+  consistent across the two, but the labels and the pixels come from different telescopes, which we state plainly rather than hide.
 - A **synthetic Sérsic generator** is retained as a no-download fallback (and for CI/tests):
   `python -m experiments.fetch_data --synthetic 160`. A Sérsic-fit-labelled CEERS path
   (`fetch_ceers.py`) and a local-mosaic `Cutout2D` path (`fetch_data --real`) also exist.
@@ -86,7 +85,7 @@ tests/                #   data, model, stats + calibration unit tests
 
 ## Running it
 
-The whole pipeline is a `Makefile` — `make help` lists every target, one per
+The whole pipeline is a `Makefile`: `make help` lists every target, one per
 milestone, with data-fetch and training separated (and the DJA rate-limit and
 rough costs noted inline). Requirements are **pinned** to the versions the
 published numbers were produced with (Python 3.13, Apple MPS).
@@ -118,11 +117,11 @@ python -m experiments.export_onnx
 python -m experiments.build_web_assets --per-class 7
 pytest -q                                           # data + model tests
 
-# M2 — the self-supervised atlas
+# M2: the self-supervised atlas
 python -m experiments.fetch_atlas  --n 2550         # unlabelled JWST cutouts
 python -m experiments.train_atlas  --epochs 80      # SimCLR encoder (MPS)
 
-# M3 — the anomaly hunt: known Little Red Dots, embedded with the same encoder
+# M3: the anomaly hunt (known Little Red Dots, embedded with the same encoder)
 curl -L -o data/lrd_kokorev.fits \
   https://raw.githubusercontent.com/VasilyKokorev/lrd_phot/master/lrd_table_v1.1.fits
 python -m experiments.fetch_lrd                     # fetch + embed the LRDs
@@ -135,20 +134,19 @@ No-download fallback (synthetic Sérsic galaxies): `python -m experiments.fetch_
 
 ## Further work
 
-The honest result of the anomaly hunt — a method that **rediscovers** known Little Red Dots
-but surfaces no genuinely new one on these fields — points squarely at what comes next:
+The honest result of the anomaly hunt (a method that **rediscovers** known Little Red Dots
+but surfaces no genuinely new one on these fields) points squarely at what comes next:
 
 - **A fainter, JWST-native parent sample.** The atlas is seeded from bright, human-classified
   Galaxy Zoo galaxies, so it structurally can't reach the faint population where undiscovered
   Little Red Dots live. Rebuilding it from a deep JWST-detected source list (DJA / COSMOS-Web)
   is the prerequisite for turning a validated *rediscovery* method into a *discovery* one.
 - **Image + spectra contrastive learning.** Align the image embeddings with JWST/NIRSpec
-  spectra (AstroCLIP lineage) so the atlas inherits spectroscopic structure — redshift,
-  emission-line strength, AGN-ness — with no labels, and gains a redshift probe that could
+  spectra (AstroCLIP lineage) so the atlas inherits spectroscopic structure (redshift, emission-line strength, AGN-ness) with no labels, and gains a redshift probe that could
   beat the photometry-only net.
 - **Spectroscopic confirmation, for free, as it arrives.** A positional search against each
   new public NIRSpec release (the DAWN spectroscopic archive) is a standing confirmation test
-  for any future candidate — no telescope time required.
+  for any future candidate, with no telescope time required.
 
 ## Credits & data
 

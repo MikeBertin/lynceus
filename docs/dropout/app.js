@@ -1,5 +1,5 @@
 "use strict";
-// M4 — the dropout hunter. A small photo-z MLP runs live (ONNX) on nine band
+// M4: the dropout hunter. A small photo-z MLP runs live (ONNX) on nine band
 // fluxes; the page shows the Lyman break sweeping through the filters, the
 // network's redshift PDF, and a Lyman-break colour-colour diagram.
 
@@ -64,8 +64,8 @@ function softmax(a) {
   return o.map((e) => e / s);
 }
 
-// PDF point estimates: refined peak (local mean around mode), spread, and a
-// genuine bimodality measure — the probability mass and location of any second
+// PDF point estimates: refined peak (local mean around mode), spread and a
+// genuine bimodality measure: the probability mass and location of any second
 // solution well away from the main peak (the low-z interloper signature).
 function estimates(pdf) {
   let mi = 0; for (let i = 1; i < pdf.length; i++) if (pdf[i] > pdf[mi]) mi = i;
@@ -128,7 +128,7 @@ function renderStrip() {
   const f = FILTERS[curBand];
   const dropped = f[2] < zb;
   $("#vmeta").innerHTML =
-    `Filter <b>${f[0]}</b> · ${f[3].toFixed(2)} µm — ${dropped
+    `Filter <b>${f[0]}</b> · ${f[3].toFixed(2)} µm: ${dropped
       ? `<span style="color:#ff6b6b">below the break: the galaxy has dropped out</span>`
       : `<span style="color:#5ec27a">above the break: the galaxy shines here</span>`}.` +
     `<br>Lyman break for z = <b>${g.zpeak.toFixed(1)}</b> falls at <b>${zb.toFixed(2)} µm</b>.`;
@@ -260,22 +260,22 @@ async function select(i) {
   $("#z-ours").innerHTML = `${est.zpeak.toFixed(1)} <small>± ${est.zstd.toFixed(1)}</small>`;
   $("#z-ours").style.color = rgb(zColor(est.zpeak));
   $("#z-temp").innerHTML = `<small>z =</small> ${g.zphot.toFixed(1)}`;
-  $("#z-spec").innerHTML = g.zspec != null ? `<small>z =</small> ${g.zspec.toFixed(1)}` : "<small>—</small>";
+  $("#z-spec").innerHTML = g.zspec != null ? `<small>z =</small> ${g.zspec.toFixed(1)}` : "<small>…</small>";
   // verdict
   const bluest = FILTERS.find((f) => f[2] >= breakWavelength(est.zpeak));
   const lo = Math.min(est.zpeak, est.zsec ?? est.zpeak), hi = Math.max(est.zpeak, est.zsec ?? est.zpeak);
   let v;
   if (est.sec > 0.15 && est.zsec != null)
     v = `<b>Two solutions.</b> The net favours z &approx; <b>${est.zpeak.toFixed(1)}</b> but keeps a ` +
-        `real second peak near z &approx; <b>${est.zsec.toFixed(1)}</b> — a dusty z&nbsp;~&nbsp;${lo.toFixed(0)} ` +
+        `real second peak near z &approx; <b>${est.zsec.toFixed(1)}</b>, a dusty z&nbsp;~&nbsp;${lo.toFixed(0)} ` +
         `interloper mimicking a z&nbsp;~&nbsp;${hi.toFixed(0)} dropout. This ambiguity is exactly why ` +
         `"too many bright early galaxies" needs spectroscopy.`;
   else if (est.zpeak >= 8)
-    v = `Lit only from <b>${bluest ? bluest[0] : "the reddest bands"}</b> redward — a clean high-z ` +
+    v = `Lit only from <b>${bluest ? bluest[0] : "the reddest bands"}</b> redward: a clean high-z ` +
         `<b>dropout</b> at z &approx; ${est.zpeak.toFixed(1)}, with a single confident peak.`;
   else
     v = `The break sits near <b>${(breakWavelength(est.zpeak)).toFixed(2)} µm</b>; the net reads ` +
-        `z &approx; ${est.zpeak.toFixed(1)}${g.zspec != null ? ` — spectroscopy says ${g.zspec.toFixed(2)}` : ""}.`;
+        `z &approx; ${est.zpeak.toFixed(1)}${g.zspec != null ? `; spectroscopy says ${g.zspec.toFixed(2)}` : ""}.`;
   $("#verdict").innerHTML = v;
   renderPDF(pdf); renderCC();
 }
@@ -308,7 +308,7 @@ function buildMetrics() {
     `Scored against <b>${m.n_val_spec.toLocaleString()}</b> real spectroscopic redshifts the net never ` +
     `saw. Our <b>σ<sub>NMAD</sub> = ${m.sigma_nmad.toFixed(3)}</b> (${nmadCI}${(m.outlier_frac * 100).toFixed(0)}% ` +
     `catastrophic outliers) sits within a hair of the <b>EAZY template</b> ceiling it distils ` +
-    `(${eb.sigma_nmad.toFixed(3)}, ${(eb.outlier_frac * 100).toFixed(0)}%) — at a millionth of the ` +
+    `(${eb.sigma_nmad.toFixed(3)}, ${(eb.outlier_frac * 100).toFixed(0)}%), at a millionth of the ` +
     `compute, running in this browser tab.`;
 }
 
@@ -325,7 +325,7 @@ function buildCalibration() {
   const cov = c.coverage;
   $("#calnote").innerHTML =
     `Across <b>${D.metrics.n_val_spec.toLocaleString()}</b> spec-z galaxies the PIT (predicted CDF at the ` +
-    `true redshift) should be <b>flat</b> if the PDFs are calibrated. Ours is centre-heavy — the net's ` +
+    `true redshift) should be <b>flat</b> if the PDFs are calibrated. Ours is centre-heavy: the net's ` +
     `PDFs run a touch <b>wide</b> (mildly under-confident). Even so, a <b>90% credible interval contains ` +
     `the truth ${Math.round(cov["90"] * 100)}%</b> of the time (95% → ${Math.round(cov["95"] * 100)}%). ` +
     `A single softmax temperature can't do better: covering the rare catastrophic outliers wants ` +
@@ -353,10 +353,10 @@ async function boot() {
   sel = start; curBand = 4;
   try {
     session = await ort.InferenceSession.create("photoz.onnx?v=1", { executionProviders: ["wasm"] });
-    $("#status").textContent = "model ready — pick a galaxy.";
+    $("#status").textContent = "model ready. Pick a galaxy.";
     $("#status").style.color = "var(--muted)";
   } catch (e) {
-    $("#status").textContent = "ONNX unavailable — showing precomputed predictions.";
+    $("#status").textContent = "ONNX unavailable, so showing precomputed predictions.";
   }
   await select(sel);
   window.addEventListener("resize", () => { renderWave(); renderCC(); });

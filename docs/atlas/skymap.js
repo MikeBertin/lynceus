@@ -1,4 +1,4 @@
-// Lynceus — "where are we looking?" interactive celestial globe.
+// Lynceus: "where are we looking?" interactive celestial globe.
 // Orthographic, drag/touch to rotate. No dependencies.
 (function () {
   "use strict";
@@ -22,7 +22,7 @@
   }
 
   // Sun's position for a given date, as an equatorial unit vector
-  // [cos(Dec)cos(RA), cos(Dec)sin(RA), sin(Dec)] — same convention as skygeom.json.
+  // [cos(Dec)cos(RA), cos(Dec)sin(RA), sin(Dec)], the same convention as skygeom.json.
   // Low-precision solar ephemeris (good to a few arcmin; plenty for a 6px dot).
   function sunVector(date) {
     const rad = Math.PI / 180;

@@ -10,9 +10,9 @@
   "merger": "Merger"
  },
  "blurbs": {
-  "featured": "Disk-like \u2014 structure, clumps or spiral arms (Galaxy Zoo: featured).",
-  "smooth": "Smooth and rounded \u2014 elliptical / early-type, no features.",
-  "merger": "Merging or tidally disturbed \u2014 two bodies or tidal debris."
+  "featured": "Disk-like: structure, clumps or spiral arms (Galaxy Zoo: featured).",
+  "smooth": "Smooth and rounded: elliptical / early-type, no features.",
+  "merger": "Merging or tidally disturbed: two bodies or tidal debris."
  },
  "mean": [
   0.485,

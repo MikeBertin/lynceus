@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lynceus — Galaxy morphology, live in your browser</title>
+<title>Lynceus · Galaxy morphology, live in your browser</title>
 <meta name="description" content="A Vision Transformer classifies JWST-style galaxy cutouts in your browser via ONNX, with attention heatmaps and honest cross-validated metrics.">
 <link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mikebertin.github.io/lynceus/morphology/">
-<meta property="og:title" content="Lynceus — Galaxy morphology, live">
-<meta property="og:description" content="A Vision Transformer (ViT-Small, ONNX) classifies real JWST/NIRCam galaxy cutouts in your browser — featured, smooth or merger — with attention heatmaps and honest, cross-validated metrics.">
+<meta property="og:title" content="Lynceus · Galaxy morphology, live">
+<meta property="og:description" content="A Vision Transformer (ViT-Small, ONNX) classifies real JWST/NIRCam galaxy cutouts in your browser as featured, smooth or merger, with attention heatmaps and honest, cross-validated metrics.">
 <meta property="og:image" content="https://mikebertin.github.io/lynceus/card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Lynceus — Galaxy morphology, live">
+<meta name="twitter:title" content="Lynceus · Galaxy morphology, live">
 <meta name="twitter:description" content="A Vision Transformer classifies real JWST galaxy cutouts in your browser, with attention heatmaps and honest cross-validated metrics.">
 <meta name="twitter:image" content="https://mikebertin.github.io/lynceus/card.png">
 <link rel="stylesheet" href="../shared/theme.css?v=2">
@@ -88,7 +88,7 @@
         <canvas id="attn" width="224" height="224"></canvas>
       </div>
       <div class="viewmeta">
-        <span id="vm-id">—</span><span>z ≈ <b id="vm-z">—</b></span>
+        <span id="vm-id">…</span><span>z ≈ <b id="vm-z">…</b></span>
       </div>
       <div class="row">
         <label class="tog"><input type="checkbox" id="attnToggle"> attention overlay</label>
@@ -122,8 +122,7 @@
   <p class="note">
     <b>What you're seeing.</b> Real <b>JWST/NIRCam</b> cutouts (F200W+F356W+F444W of GOODS-S, COSMOS
     and UDS galaxies), pulled live from the <a href="https://dawn-cph.github.io/dja/">DAWN JWST
-    Archive</a> cutout service. The labels are <b>real human visual classifications</b> — the
-    canonical <a href="https://data.galaxyzoo.org/">Galaxy Zoo</a>: CANDELS split into
+    Archive</a> cutout service. The labels are <b>real human visual classifications</b>: the canonical <a href="https://data.galaxyzoo.org/">Galaxy Zoo</a>: CANDELS split into
     <b>featured/disk</b>, <b>smooth</b> and <b>merger</b> (majority volunteer vote, ≥20 classifiers).
     Galaxy Zoo judged HST imaging; the ViT here is shown the <b>JWST</b> view of the same galaxies
     and learns morphology straight from the pixels. Next milestone: a self-supervised <b>atlas</b> of
@@ -141,7 +140,7 @@
         <div class="explain"><h4>Attention rollout</h4>
           <p>It chains the ViT's self-attention across all layers back to the image, showing which
              patches the network actually leaned on.</p>
-          <p class="muted">Nobody told it where the galaxy was — it learned to weight the structured
+          <p class="muted">Nobody told it where the galaxy was; it learned to weight the structured
              pixels.</p></div>
       </div>
       <div class="ncard">
@@ -150,8 +149,7 @@
            disks do.</p>
         <span class="x why">why they blur</span>
         <div class="explain"><h4>A real degeneracy</h4>
-          <p>A relaxed elliptical and a settled merger remnant can look identical in a single image —
-             even human classifiers disagree.</p>
+          <p>A relaxed elliptical and a settled merger remnant can look identical in a single image; even human classifiers disagree.</p>
           <p class="muted">The model reports the confusion rather than hiding it; that's the honest
              81% vs a 33% baseline.</p></div>
       </div>
@@ -168,7 +166,7 @@
   </section>
 
   <footer>
-    <b>Lynceus</b> — the keenest-sighted of the Argonauts.
+    <b>Lynceus</b>, the keenest-sighted of the Argonauts.
     Model: ViT-Small (timm, ImageNet-pretrained) fine-tuned + INT8-quantised, via onnxruntime-web.
   </footer>
 </div>

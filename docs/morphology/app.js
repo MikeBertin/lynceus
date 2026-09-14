@@ -1,4 +1,4 @@
-// Lynceus — Demo A: in-browser ViT morphology classifier (onnxruntime-web).
+// Lynceus, Demo A: in-browser ViT morphology classifier (onnxruntime-web).
 "use strict";
 
 ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
@@ -25,7 +25,7 @@ async function boot() {
     session = await ort.InferenceSession.create("model.onnx", {
       executionProviders: ["wasm"],
     });
-    statusEl.textContent = "model ready — pick a galaxy.";
+    statusEl.textContent = "model ready. Pick a galaxy.";
     statusEl.style.color = css("--cyan");
     if (gallery.length) selectGallery(gallery[0]);
   } catch (e) {
@@ -189,7 +189,7 @@ function loadUserImage(f) {
     $("#attnToggle").checked = false;
     $("#stage").classList.remove("show-attn");
     $("#vm-id").textContent = f.name;
-    $("#vm-z").textContent = "—";
+    $("#vm-z").textContent = "…";
     document.querySelectorAll(".gal img").forEach((e) => e.classList.remove("sel"));
     classify(im, null);
     URL.revokeObjectURL(url);

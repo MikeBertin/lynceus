@@ -1,4 +1,4 @@
-// Lynceus — Demo B: self-supervised galaxy atlas (pan/zoom/pinch canvas).
+// Lynceus, Demo B: self-supervised galaxy atlas (pan/zoom/pinch canvas).
 "use strict";
 
 const $ = (s) => document.querySelector(s);
@@ -7,7 +7,7 @@ const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n
 const fmtP = (p) => p == null ? "" : p < 1e-4 ? "p&lt;0.0001" : p < 0.01 ? "p&lt;0.01" : "p=" + p.toFixed(3);
 const CLASS_COLORS = { smooth: null, featured: null, merger: null };
 const CLASS_NAME = { smooth: "Smooth", featured: "Featured / disk", merger: "Merger" };
-// sky-region (deep field) colours — match the globe markers in skymap.js
+// sky-region (deep field) colours; match the globe markers in skymap.js
 const REGION_COLORS = { "GOODS-S": "#5ec27a", "COSMOS": "#ff9e64", "UDS": "#c792ea" };
 
 const stage = $("#stage"), canvas = $("#atlas"), ctx = canvas.getContext("2d");
@@ -21,10 +21,10 @@ let lrdPts = [], lrdOn = false, lrdSheet = null, lrdTile = 56, lrdCols = 1;
 let hoverLRD = -1, selectedLRD = -1, lrdStatHTML = "";
 
 const CONTEXT = {
-  region: "These are the <b>three deep fields</b> the galaxies live in — mapped on the globe below&nbsp;↓. " +
+  region: "These are the <b>three deep fields</b> the galaxies live in, mapped on the globe below&nbsp;↓. " +
           "In the atlas they're well mixed: <b>where</b> a galaxy is doesn't drive the structure.",
   morph: "Colour by Galaxy Zoo morphology: <b>smooth</b>, <b>featured/disk</b>, <b>merger</b>. " +
-         "These the encoder discovered on its own — it was never shown a label.",
+         "These the encoder discovered on its own; it was never shown a label.",
   featured: "Brightness = the volunteer <b>featured/disk</b> vote. The disk-like galaxies glow on one side.",
   merger: "Brightness = the volunteer <b>merger</b> vote.",
 };
@@ -112,9 +112,9 @@ function colorFor(p) {
 
 // ---- WebGL point cloud ----------------------------------------------------
 // The galaxy cloud (potentially tens of thousands of points) is drawn on a
-// WebGL canvas behind the 2-D one — gl.POINTS scales to 50k+ at 60fps where a
+// WebGL canvas behind the 2-D one: gl.POINTS scales to 50k+ at 60fps where a
 // per-point canvas arc would crawl. The 2-D canvas in front keeps doing the
-// low-count work: thumbnails on zoom-in, the LRD overlay, and hover/select rings.
+// low-count work: thumbnails on zoom-in, the LRD overlay and hover/select rings.
 const glcanvas = $("#atlasgl");
 let gl = null, glProg = null, glLoc = {}, posBuf = null, colBuf = null, glN = 0;
 
@@ -452,12 +452,12 @@ function loadLRDs() {
     lrdPts = d.points.map((p) => ({ ...p, wx: p.x * WORLD, wy: p.y * WORLD }));
     const ci = d.enrichment_ci ? ` (95% CI ${d.enrichment_ci[0]}–${d.enrichment_ci[1]}×, ${fmtP(d.p_value)})` : "";
     lrdStatHTML =
-      `<b>All ${d.n} known Little Red Dots</b> in these fields (Kokorev et&nbsp;al. 2024) — a ` +
+      `<b>All ${d.n} known Little Red Dots</b> in these fields (Kokorev et&nbsp;al. 2024), a ` +
       `<b>separate published catalogue</b>, laid over the ${(atlas ? atlas.count.toLocaleString() : "reference")} ` +
-      `atlas galaxies and embedded with the same encoder — are <b>${d.enrichment}×</b>${ci} over-represented ` +
+      `atlas galaxies and embedded with the same encoder, are <b>${d.enrichment}×</b>${ci} over-represented ` +
       `among the top-10% most anomalous galaxies (the median dot lands at the ` +
       `${Math.round(d.median_pct * 100)}th percentile of weirdness). They pile into the hot zones the ` +
-      `encoder flagged with no labels — zoom in to see them. (More galaxies sharpen this; the 216 ` +
+      `encoder flagged with no labels. Zoom in to see them. (More galaxies sharpen this; the 216 ` +
       `known dots are fixed.)`;
     updateContext();
   }).catch(() => {});

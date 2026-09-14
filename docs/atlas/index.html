@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lynceus — The galaxy atlas</title>
+<title>Lynceus · The galaxy atlas</title>
 <meta name="description" content="Fly through a self-supervised embedding of thousands of real JWST galaxies. A SimCLR encoder learned what galaxies look like with no labels; colour the map by Galaxy Zoo morphology.">
 <link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mikebertin.github.io/lynceus/atlas/">
-<meta property="og:title" content="Lynceus — The galaxy atlas">
+<meta property="og:title" content="Lynceus · The galaxy atlas">
 <meta property="og:description" content="Fly through a self-supervised (SimCLR) embedding of ~10,000 real JWST galaxies. Structure emerges with no labels, and 216 known Little Red Dots light up the anomalous corner the encoder flagged on its own.">
 <meta property="og:image" content="https://mikebertin.github.io/lynceus/card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Lynceus — The galaxy atlas">
+<meta name="twitter:title" content="Lynceus · The galaxy atlas">
 <meta name="twitter:description" content="Fly through a self-supervised embedding of ~10,000 real JWST galaxies; morphology and anomalies emerge with no labels.">
 <meta name="twitter:image" content="https://mikebertin.github.io/lynceus/card.png">
 <link rel="stylesheet" href="../shared/theme.css?v=2">
@@ -92,9 +92,9 @@
     <p class="lede" style="margin-top:14px">
       A <b>SimCLR</b> encoder was shown thousands of JWST cutouts with <b>no labels</b> and learned
       to place galaxies that <b>look alike</b> near each other. Here is its 2-D map (UMAP). Drag to
-      fly, scroll to zoom — thumbnails appear as you dive in. Step the <b>colour</b> key left to right:
+      fly, scroll to zoom; thumbnails appear as you dive in. Step the <b>colour</b> key left to right:
       the three <b>sky regions</b> are mixed (location doesn't drive the map), but <b>morphology</b>
-      separates — and at the far right, <b>anomaly</b> lights up the weird ones. None of these labels
+      separates, and at the far right <b>anomaly</b> lights up the weird ones. None of these labels
       were seen during training. <span id="status">loading atlas…</span>
     </p>
   </header>
@@ -131,10 +131,9 @@
     from the <a href="https://dawn-cph.github.io/dja/">DAWN JWST Archive</a>. A ResNet-18 trained by
     <b>self-supervised contrastive learning</b> (SimCLR, NT-Xent) maps each cutout to a vector; UMAP
     flattens those vectors to this 2-D layout. Morphology labels from
-    <a href="https://data.galaxyzoo.org/">Galaxy Zoo</a> only <b>colour</b> the map — the geometry is
+    <a href="https://data.galaxyzoo.org/">Galaxy Zoo</a> only <b>colour</b> the map; the geometry is
     the encoder's alone. Colour by <b>anomaly</b> (far right) for the payoff: the known
-    <b>Little Red Dots</b> appear automatically and land where the encoder flagged the unusual —
-    with no labels.
+    <b>Little Red Dots</b> appear automatically and land where the encoder flagged the unusual, with no labels.
   </p>
 
   <section class="notice">
@@ -147,54 +146,52 @@
         <span class="x why">how it knows</span>
         <div class="explain"><h4>It only ever saw pixels</h4>
           <p>SimCLR pulls two random crops of the <b>same</b> cutout together and pushes different
-             galaxies apart — so look-alikes end up neighbours.</p>
+             galaxies apart, so look-alikes end up neighbours.</p>
           <p class="muted">The Galaxy Zoo votes only <b>colour</b> the finished map; they never
              touched training.</p></div>
       </div>
       <div class="ncard">
         <h3>Where barely matters</h3>
-        <p>Under <b>sky region</b> the three deep fields stay thoroughly mixed — a disk in GOODS-S
+        <p>Under <b>sky region</b> the three deep fields stay thoroughly mixed: a disk in GOODS-S
            sits beside one in COSMOS.</p>
         <span class="x why">but not nothing</span>
         <div class="explain"><h4>A faint survey fingerprint</h4>
           <p>A classifier can still guess the field <b>63%</b> of the time (&plusmn;0.5% across folds,
-             vs 41% by chance) — but that's mostly survey <b>depth and PSF</b>, not real structure.</p>
+             vs 41% by chance), but that's mostly survey <b>depth and PSF</b>, not real structure.</p>
           <p class="muted">And the Red-Dot signal isn't a depth artefact: retrain the encoder with a
-             whole field held out, and the anomaly enrichment on that unseen field survives — so it's
+             whole field held out, and the anomaly enrichment on that unseen field survives, so it's
              about galaxies, not the survey.</p></div>
       </div>
       <div class="ncard">
         <h3>The Red Dots find the heat</h3>
-        <p>Colour by <b>anomaly</b>: 216 known <b>Little Red Dots</b> — a <b>separate published
-           catalogue</b> laid over the atlas, not drawn from it — pile into the same corner the encoder
+        <p>Colour by <b>anomaly</b>: 216 known <b>Little Red Dots</b> (a <b>separate published
+           catalogue</b> laid over the atlas, not drawn from it) pile into the same corner the encoder
            flagged as weird, though it was never told they exist.</p>
         <span class="x why">why they stand out</span>
         <div class="explain"><h4>Compact <i>and</i> red = isolated</h4>
-          <p>LRDs are compact, uncommon, and genuinely <b>red</b>, so they sit far from everything in
+          <p>LRDs are compact, uncommon and genuinely <b>red</b>, so they sit far from everything in
              latent space → a high anomaly score (<b>7.4&times;</b> enriched in the top 10%; 95% CI
              6.8&ndash;7.9&times;, p&lt;0.0001 against a random-galaxy null). The 216 are
-             every known Little Red Dot in these fields — a fixed set.</p>
+             every known Little Red Dot in these fields, a fixed set.</p>
           <p class="muted">The encoder is <b>point-source aware</b>: each cutout is centred on its
              source and stretched against the real sky noise, so empty sky stays dark instead of
-             becoming colour static. That sharpened the signal from ~5&times; to <b>7.4&times;</b> —
-             and it holds up even on a deep field the encoder was never trained on.</p></div>
+             becoming colour static. That sharpened the signal from ~5&times; to <b>7.4&times;</b>, and it holds up even on a deep field the encoder was never trained on.</p></div>
       </div>
       <div class="ncard" style="grid-column:1/-1">
         <h3>So can it find <i>new</i> Little Red Dots?</h3>
         <p>The honest test: rank the atlas by anomaly, take the reddest, most compact outliers that
            <b>aren't</b> in any known catalogue, and check them. The pipeline <b>rediscovered two
-           published LRDs on its own</b> — but turned up <b>no genuinely new one</b>. It's a validated
+           published LRDs on its own</b> but turned up <b>no genuinely new one</b>. It's a validated
            <b>method</b>, not a discovery claim, and we'd rather say so.</p>
         <span class="x why">the full story</span>
-        <div class="explain"><h4>Rediscovery yes, discovery no — and we can show why</h4>
+        <div class="explain"><h4>Rediscovery yes, discovery no, and we can show why</h4>
           <p>The two rediscoveries (Akins+24 COSMOS-Web dots, matched to 0.14&Prime;) are the real win:
-             the encoder flagged them with <b>no labels</b>, and they pass the published selection cuts —
-             an end-to-end validation. The rest of the shortlist looked red only in <b>quick-look</b>
+             the encoder flagged them with <b>no labels</b>, and they pass the published selection cuts: an end-to-end validation. The rest of the shortlist looked red only in <b>quick-look</b>
              photometry; measured in the <b>full survey catalogues</b> they come out at
              F277W&minus;F444W&nbsp;&approx;&nbsp;0, not the &approx;1 of a real Red Dot.</p>
           <p class="muted">The reason is built in: this atlas is seeded from <b>bright, human-classified</b>
              Galaxy&nbsp;Zoo galaxies, so it can't reach the <b>faint</b> population where undiscovered
-             Red Dots hide. Catching those needs a fainter, JWST-native starting sample — the next build.</p></div>
+             Red Dots hide. Catching those needs a fainter, JWST-native starting sample, the next build.</p></div>
       </div>
     </div>
   </section>
@@ -204,27 +201,25 @@
     <div style="margin-top:10px">
       <b>The outline is the projection's, not the galaxies'.</b> UMAP squeezes the encoder's
       512-dimensional vectors down to 2-D; the overall silhouette depends on UMAP's settings and a
-      random seed. Change them and the blob reshapes — but <b>which galaxies sit together</b> stays
-      put. Read it like a subway map: adjacency is meaningful, the outline isn't, and the axes have
+      random seed. Change them and the blob reshapes, but <b>which galaxies sit together</b> stays
+      put. Read it like a subway map: adjacency is meaningful and the outline isn't; the axes have
       no units.<br><br>
-      <b>It's one connected cloud, not separate islands</b>, because morphology is a continuum —
-      smooth blends into featured blends into disturbed — so colour shifts gradually instead of
+      <b>It's one connected cloud, not separate islands</b>, because morphology is a continuum (smooth blends into featured blends into disturbed), so colour shifts gradually instead of
       snapping into clusters.<br><br>
       <b>Dense vs sparse = common vs rare appearance.</b> The crowded interior is the big population
       of small, smooth sources; the thin spikes reaching the edges are unusual cutouts (very compact,
       very extended, or artefacts) that the layout flings outward. Those outliers are exactly what
-      the <b>anomaly</b> colour mode scores — and where the known Little Red Dots land.<br><br>
+      the <b>anomaly</b> colour mode scores, and where the known Little Red Dots land.<br><br>
       <b>Two colour caveats.</b> The sizes of the morphology-coloured regions reflect our balanced
-      sampling, not the true sky mix; and under <b>sky region</b> the colours stay intermixed —
-      confirming the geometry follows what galaxies <i>look like</i>, not where they are.
+      sampling, not the true sky mix; and under <b>sky region</b> the colours stay intermixed, confirming the geometry follows what galaxies <i>look like</i>, not where they are.
     </div>
   </details>
 
   <h2 class="ctx-h">Where are we looking?</h2>
   <p class="lede" style="margin-top:8px;font-size:14px">
     These galaxies live in three deep fields chosen to look <b>out of</b> our own Milky Way. Spin the
-    globe: the three fields sit near the <b>poles</b> of the gold <b>galactic plane</b> — i.e. far from
-    its dust — and at varied distances from the cyan <b>ecliptic</b> (Earth's orbital plane).
+    globe: the three fields sit near the <b>poles</b> of the gold <b>galactic plane</b> (far from
+    its dust) and at varied distances from the cyan <b>ecliptic</b> (Earth's orbital plane).
   </p>
   <div class="ctx-grid">
     <div>
@@ -252,7 +247,7 @@
         <ellipse cx="300" cy="190" rx="120" ry="34" fill="#3a4a78" fill-opacity="0.7"/>
         <ellipse cx="300" cy="190" rx="70" ry="30" fill="#d9c98f"/>
         <ellipse cx="300" cy="190" rx="250" ry="5" fill="#0a0c14"/>
-        <text x="300" y="234" fill="#7f8aa3" font-size="11" text-anchor="middle">Milky Way disk, edge-on — dust, gas, billions of stars</text>
+        <text x="300" y="234" fill="#7f8aa3" font-size="11" text-anchor="middle">Milky Way disk, edge-on: dust, gas, billions of stars</text>
         <line x1="440" y1="190" x2="182" y2="190" stroke="#ff7a8a" stroke-width="2.5" stroke-dasharray="7 5"/>
         <text x="250" y="180" fill="#ff8e9c" font-size="11" text-anchor="middle">blocked along the disk</text>
         <g stroke-width="2.5" fill="none" stroke-linecap="round">
@@ -273,12 +268,12 @@
         <text x="125" y="40" fill="#8e9ab2" font-size="11" text-anchor="middle">clear caps → distant galaxies</text>
         <text x="610" y="300" fill="#8e9ab2" font-size="11" text-anchor="end">clear caps → distant galaxies</text>
       </svg>
-      <p class="cap">galactic latitude b is the angle each sightline makes with the disk — bigger means a cleaner view out. (schematic, not to scale)</p>
+      <p class="cap">galactic latitude b is the angle each sightline makes with the disk; bigger means a cleaner view out. (schematic, not to scale)</p>
     </div>
   </div>
 
   <footer>
-    <b>Lynceus</b> — the keenest-sighted of the Argonauts.
+    <b>Lynceus</b>, the keenest-sighted of the Argonauts.
     Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
   </footer>
 </div>

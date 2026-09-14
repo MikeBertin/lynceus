@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lynceus — The dropout hunter: photometric redshifts, live</title>
+<title>Lynceus · The dropout hunter: photometric redshifts, live</title>
 <meta name="description" content="Watch a galaxy vanish from the bluer JWST filters as the Lyman break redshifts through them, and read its photometric redshift from a neural net running live in your browser.">
 <link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mikebertin.github.io/lynceus/dropout/">
-<meta property="og:title" content="Lynceus — The dropout hunter">
-<meta property="og:description" content="Watch a galaxy vanish from the bluer JWST filters as the Lyman break redshifts through them, and read its photometric redshift from a neural net running live in your browser — the 'too many bright early galaxies' frontier.">
+<meta property="og:title" content="Lynceus · The dropout hunter">
+<meta property="og:description" content="Watch a galaxy vanish from the bluer JWST filters as the Lyman break redshifts through them, and read its photometric redshift from a neural net running live in your browser, at the 'too many bright early galaxies' frontier.">
 <meta property="og:image" content="https://mikebertin.github.io/lynceus/card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Lynceus — The dropout hunter">
+<meta name="twitter:title" content="Lynceus · The dropout hunter">
 <meta name="twitter:description" content="A neural photometric-redshift net, live in your browser: watch galaxies drop out of the bluer JWST filters as the Lyman break sweeps redward.">
 <meta name="twitter:image" content="https://mikebertin.github.io/lynceus/card.png">
 <link rel="stylesheet" href="../shared/theme.css?v=2">
@@ -88,9 +88,9 @@
     <p class="lede" style="margin-top:14px">
       Neutral hydrogen across the early Universe absorbs a galaxy's light blueward of the
       <b>Lyman break</b> (1216&nbsp;&Aring;). As a galaxy sits further away its light is stretched, so
-      that break <b>sweeps redward through the filters</b> — and the galaxy <b>drops out</b> of the
+      that break <b>sweeps redward through the filters</b>, and the galaxy <b>drops out</b> of the
       bluer bands one by one. The pattern of which filters it appears in <b>is</b> its redshift. A tiny
-      neural net — exported to <b>ONNX</b>, running <b>live in your browser</b> — reads that pattern off
+      neural net, exported to <b>ONNX</b> and running <b>live in your browser</b>, reads that pattern off
       nine JWST/HST bands. This is how JWST pushed the frontier to z&nbsp;&approx;&nbsp;14 and turned up
       <b>too many, too bright</b> early galaxies. <span id="status">loading model…</span>
     </p>
@@ -99,24 +99,24 @@
   <div class="layout">
     <!-- left: filter scrubber -->
     <div class="card">
-      <h2 class="s">Scrub the filters — blue → red</h2>
+      <h2 class="s">Scrub the filters: blue → red</h2>
       <div class="strip" id="strip"></div>
       <canvas class="pdf wave" id="wave" style="aspect-ratio:16/4"></canvas>
       <div class="scrubrow">
         <button class="play" id="play">▶ sweep</button>
         <input type="range" id="scrub" min="0" max="5" value="2" step="1">
       </div>
-      <div class="vmeta" id="vmeta">—</div>
+      <div class="vmeta" id="vmeta">…</div>
     </div>
 
     <!-- right: photo-z -->
     <div style="display:flex;flex-direction:column;gap:22px">
       <div class="card">
-        <h2 class="s">Photometric redshift — live ONNX</h2>
+        <h2 class="s">Photometric redshift: live ONNX</h2>
         <div class="zline">
-          <div class="zstat"><div class="k">our photo-z</div><div class="v" id="z-ours">—</div></div>
-          <div class="zstat"><div class="k">template (EAZY)</div><div class="v" id="z-temp"><small>—</small></div></div>
-          <div class="zstat"><div class="k">spectroscopic</div><div class="v" id="z-spec"><small>—</small></div></div>
+          <div class="zstat"><div class="k">our photo-z</div><div class="v" id="z-ours">…</div></div>
+          <div class="zstat"><div class="k">template (EAZY)</div><div class="v" id="z-temp"><small>…</small></div></div>
+          <div class="zstat"><div class="k">spectroscopic</div><div class="v" id="z-spec"><small>…</small></div></div>
         </div>
         <canvas class="pdf" id="pdf"></canvas>
         <p class="verdict" id="verdict">Select a galaxy below.</p>
@@ -125,7 +125,7 @@
   </div>
 
   <div class="card" style="margin-top:24px">
-    <h2 class="s">The sample — sorted by predicted redshift</h2>
+    <h2 class="s">The sample, sorted by predicted redshift</h2>
     <div class="gal" id="gallery"></div>
   </div>
 
@@ -135,8 +135,7 @@
       <canvas class="cc" id="cc"></canvas>
       <p class="note" style="margin-top:12px">
         Every dot is a real CEERS galaxy, placed by two colours and tinted by redshift. As the break
-        crosses F115W, high-z galaxies redden sharply in <b>F115W&minus;F150W</b> and rush to the right
-        — the <b>dropout corner</b>. The selected galaxy is ringed.
+        crosses F115W, high-z galaxies redden sharply in <b>F115W&minus;F150W</b> and rush to the right, into the <b>dropout corner</b>. The selected galaxy is ringed.
       </p>
     </div>
     <div class="card">
@@ -144,9 +143,9 @@
       <div class="metrics" id="metrics"></div>
       <p class="note" id="metricnote"></p>
       <div class="calib">
-        <h3>Are the error bars honest? — PIT calibration</h3>
+        <h3>Are the error bars honest? PIT calibration</h3>
         <div class="pit" id="pit"></div>
-        <div class="pitx"><span>0 — z over-predicted</span><span>PIT = CDF at true z</span><span>under-predicted — 1</span></div>
+        <div class="pitx"><span>0: z over-predicted</span><span>PIT = CDF at true z</span><span>under-predicted: 1</span></div>
         <p class="note" id="calnote"></p>
       </div>
     </div>
@@ -182,8 +181,7 @@
         <span class="x why">the great degeneracy</span>
         <div class="explain"><h4>Interloper or frontier?</h4>
           <p>A red z&nbsp;~&nbsp;2 galaxy and a z&nbsp;~&nbsp;11 dropout can show nearly the same colours.
-             This ambiguity is exactly why JWST's "too many bright early galaxies" needs spectroscopy to
-             confirm — and why some candidates evaporate.</p></div>
+             This ambiguity is exactly why JWST's "too many bright early galaxies" needs spectroscopy to confirm, and why some candidates evaporate.</p></div>
       </div>
       <div class="ncard">
         <h3>Sharpest where the break is in-band</h3>
@@ -192,14 +190,14 @@
         <span class="x why">distilled, not magic</span>
         <div class="explain"><h4>A 0.1&nbsp;MB emulator</h4>
           <p>The net is distilling template fitting into something that runs instantly client-side. It
-             reaches &sigma;<sub>NMAD</sub>&nbsp;&approx;&nbsp;0.04 against spectroscopy — within a hair
+             reaches &sigma;<sub>NMAD</sub>&nbsp;&approx;&nbsp;0.04 against spectroscopy, within a hair
              of the templates' own 0.027, and at a millionth of the cost.</p></div>
       </div>
     </div>
   </section>
 
   <footer>
-    <b>Lynceus</b> — the keenest-sighted of the Argonauts.
+    <b>Lynceus</b>, the keenest-sighted of the Argonauts.
     Model: a small MLP over JWST/HST band fluxes → redshift PDF, via onnxruntime-web.
   </footer>
 </div>

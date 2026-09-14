@@ -20,9 +20,9 @@ CLASS_LABELS = {
     "merger": "Merger",
 }
 CLASS_BLURB = {
-    "featured": "Disk-like — structure, clumps or spiral arms (Galaxy Zoo: featured).",
-    "smooth": "Smooth and rounded — elliptical / early-type, no features.",
-    "merger": "Merging or tidally disturbed — two bodies or tidal debris.",
+    "featured": "Disk-like: structure, clumps or spiral arms (Galaxy Zoo: featured).",
+    "smooth": "Smooth and rounded: elliptical / early-type, no features.",
+    "merger": "Merging or tidally disturbed: two bodies or tidal debris.",
 }
 
 

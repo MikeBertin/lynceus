@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lynceus — Machine learning on the JWST deep sky</title>
+<title>Lynceus · Machine learning on the JWST deep sky</title>
 <meta name="description" content="The keenest-sighted of the Argonauts: machine learning on James Webb deep-field galaxies, live in your browser. A Vision Transformer morphology classifier, a self-supervised atlas of ~10,000 galaxies, a Little Red Dot anomaly hunt, and a neural photometric-redshift dropout hunter.">
 <link rel="icon" href="shared/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mikebertin.github.io/lynceus/">
-<meta property="og:title" content="Lynceus — ML on the JWST deep sky">
+<meta property="og:title" content="Lynceus · ML on the JWST deep sky">
 <meta property="og:description" content="Four live in-browser demos on real JWST galaxies: morphology (ViT), a self-supervised atlas you fly through, a Little Red Dot anomaly hunt, and a neural photo-z dropout hunter.">
 <meta property="og:image" content="https://mikebertin.github.io/lynceus/card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Lynceus — ML on the JWST deep sky">
+<meta name="twitter:title" content="Lynceus · ML on the JWST deep sky">
 <meta name="twitter:description" content="Four live in-browser demos on real JWST galaxies: morphology, a self-supervised atlas, an anomaly hunt, and a neural photo-z dropout hunter.">
 <meta name="twitter:image" content="https://mikebertin.github.io/lynceus/card.png">
 <link rel="stylesheet" href="shared/theme.css?v=2">
@@ -53,7 +53,7 @@
       Transformer that learns what galaxies <b>look like</b>, a self-supervised <b>atlas</b> of
       ~10,000 galaxies you can fly through, an <b>anomaly hunt</b> that rediscovers the mysterious
       <b>Little Red Dots</b>, and a neural <b>photo-z</b> dropout hunter for galaxies at the cosmic
-      frontier. Self-contained, no build step — the methods, in the open.
+      frontier. Self-contained, no build step: the methods, in the open.
     </p>
   </header>
 
@@ -63,8 +63,7 @@
       <div class="body">
         <span class="tag">Live</span>
         <h2>Galaxy morphology</h2>
-        <p>A ViT-Small in ONNX classifies a real JWST galaxy cutout in your browser — featured,
-           smooth or merger (real Galaxy Zoo labels) — with attention heatmaps and honest,
+        <p>A ViT-Small in ONNX classifies a real JWST galaxy cutout in your browser as featured, smooth or merger (real Galaxy Zoo labels), with attention heatmaps and honest,
            cross-validated metrics.</p>
         <span class="open">Open demo <span class="arr">→</span></span>
       </div>
@@ -76,7 +75,7 @@
         <span class="tag">Live</span>
         <h2>The embedding atlas</h2>
         <p>A self-supervised encoder (SimCLR) maps thousands of real JWST galaxies into a 2-D atlas
-           you fly through — colour it by morphology and watch the encoder's own structure emerge.</p>
+           you fly through; colour it by morphology and watch the encoder's own structure emerge.</p>
         <span class="open">Open demo <span class="arr">→</span></span>
       </div>
     </a>
@@ -87,7 +86,7 @@
         <span class="tag">Live · in the atlas</span>
         <h2>The anomaly hunt</h2>
         <p>Score every galaxy by how unusual it is in latent space, and watch <b>216 real
-           Little Red Dots</b> (Kokorev+24) land where the encoder — with no labels — flagged the
+           Little Red Dots</b> (Kokorev+24) land where the encoder, with no labels, flagged the
            weird ones. Colour by <b>anomaly</b> in the atlas.</p>
         <span class="open">Open atlas <span class="arr">→</span></span>
       </div>
@@ -99,8 +98,7 @@
         <span class="tag">Live</span>
         <h2>The dropout hunter</h2>
         <p>Watch a galaxy at <b>z &gt; 10</b> vanish from the bluer filters as the Lyman break sweeps
-           through them, and read its redshift from a neural net running <b>live in your browser</b> —
-           the "too many bright early galaxies" tension that has JWST rewriting galaxy formation.</p>
+           through them, and read its redshift from a neural net running <b>live in your browser</b>, at the heart of the "too many bright early galaxies" tension that has JWST rewriting galaxy formation.</p>
         <span class="open">Open demo <span class="arr">→</span></span>
       </div>
     </a>
@@ -109,8 +107,8 @@
   <div class="thread">
     <h3>Why "Lynceus"</h3>
     <p>
-      <b>Lynceus</b> sailed with the Argonauts and had the sharpest sight of any mortal — he could
-      pick out a ship on the horizon, see through earth and water, and find what others missed. That
+      <b>Lynceus</b> sailed with the Argonauts and had the sharpest sight of any mortal; he could
+      pick out a ship on the horizon, find what others missed and even see through earth and water. That
       is the whole task here: the faintest galaxies in James Webb's deepest images sit at the edge of
       the noise, and the most interesting objects are the ones that <b>don't look like anything else</b>.
       Lynceus learns to see them.
@@ -120,12 +118,10 @@
   <div class="thread">
     <h3>Where this goes next</h3>
     <p>
-      The anomaly hunt <b>rediscovers</b> known Little Red Dots but surfaces no genuinely new one
-      here — an honest, validated method rather than a discovery claim. That result points the way
+      The anomaly hunt <b>rediscovers</b> known Little Red Dots but surfaces no genuinely new one here: an honest, validated method rather than a discovery claim. That result points the way
       forward: rebuild the atlas from a <b>fainter, JWST-native</b> source list (rather than
       bright, human-catalogued galaxies) so it can reach the population where new dots hide, then
-      align the image embeddings with <b>NIRSpec spectra</b> — contrastive image + spectrum learning
-      — so the map inherits redshift and emission-line structure with no labels. Public spectra,
+      align the image embeddings with <b>NIRSpec spectra</b> (contrastive image and spectrum learning) so the map inherits redshift and emission-line structure with no labels. Public spectra,
       released steadily, are a standing confirmation test along the way.
     </p>
   </div>

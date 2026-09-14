@@ -1,4 +1,4 @@
-// Lynceus — hover/click "why" popovers for the "things to notice" cards.
+// Lynceus: hover/click "why" popovers for the "things to notice" cards.
 // Each trigger is <span class="x why">…</span> with a sibling <div class="explain">…</div>.
 (function () {
   "use strict";
