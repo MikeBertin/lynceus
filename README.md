@@ -25,7 +25,7 @@ self-supervised **embedding atlas** and an **anomaly hunt** for the mysterious
 In Greek myth Lynceus was the lookout of the Argonauts, a man whose eyes were so sharp he could
 see through rock and deep into the earth. That is the job here too: teach a machine to see
 faint, hidden things in the James Webb deep fields, from the shapes of distant galaxies to the
-Little Red Dots that hide in the noise.
+rare Little Red Dots scattered among thousands of ordinary ones.
 
 ## The data, honestly
 
