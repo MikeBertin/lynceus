@@ -4,14 +4,14 @@ The payoff question: point the scores at the atlas and hand over targets. Two
 rankings, deliberately different in bias (Q1 measured the anomaly score's:
 it favours the bright, red end):
 
-* **anomaly-ranked** — the most isolated galaxies in latent space
+* **anomaly-ranked**: the most isolated galaxies in latent space
   (`knn_anomaly`, unsupervised: "weird in any direction");
-* **LRD-like-ranked** — smallest cosine distance to any of the 216 known
+* **LRD-like-ranked**: smallest cosine distance to any of the 216 known
   Kokorev+24 LRDs (`nearest_distance`, supervised by example: "weird in
   *their* direction").
 
 Known LRDs are removed by positional cross-match (1.5"), so everything listed
-is *not* in the published catalogue. Outputs, under research/ (committed —
+is *not* in the published catalogue. Outputs, under research/ (committed;
 the repo is private; this is the notebook's evidence):
 
   candidates.csv                 both rankings, with scores + GZ context
@@ -111,7 +111,7 @@ def main() -> None:
         pct = np.mean([(araw < araw[i]).mean() for i in np.flatnonzero(known)])
         print(f"  (their mean anomaly percentile is {pct*100:.0f}; NB at 0.3-1.4\" "
               f"separation these are mostly bright GZ galaxies *adjacent* to an "
-              f"LRD, not the LRD itself — see RESEARCH.md Q3)")
+              f"LRD, not the LRD itself; see RESEARCH.md Q3)")
 
     ok = ~known
     rank_anom = np.flatnonzero(ok)[np.argsort(-araw[ok])]
@@ -143,7 +143,7 @@ def main() -> None:
     # Mean cutout luminance separates the two regimes. Under the shipped M3
     # stretch, near-empty fields become full-range colour static (high
     # luminance), and retrieval returning *brighter*-than-random cutouts means
-    # it matches that noise texture — the Q3 failure. Under the M3b stretch,
+    # it matches that noise texture: the Q3 failure. Under the M3b stretch,
     # empty sky stays dark; LRD-like retrievals should then be *darker* than
     # random (point sources on dark fields), with the residual correlation just
     # saying that big bright galaxies are far from LRDs.
@@ -163,7 +163,7 @@ def main() -> None:
                "LRD-like retrievals are dark-field point sources (not noise-texture)")
     print(f"diagnostic: median cutout luminance, top-100 LRD-like "
           f"{l_top:.1f} vs random {l_rand:.1f} "
-          f"(spearman ldist~lum on 1k: rho={rho:.2f}) — {verdict}")
+          f"(spearman ldist~lum on 1k: rho={rho:.2f}): {verdict}")
 
 
 if __name__ == "__main__":

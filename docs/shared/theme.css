@@ -46,6 +46,7 @@ footer{margin-top:46px;padding-top:22px;border-top:1px solid var(--line);
 footer b{color:var(--ink);font-weight:600}
 footer a{color:var(--cyan);text-decoration:none}
 footer a:hover{text-decoration:underline}
+footer .hub img{vertical-align:-3px}
 
 /* "things to notice" cards + hover-to-explain popovers (family pattern) */
 .notice{margin-top:40px;border-top:1px solid var(--line);padding-top:24px}
@@ -67,3 +68,6 @@ footer a:hover{text-decoration:underline}
 #pop h4{margin:0 0 7px;font-size:13.5px;color:var(--cyan)}
 #pop p{margin:0 0 8px}#pop p:last-child{margin:0}
 #pop b{color:var(--ink);font-weight:600}
+
+/* reduced motion: drop transitions and animations site-wide */
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

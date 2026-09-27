@@ -8,7 +8,11 @@
   const ctx = cv.getContext("2d");
   const COL = {};
   let geom = null, dpr = 1, R = 1, cx = 0, cy = 0;
-  let yaw = -0.7, pitch = 0.45, spin = true;
+  // Auto-spin is decoration: off under prefers-reduced-motion (the spin button
+  // starts it), and the loop only runs while spinning, on screen and visible.
+  const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let yaw = -0.7, pitch = 0.45, spin = !RM, onScreen = true, raf = 0;
+  const spinBtn = document.getElementById("globeSpin");
   let cssW = 360, cssH = 360;
 
   function resize() {
@@ -99,7 +103,7 @@
 
   // ---- interaction ----
   let drag = false, lx = 0, ly = 0;
-  const down = (x, y) => { drag = true; spin = false; lx = x; ly = y; };
+  const down = (x, y) => { drag = true; setSpin(false); lx = x; ly = y; };
   const move = (x, y) => {
     if (!drag) return;
     yaw += (x - lx) * 0.01; pitch += (y - ly) * 0.01;
@@ -114,8 +118,23 @@
   cv.addEventListener("touchmove", (e) => { e.preventDefault(); const t = e.touches[0]; move(t.clientX, t.clientY); }, { passive: false });
   cv.addEventListener("touchend", up);
 
-  // gentle auto-spin until first interaction (best-effort; rAF may idle when hidden)
-  function tick() { if (spin) { yaw += 0.0025; draw(); } requestAnimationFrame(tick); }
+  // gentle auto-spin until first interaction
+  function tick() {
+    raf = 0;
+    if (!spin || !onScreen || document.hidden || !geom) return;
+    yaw += 0.0025; draw();
+    raf = requestAnimationFrame(tick);
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(tick); }
+  function setSpin(on) {
+    spin = on;
+    if (spinBtn) spinBtn.textContent = on ? "❚❚ pause spin" : "▶ spin";
+    kick();
+  }
+  if (spinBtn) spinBtn.addEventListener("click", () => setSpin(!spin));
+  setSpin(spin);
+  new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; kick(); }).observe(cv);
+  document.addEventListener("visibilitychange", kick);
 
   const sd = document.getElementById("sundate");
   if (sd) sd.textContent = new Date().toLocaleDateString("en-GB",
@@ -128,6 +147,6 @@
     COL.eq = "#5a6480"; COL.sun = "#ffd24a";
     new ResizeObserver(resize).observe(cv.parentElement);
     resize();
-    requestAnimationFrame(tick);
+    kick();
   }).catch((e) => console.error("skymap:", e));
 })();

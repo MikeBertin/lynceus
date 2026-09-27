@@ -18,7 +18,7 @@ from PIL import Image
 from core import config, anomaly
 from core.embed import embed_paths, umap_2d, normalise_coords
 
-TILE = 64  # sprite thumbnail size (px) — the M3b cutouts are 64 px native, so
+TILE = 64  # sprite thumbnail size (px); the M3b cutouts are 64 px native, so
            # this ships them at full resolution (48 px threw a third of it away
            # and read blurry once retina displays magnified the tiles 3-7x).
            # ~10k tiles -> sprites.jpg ~8 MB, still Pages-lean.

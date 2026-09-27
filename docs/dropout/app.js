@@ -1,7 +1,7 @@
 "use strict";
 // M4: the dropout hunter. A small photo-z MLP runs live (ONNX) on nine band
 // fluxes; the page shows the Lyman break sweeping through the filters, the
-// network's redshift PDF, and a Lyman-break colour-colour diagram.
+// network's redshift PDF and a Lyman-break colour-colour diagram.
 
 ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
 

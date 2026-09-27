@@ -1,18 +1,18 @@
-# Lynceus — the reproduction DAG, one milestone per target.
+# Lynceus: the reproduction DAG, one milestone per target.
 #
 # Everything runs offline on a laptop (Apple MPS / CUDA / CPU auto-selected);
 # only the *-data targets touch the network. Rough costs on the machine of
 # record (M4 Mac mini, 10-core GPU, 24 GB):
 #
-#   m1-data  network   ~300 cutouts via the DJA service — RATE-LIMITED, be gentle
+#   m1-data  network   ~300 cutouts via the DJA service; RATE-LIMITED, be gentle
 #   m1       ~minutes  ViT fine-tune, 5-fold CV
-#   m2-data  network   ~10k cutouts via the DJA service — the long, gentle fetch
+#   m2-data  network   ~10k cutouts via the DJA service (the long, gentle fetch)
 #   m2       ~hours    SimCLR, 80 epochs on MPS (the one big training run)
 #   m3-data  network   216 LRD cutouts
 #   m3       ~minutes  re-embed + UMAP + anomaly + web assets
 #   m4-data  network   one 375 MB catalogue download, then offline
 #   m4       ~minutes  MLP train + ONNX export + web assets
-#   stats    ~seconds  error bars + calibration — pure post-processing, no refetch
+#   stats    ~seconds  error bars + calibration; pure post-processing, no refetch
 #
 # The stats targets are safe to re-run any time; they only need the cached
 # embeddings/model produced by the milestones above.

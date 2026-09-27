@@ -7,9 +7,9 @@ EAZY (as distilled into our training labels) gives a point estimate. Question:
 does the PDF actually buy a lower interloper rate at a given candidate yield?
 
 Setup, on the ~1.8k held-out spectroscopic galaxies (same sample as the
-calibration study — experiments/calibrate_photoz.val_pdfs):
+calibration study, experiments/calibrate_photoz.val_pdfs):
 
-* select "high-z candidates" three ways — EAZY z_phot > z_cut, our z_peak >
+* select "high-z candidates" three ways: EAZY z_phot > z_cut, our z_peak >
   z_cut, and PDF-aware P(z > z_cut) > tau for a sweep of tau;
 * an interloper = a selected candidate whose true z_spec < 2 (the dusty
   impostor regime); completeness = fraction of true z_spec > z_cut selected;
@@ -81,7 +81,7 @@ def main() -> None:
 
     # --- who ARE the interlopers? -------------------------------------------
     # (a) overlap with EAZY's: the net trained on EAZY labels, so galaxies EAZY
-    #     mislabels were mislabelled *in training* — inheritance is the default.
+    #     mislabels were mislabelled *in training*; inheritance is the default.
     # (b) does the PDF at least flag doubt (mass below z=2) on them?
     print("\n== diagnosis ==")
     diag = {}
@@ -91,7 +91,7 @@ def main() -> None:
         diag[f"overlap_z{z_cut:.0f}"] = {"ours": len(ours), "eazy": len(eazy),
                                          "shared": len(ours & eazy)}
         print(f"  z>{z_cut:.0f} interlopers: ours {len(ours)}, EAZY {len(eazy)}, "
-              f"shared {len(ours & eazy)} — inherited from the teacher")
+              f"shared {len(ours & eazy)}, inherited from the teacher")
     p_low = pdf[:, Z_CENTRES < Z_INTERLOPER].sum(1)
     sel = z_peak > Z_CUTS[0]
     inter, true = sel & (y < Z_INTERLOPER), sel & (y > Z_CUTS[0])
@@ -100,7 +100,7 @@ def main() -> None:
     diag["p_low_gt_0.2"] = {"interlopers": round(float((p_low[inter] > 0.2).mean()), 2),
                             "true_highz": round(float((p_low[true] > 0.2).mean()), 2)}
     print(f"  PDF doubt, z>4 candidates: median P(z<2) {diag['p_low_median']['interlopers']}"
-          f" (interlopers) vs {diag['p_low_median']['true_highz']} (true) — a 5x whisper,"
+          f" (interlopers) vs {diag['p_low_median']['true_highz']} (true): a 5x whisper,"
           f" but only {diag['p_low_gt_0.2']['interlopers']:.0%} carry real low-z mass"
           f" (true high-z: {diag['p_low_gt_0.2']['true_highz']:.0%}). Confidently wrong.")
     results["diagnosis"] = diag

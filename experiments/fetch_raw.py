@@ -1,6 +1,6 @@
 """Fetch and cache the RAW service cubes for the atlas + LRD samples (M3b).
 
-The cutout cache has only ever stored *stretched* images — the raw fluxes were
+The cutout cache has only ever stored *stretched* images; the raw fluxes were
 thrown away, which is why every stretch change so far (colour-aware, and now
 the M3b noise-aware stretch) has meant another pull from the DJA service. This
 script re-fetches once more and keeps the raw (3, H, W) cubes, so any future
@@ -69,7 +69,7 @@ def main() -> None:
                 print(f"  {done}/{len(todo)}  ok={ok} skip={skip} fail={fail}", flush=True)
     print(f"\nDone. fetched={ok} skipped={skip} failed={fail}")
     if fail:
-        print(f"  ({fail} had no coverage / service errors — re-run to retry them)")
+        print(f"  ({fail} had no coverage / service errors; re-run to retry them)")
 
 
 if __name__ == "__main__":

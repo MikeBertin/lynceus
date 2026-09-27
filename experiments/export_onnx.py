@@ -19,14 +19,14 @@ WEB_MODEL = config.WEB_MORPH_DIR / "model.onnx"
 def main() -> None:
     ckpt = config.MODELS_DIR / "vit.pt"
     if not ckpt.exists():
-        raise SystemExit("No models/vit.pt — run experiments.train_vit first.")
+        raise SystemExit("No models/vit.pt; run experiments.train_vit first.")
 
     model = build_model(pretrained=False).eval()
     model.load_state_dict(torch.load(ckpt, map_location="cpu"))
 
     dummy = torch.randn(1, 3, config.MODEL_PX, config.MODEL_PX)
     # Legacy TorchScript exporter (dynamo=False) keeps weights in a single
-    # self-contained file — essential for onnxruntime-web and quantisation.
+    # self-contained file, essential for onnxruntime-web and quantisation.
     torch.onnx.export(
         model, dummy, FP32.as_posix(),
         input_names=["input"], output_names=["logits"],
@@ -39,7 +39,7 @@ def main() -> None:
     # Dynamic int8 quantisation shrinks the ~85 MB ViT to ~22 MB for the browser.
     try:
         from onnxruntime.quantization import quantize_dynamic, QuantType
-        # Quantise only MatMul (the transformer's attention/MLP — the bulk of the
+        # Quantise only MatMul (the transformer's attention/MLP, the bulk of the
         # weights). The patch-embed Conv stays fp32: onnxruntime-web's wasm
         # backend has no ConvInteger kernel, and that conv is tiny anyway.
         quantize_dynamic(FP32.as_posix(), WEB_MODEL.as_posix(),
@@ -56,7 +56,7 @@ def main() -> None:
                                 providers=["CPUExecutionProvider"])
     out = sess.run(None, {"input": dummy.numpy()})[0]
     assert out.shape[-1] == len(CLASSES), out.shape
-    print(f"Web model OK — output shape {out.shape}")
+    print(f"Web model OK: output shape {out.shape}")
 
 
 if __name__ == "__main__":

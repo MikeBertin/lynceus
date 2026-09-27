@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lynceus · The dropout hunter: photometric redshifts, live</title>
 <meta name="description" content="Watch a galaxy vanish from the bluer JWST filters as the Lyman break redshifts through them, and read its photometric redshift from a neural net running live in your browser.">
-<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../badge.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mikebertin.github.io/lynceus/dropout/">
 <meta property="og:title" content="Lynceus · The dropout hunter">
@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="Lynceus · The dropout hunter">
 <meta name="twitter:description" content="A neural photometric-redshift net, live in your browser: watch galaxies drop out of the bluer JWST filters as the Lyman break sweeps redward.">
 <meta name="twitter:image" content="https://mikebertin.github.io/lynceus/card.png">
-<link rel="stylesheet" href="../shared/theme.css?v=2">
+<link rel="stylesheet" href="../shared/theme.css?v=3">
 <style>
   .layout{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px}
   @media(max-width:860px){.layout{grid-template-columns:1fr}}
@@ -199,6 +199,7 @@
   <footer>
     <b>Lynceus</b>, the keenest-sighted of the Argonauts.
     Model: a small MLP over JWST/HST band fluxes → redshift PDF, via onnxruntime-web.
+    <br><span class="hub"><img src="../badge.svg" alt="" width="13" height="16"> <a href="https://mikebertin.github.io/">More builds by Mike Bertin</a></span>
   </footer>
 </div>
 

@@ -1,10 +1,10 @@
 """Build the M4 dropout-hunter web assets.
 
 Produces, into web/dropout/:
-  * gallery filmstrips — for a curated set of real CEERS galaxies spanning low z
+  * gallery filmstrips: for a curated set of real CEERS galaxies spanning low z
     to z>10, a row of per-filter grayscale cutouts on a *shared* flux scale, so a
     high-z galaxy visibly vanishes from the bluer bands (the Lyman dropout);
-  * dropout.json — per-galaxy catalogue fluxes, the network's redshift PDF, point
+  * dropout.json: per-galaxy catalogue fluxes, the network's redshift PDF, point
     estimate, true/template redshift; plus a Lyman-break colour-colour scatter of
     thousands of catalogue galaxies for the diagram.
 
@@ -115,7 +115,7 @@ def main() -> None:
         ra, dec = float(z["ra"][i]), float(z["dec"][i])
         bm = data.fetch_service_bands(ra, dec, STRIP_BANDS, size=2.2)
         if not bm:
-            print(f"  [{n}] id={z['id'][i]} no cutout — skip"); continue
+            print(f"  [{n}] id={z['id'][i]} no cutout, skip"); continue
         gray = shared_gray(bm)
         # build a filmstrip row of TILE-px tiles, one per STRIP_BANDS (blank if missing)
         row = Image.new("RGB", (len(STRIP_BANDS) * TILE, TILE), (6, 7, 12))

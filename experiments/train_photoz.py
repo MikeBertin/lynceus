@@ -3,7 +3,7 @@
     python -m experiments.train_photoz --epochs 60
 
 Trains on EAZY template redshifts (z_phot, ~70k galaxies) and reports accuracy
-on a fully held-out set of real spectroscopic redshifts (z_spec, ~1.8k) — the
+on a fully held-out set of real spectroscopic redshifts (z_spec, ~1.8k), the
 honest number. Saves models/photoz.pt (+ feature standardisation) and
 models/photoz_metrics.json.
 """

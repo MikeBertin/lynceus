@@ -5,7 +5,7 @@
 
 Machine learning on **JWST** deep-field galaxies: a serious research core (offline PyTorch)
 paired with **self-contained, no-build browser demos**. A Vision Transformer learns what
-galaxies *look like*, runs **live in your browser** via ONNX, and the road ahead leads to a
+galaxies *look like*, runs **live in your browser** via ONNX and the road ahead leads to a
 self-supervised **embedding atlas** and an **anomaly hunt** for the mysterious
 **Little Red Dots**.
 
@@ -18,7 +18,14 @@ self-supervised **embedding atlas** and an **anomaly hunt** for the mysterious
 | **[Morphology](docs/morphology/)** | *Live* | A `ViT-Small` in ONNX classifies a **real JWST** cutout in your browser as featured, smooth or merger (Galaxy Zoo labels), with attention heatmaps and **honest, cross-validated** metrics. **Built.** |
 | **[Atlas](docs/atlas/)** | *Live* | Fly through a **self-supervised** (SimCLR) 2-D embedding of **~9,700 real JWST galaxies** (WebGL-rendered) ; colour by morphology / sky region / **anomaly**; watch structure the encoder found with **no labels** emerge. A kNN probe recovers morphology **62% ± 0.7%** (5-fold) vs 39% baseline. **Built.** |
 | **[Anomaly hunt](docs/atlas/)** | *Live* | Score every galaxy by latent-space isolation; **216 real Little Red Dots** (Kokorev+24), embedded with the same encoder, land in the flagged hot zones (**7.4× enriched** in the top-10% anomalies, 95% CI 6.8–7.9×, p<0.0001 vs a random-galaxy null; median LRD at the 96th percentile). A **point-source-aware** representation (detection-anchored cutouts plus a noise-aware stretch so empty sky stays dark) sharpened this from ~5×, and the signal survives on a field the encoder never trained on (leave-one-field-out). Pushed to hunt *new* LRDs, the pipeline **independently rediscovers two published ones** (Akins+24, matched to 0.14″), validating the whole chain, but a **catalogue-grade** re-check finds the remaining candidates aren't red enough to be new (F277W−F444W ≈ 0, not the ≈1 of a real LRD): an honest, validated **method**, not a discovery claim. **Built** (in the atlas). |
-| **[Dropout hunter](docs/dropout/)** | *Live* | A neural **photometric redshift** net (ONNX, in your browser) reads a galaxy's redshift from nine JWST/HST bands as the **Lyman break** sweeps through the filters; watch z>10 galaxies **drop out** of the bluer bands, see the redshift PDF (and its low-z-interloper degeneracy), and a Lyman-break colour–colour diagram. **σ_NMAD ≈ 0.040** (95% CI 0.037–0.044) vs ~1,800 held-out spectroscopic redshifts (EAZY template ceiling: 0.027). PDF calibration checked honestly (PIT + coverage): a 90% credible interval contains the truth ~88% of the time. **Built (M4).** |
+| **[Dropout hunter](docs/dropout/)** | *Live* | A neural **photometric redshift** net (ONNX, in your browser) reads a galaxy's redshift from nine JWST/HST bands as the **Lyman break** sweeps through the filters; watch z>10 galaxies **drop out** of the bluer bands, see the redshift PDF (and its low-z-interloper degeneracy) and a Lyman-break colour–colour diagram. **σ_NMAD ≈ 0.040** (95% CI 0.037–0.044) vs ~1,800 held-out spectroscopic redshifts (EAZY template ceiling: 0.027). PDF calibration checked honestly (PIT + coverage): a 90% credible interval contains the truth ~88% of the time. **Built (M4).** |
+
+## Why Lynceus
+
+In Greek myth Lynceus was the lookout of the Argonauts, a man whose eyes were so sharp he could
+see through rock and deep into the earth. That is the job here too: teach a machine to see
+faint, hidden things in the James Webb deep fields, from the shapes of distant galaxies to the
+Little Red Dots that hide in the noise.
 
 ## The data, honestly
 
@@ -156,3 +163,7 @@ Built with PyTorch, [timm](https://github.com/huggingface/pytorch-image-models) 
 labels from [Galaxy Zoo](https://data.galaxyzoo.org/): CANDELS (Simmons et al. 2017). Little
 Red Dot catalogue: [Kokorev et al. 2024](https://github.com/VasilyKokorev/lrd_phot). All data
 public.
+
+---
+
+<sub>Part of a collection of interactive builds · [mikebertin.github.io](https://mikebertin.github.io/)</sub>

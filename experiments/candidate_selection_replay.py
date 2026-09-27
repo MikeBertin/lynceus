@@ -5,7 +5,7 @@ fields. But "absent from a selection" can mean *below their cuts* rather than
 non-existent. This step turns that into a defensible per-candidate verdict:
 
   1. Cross-match each candidate to the **parent** DJA/grizli photometric
-     catalogue of its field (every detected source, not the LRD sub-list) — the
+     catalogue of its field (every detected source, not the LRD sub-list): the
      van der Wel+25 "morpho-phot" catalogues, which carry catalogue-grade
      multi-band fluxes *and* profile sizes in one file. A match confirms the
      candidate is a real detected source (our own aperture photometry from
@@ -21,9 +21,9 @@ non-existent. This step turns that into a defensible per-candidate verdict:
      catalogue = genuinely new** (a real miss / incompleteness); **fails the
      cuts = absence explained** ("below their limit"), stated plainly.
 
-Compactness is unified as Kocevski's criterion — half-light radius
+Compactness is unified as Kocevski's criterion: half-light radius
 r_h < 1.5 r_h,stars, with r_h,stars measured from each field's own stellar
-locus — a faithful, disclosed stand-in for the papers' various aperture-ratio
+locus. This is a faithful, disclosed stand-in for the papers' various aperture-ratio
 compactness definitions (all of which just mean "unresolved / point-like").
 Colours use the consistent-aperture fluxes (aper_1); the ZP cancels.
 
@@ -105,7 +105,7 @@ def load_field(field: str):
 
 def stellar_rh(phot) -> float:
     """r_h of the stellar/PSF locus (px): median flux_radius of bright, compact,
-    high-S/N sources — the point-source ridge the compactness cut references."""
+    high-S/N sources: the point-source ridge the compactness cut references."""
     snr = phot["f444w_tot_1"] / np.where(phot["f444w_etot_1"] > 0,
                                          phot["f444w_etot_1"], np.nan)
     fr = phot["flux_radius"]
@@ -152,7 +152,7 @@ def beta_slope(phot, j, z, lo_rest, hi_rest):
 
 def akins(phot, j, compact) -> tuple[bool, str]:
     """Akins+24 COSMOS-Web: SNR_F444W>12, SNR_F277W>3, F277W-F444W>1.5, compact.
-    (Brown-dwarf SED rejection is not photometrically replayable — disclosed.)"""
+    (Brown-dwarf SED rejection is not photometrically replayable; disclosed.)"""
     snr444 = phot["f444w_tot_1"][j] / phot["f444w_etot_1"][j]
     snr277 = phot["f277w_tot_1"][j] / phot["f277w_etot_1"][j]
     c = colour(phot, j, "f277w", "f444w")
@@ -274,7 +274,7 @@ def main() -> None:
 
         if sep[j] > args.radius:
             # No PRIMER/JADES source. For COSMOS, check the COSMOS-Web (Akins)
-            # catalogue — PRIMER-COSMOS doesn't cover all of COSMOS-Web.
+            # catalogue: PRIMER-COSMOS doesn't cover all of COSMOS-Web.
             if fld == "COSMOS":
                 asep = np.sqrt(((ak["ra"] - ra) * np.cos(np.radians(dec))) ** 2
                                + (ak["dec"] - dec) ** 2) * 3600.0
@@ -296,9 +296,9 @@ def main() -> None:
             rec["verdict"] = "no_jwst_counterpart"
             rec["verdict_note"] = (f"no catalogued JWST source within "
                                    f"{args.radius}\" (nearest {sep[j]:.1f}\") "
-                                   f"— spurious detection or outside footprint")
+                                   f": spurious detection or outside footprint")
             print(f"  {cid} {fld:<8} NO JWST counterpart within {args.radius}\" "
-                  f"(nearest {sep[j]:.2f}\") — spurious / outside footprint")
+                  f"(nearest {sep[j]:.2f}\"): spurious / outside footprint")
             out_rows.append(rec)
             continue
 

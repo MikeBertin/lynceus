@@ -23,7 +23,7 @@ from core import config, data
 CATALOG = config.DATA_DIR / "ceers_morpho.fits.gz"
 
 # Label thresholds on the single-Sersic fit (see plan.md / README).
-MAG_LIMIT = 25.0        # F200W model magnitude — bright enough to show structure
+MAG_LIMIT = 25.0        # F200W model magnitude, bright enough to show structure
 N_DISK = 1.2            # Sersic index below -> late-type / disk
 N_SPHEROID = 2.5        # Sersic index above -> early-type / spheroid
 R_COMPACT_ARCSEC = 0.09 # effective radius below -> compact / unresolved
@@ -33,7 +33,7 @@ def select(per_class: int, seed: int) -> list[dict]:
     from astropy.io import fits
 
     if not CATALOG.exists():
-        raise SystemExit(f"Missing {CATALOG} — download it first (see module docstring).")
+        raise SystemExit(f"Missing {CATALOG}; download it first (see module docstring).")
     h = fits.open(CATALOG)
     d1, d2 = h[1].data, h[2].data
     n = np.asarray(d2["SERSIC"], float)

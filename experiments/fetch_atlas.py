@@ -1,7 +1,7 @@
 """Fetch a large UNLABELLED JWST cutout set for the M2 embedding atlas.
 
 Samples galaxies broadly across the Galaxy Zoo: CANDELS morphology distribution
-(so the atlas can be *coloured* by real votes — the votes are never used to train
+(so the atlas can be *coloured* by real votes; the votes are never used to train
 the encoder) and pulls real JWST/NIRCam cutouts from the DJA grizli service.
 
     python -m experiments.fetch_atlas --n 2500
@@ -26,7 +26,7 @@ FIELDS = ((52.0, 54.0), (149.0, 151.0), (33.0, 36.0))  # GOODS-S, COSMOS, UDS
 def select(n: int, seed: int) -> list[dict]:
     from astropy.io import fits
     if not CATALOG.exists():
-        raise SystemExit(f"Missing {CATALOG} — see experiments/fetch_gz.py docstring.")
+        raise SystemExit(f"Missing {CATALOG}; see experiments/fetch_gz.py docstring.")
     d = fits.open(CATALOG)[1].data
     ra = np.asarray(d["RA"], float); dec = np.asarray(d["Dec"], float)
     nc = np.asarray(d["num_classifications"], float)
@@ -42,7 +42,7 @@ def select(n: int, seed: int) -> list[dict]:
     base = in_field & np.isfinite(ra) & np.isfinite(smooth) & (nc >= MIN_VOTES)
 
     # Stratify by dominant class so featured/merger regions aren't swamped by the
-    # ~16:1 smooth majority — the atlas is a visualisation, not a number count.
+    # ~16:1 smooth majority; the atlas is a visualisation, not a number count.
     dom_idx = np.argmax(np.vstack([smooth, feat, merg]), axis=0)
     names = ("smooth", "featured", "merger")
     rng = np.random.default_rng(seed)

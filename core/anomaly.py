@@ -2,7 +2,7 @@
 
 The self-supervised encoder learned what galaxies normally look like. A galaxy
 that sits far from its neighbours in that 512-D space is, by construction,
-unusual — that's the whole signal. We score it with the mean cosine distance to
+unusual, and that's the whole signal. We score it with the mean cosine distance to
 the k nearest reference galaxies (kNN density).
 """
 from __future__ import annotations

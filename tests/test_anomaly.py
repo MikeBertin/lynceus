@@ -22,7 +22,7 @@ def test_knn_anomaly_flags_planted_outlier():
 
 def test_knn_anomaly_exclude_self_matters():
     # scoring a set against itself without excluding self lets every point count
-    # its own zero distance — scores must be strictly lower
+    # its own zero distance, so scores must be strictly lower
     emb = _cluster_with_outlier()
     with_self = knn_anomaly(emb, emb, k=5, exclude_self=False)
     without = knn_anomaly(emb, emb, k=5, exclude_self=True)

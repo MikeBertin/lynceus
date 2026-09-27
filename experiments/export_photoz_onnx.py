@@ -38,7 +38,7 @@ class StandardisedPhotoZ(nn.Module):
 
 def main() -> None:
     if not CKPT.exists():
-        raise SystemExit("No models/photoz.pt — run experiments.train_photoz first.")
+        raise SystemExit("No models/photoz.pt; run experiments.train_photoz first.")
     ck = torch.load(CKPT, map_location="cpu", weights_only=False)  # our own ckpt (has np arrays)
     net = PhotoZNet(in_dim=ck["feat_dim"])
     net.load_state_dict(ck["state_dict"])

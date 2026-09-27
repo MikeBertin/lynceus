@@ -3,27 +3,27 @@
 For each veto survivor (``research/candidates_vetted.csv``, verdict
 ``candidate``), cone-search every machine-checkable relevant catalogue:
 
-* **Kokorev+24 v1.1** (local FITS) — re-checked at 2" (the candidate list
+* **Kokorev+24 v1.1** (local FITS): re-checked at 2" (the candidate list
   already excluded 1.5" matches by construction; this catches edge cases);
-* **SIMBAD TAP** (2") — is the source catalogued at all, and as what
+* **SIMBAD TAP** (2"): is the source catalogued at all, and as what
   (``otype``: a QSO/AGN type is interesting, a known star kills it);
-* **Kocevski+24** (2") — the full 341-LRD Table 3 (ApJ 986/126), fetched from
+* **Kocevski+24** (2"): the full 341-LRD Table 3 (ApJ 986/126), fetched from
   the author's GitHub since it is not on VizieR. 254 of the 341 land in our
   fields (PRIMER->COSMOS+UDS, JADES->GOODS-S), so it is the single most valuable
   non-VO check; only 165 of it reached the Perger compilation;
-* **Akins+24 COSMOS-Web** (2") — the full 434-LRD Table 1 (ApJ 991/37, ECSV
+* **Akins+24 COSMOS-Web** (2"): the full 434-LRD Table 1 (ApJ 991/37, ECSV
   on the author's GitHub, also not on VizieR). Covers COSMOS completely and
   closes the Perger residual (Perger had 420 of the 434). Self-validates: our
   two rediscoveries match it at 0.14";
-* **VizieR LRD tables** (2") — the **Perger+25 list (J/A+A/693/L2)**, a
+* **VizieR LRD tables** (2"): the **Perger+25 list (J/A+A/693/L2)**, a
   compilation of the major samples through 2024; the Euclid LRD sample
   (Bisigello+); and the **RUBIES full spectroscopic census** (Hviding+25,
-  J/A+A/702/A57 — 80 LRDs in UDS+EGS, the relevant spectroscopic sample for
+  J/A+A/702/A57, 80 LRDs in UDS+EGS, the relevant spectroscopic sample for
   our UDS candidates);
-* **NED** (2") — complementary coverage of the CANDELS-era literature.
+* **NED** (2"): complementary coverage of the CANDELS-era literature.
 
 So every one of our three fields is covered by at least one photometric *and*
-(for UDS) spectroscopic LRD sample. NEXUS is the NEP field — no overlap.
+(for UDS) spectroscopic LRD sample. NEXUS is the NEP field, so no overlap.
 Honest limitation: "absent from a selection" can mean *below their cuts*
 rather than non-existent; only a spectrum proves an LRD.
 
@@ -54,16 +54,16 @@ LRD_TABLES = {                       # VizieR table -> short label
     "J/A+A/702/A57/tableb1": "RUBIES_broadBalmer",
 }
 
-# Kocevski+24 (341 LRDs, ApJ 986/126) is NOT on VizieR — its full Table 3 is
+# Kocevski+24 (341 LRDs, ApJ 986/126) is NOT on VizieR; its full Table 3 is
 # on the author's GitHub. 254 of the 341 fall in our fields (UDS/GOODS-S/COSMOS
 # via PRIMER+JADES), so it is the highest-value non-VO check. Fetched once to a
 # local file (data/ is gitignored). Validated: 119/216 of our known Kokorev
-# LRDs match a Kocevski source within 2" (median 0.1") — the catalogues overlap
+# LRDs match a Kocevski source within 2" (median 0.1"), so the catalogues overlap
 # and the cross-match is sound, so a *non*-match is a real absence.
 KOCEVSKI_URL = "https://raw.githubusercontent.com/dalekocevski/Kocevski24/main/Kocevski24.Table3.dat"
 KOCEVSKI_DAT = config.DATA_DIR / "lrd_kocevski24.dat"
 
-# Akins+24 COSMOS-Web (434 LRDs, ApJ 991/37) — also not on VizieR; full Table 1
+# Akins+24 COSMOS-Web (434 LRDs, ApJ 991/37) is also not on VizieR; full Table 1
 # is on the author's GitHub as ECSV. Perger included 420 of the 434, so this
 # closes that residual for our COSMOS candidates. Self-validates: our two
 # rediscoveries match it at 0.14".
@@ -247,7 +247,7 @@ def main() -> None:
           "Kocevski-PRIMER + Kokorev; UDS = RUBIES(spec) + Kocevski-PRIMER + "
           "Kokorev; GOODS-S = Kocevski-JADES + Kokorev. NEXUS is the NEP field "
           "(no overlap). CAVEAT: 'absent from a selection' can mean below-their-"
-          "cuts, not non-existent — spectroscopic confirmation is the only proof.")
+          "cuts, not non-existent; spectroscopic confirmation is the only proof.")
     print(f"wrote {OUT / 'candidates_crossmatch.csv'}")
 
 

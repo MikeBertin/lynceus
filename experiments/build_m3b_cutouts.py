@@ -3,10 +3,10 @@
 M3b (RESEARCH.md Q3 verdict): make the representation point-source aware.
 Two changes relative to the shipped atlas cutouts, both from raw:
 
-* **noise-aware stretch** (``core.data.asinh_stretch_snr``) — the scale is the
+* **noise-aware stretch** (``core.data.asinh_stretch_snr``): the scale is the
   cutout's own sky RMS, not per-cutout percentiles, so empty sky stays dark
   instead of amplifying to colour static;
-* **detection-anchored 64px crop** (``core.data.centre_anchor_crop``) — the
+* **detection-anchored 64px crop** (``core.data.centre_anchor_crop``): the
   central source fills ~3.5x more of the frame than in the 120px original.
 
 Writes <id>.npy + <id>.png into data/atlas/cutouts_m3b/ and

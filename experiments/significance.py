@@ -3,12 +3,12 @@
 Turns Lynceus's three bare point estimates into defensible numbers, all from the
 *cached* data (no re-fetch, no retrain):
 
-* **M3 — LRD enrichment.** Bootstrap 95% CI on the "5×" (resample the 216 Little
+* **M3: LRD enrichment.** Bootstrap 95% CI on the "5×" (resample the 216 Little
   Red Dots) and a permutation null test (216 random atlas galaxies, many times →
   p-value) showing the LRDs really are more anomalous than chance.
-* **M2 — kNN probes.** Morphology and field recovery as mean ± std across 5 CV
+* **M2: kNN probes.** Morphology and field recovery as mean ± std across 5 CV
   folds, against the majority-class baseline.
-* **M4 — photo-z σ_NMAD.** Bootstrap 95% CI on the held-out spectroscopic
+* **M4: photo-z σ_NMAD.** Bootstrap 95% CI on the held-out spectroscopic
   σ_NMAD (and outlier fraction).
 
 Writes ``models/significance.json`` and prints copy-ready strings.
@@ -48,7 +48,7 @@ def _field(ra):
 
 
 # ---------------------------------------------------------------------------
-# M3 — LRD anomaly enrichment
+# M3: LRD anomaly enrichment
 # ---------------------------------------------------------------------------
 def lrd_enrichment(sfx: str = "") -> dict:
     feats = np.load(config.ATLAS_DIR / f"embeddings{sfx}.npy")
@@ -100,7 +100,7 @@ def _p_str(p: float) -> str:
 
 
 # ---------------------------------------------------------------------------
-# M2 — kNN probes (mean ± std across folds)
+# M2: kNN probes (mean ± std across folds)
 # ---------------------------------------------------------------------------
 def knn_probes(sfx: str = "") -> dict:
     feats = _l2(np.load(config.ATLAS_DIR / f"embeddings{sfx}.npy"))
@@ -124,7 +124,7 @@ def knn_probes(sfx: str = "") -> dict:
 
 
 # ---------------------------------------------------------------------------
-# M4 — photo-z σ_NMAD bootstrap CI on held-out spec-z
+# M4: photo-z σ_NMAD bootstrap CI on held-out spec-z
 # ---------------------------------------------------------------------------
 def photoz_ci() -> dict:
     ckpt = torch.load(config.MODELS_DIR / "photoz.pt", map_location="cpu",

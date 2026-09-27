@@ -1,13 +1,13 @@
 """Small, dependency-light significance toolkit.
 
-Every headline in Lynceus was a bare point estimate — "62%", "5×", "σ_NMAD
-0.040". This module turns those into defensible numbers with error bars and
+Every headline in Lynceus was a bare point estimate ("62%", "5×", "σ_NMAD
+0.040"). This module turns those into defensible numbers with error bars and
 null tests, using only resampling (no distributional assumptions):
 
-* :func:`bootstrap_ci` — a percentile bootstrap confidence interval for any
+* :func:`bootstrap_ci`: a percentile bootstrap confidence interval for any
   statistic of a 1-D sample (resample with replacement, recompute, take
   percentiles of the resampled statistics).
-* :func:`permutation_p` — a one-sided p-value for an observed statistic against
+* :func:`permutation_p`: a one-sided p-value for an observed statistic against
   a null built by repeatedly drawing a same-sized sample from a reference
   population (used for the Little Red Dot enrichment: are 216 LRDs really more
   anomalous than 216 random galaxies?).
@@ -60,7 +60,7 @@ def permutation_p(observed: float, reference: ArrayLike,
     """One-sided permutation p-value for ``observed`` vs a resampled null.
 
     Builds the null by drawing ``n_draw`` items (without replacement) from
-    ``reference`` ``n_perm`` times and evaluating ``statistic`` on each draw —
+    ``reference`` ``n_perm`` times and evaluating ``statistic`` on each draw,
     i.e. "what would this statistic look like for a random same-sized subset?".
     The p-value is the fraction of null draws at least as extreme as
     ``observed`` (with the standard +1 / +1 correction so it is never exactly 0).

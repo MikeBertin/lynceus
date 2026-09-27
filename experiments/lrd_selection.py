@@ -5,10 +5,10 @@ are over-represented among the atlas anomalies. This asks the follow-up a
 referee would: could you *find* LRDs with it? I.e. treat "anomaly score above
 threshold" as a selector and measure completeness (fraction of known LRDs
 caught) against the fraction of the atlas you'd have to inspect, as the
-threshold sweeps — ROC, AUC, and a table of usable operating points.
+threshold sweeps: ROC, AUC and a table of usable operating points.
 
 Positives: the 216 Kokorev+24 LRDs, embedded with the atlas encoder.
-Negatives: the 9,673 atlas galaxies (approximate negatives — the atlas sample
+Negatives: the 9,673 atlas galaxies (approximate negatives: the atlas sample
 is GZ-stratified, not flux-limited, and could contain uncatalogued LRDs; so
 this is a selection function *relative to this atlas*).
 
@@ -91,7 +91,7 @@ def main() -> None:
 
 def characterise_tail(araw: np.ndarray, lraw: np.ndarray, sfx: str = "") -> dict:
     """Compare missed (below atlas-median) vs caught (top-decile) LRDs on the
-    Kokorev catalogue's physical columns — brightness, dust, colour."""
+    Kokorev catalogue's physical columns: brightness, dust, colour."""
     import csv
     from astropy.io import fits
     from scipy.stats import spearmanr

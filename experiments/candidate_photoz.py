@@ -7,17 +7,17 @@ table carries fluxes + errors for all nine PHOTOZ_BANDS (same µJy convention
 as the CEERS training catalogue). Run the net on the 216 in-field LRDs and
 compare with the catalogue's own z_phot. This measures whether an
 EAZY-distilled emulator trained on ordinary CEERS galaxies can read the
-weird V-shaped LRD SEDs at all — worth knowing on its own.
+weird V-shaped LRD SEDs at all, which is worth knowing on its own.
 
 **B. The 10 veto survivors, our own aperture photometry.** They are not in
 any photometric catalogue we hold, so: fetch 9-band service cutouts, do
 r=10 px aperture photometry (sky-subtracted; error = sky RMS x sqrt(Npix)),
-and calibrate each band's flux scale empirically — the median
+and calibrate each band's flux scale empirically: the median
 catalogue-flux / aperture-flux ratio over the known LRDs (which corrects
 units *and* point-source aperture loss in one factor). Then featurize and
 read off z_peak, P(z>4), P(z<2).
 
-This is a plausibility check, not photometry-grade measurement — stated in
+This is a plausibility check, not photometry-grade measurement, stated in
 the output. Cutouts are cached under data/*/bands9/; re-runs are offline.
 
     python -m experiments.candidate_photoz
@@ -38,7 +38,7 @@ from core.photoz import (PHOTOZ_BANDS, BAD, PhotoZNet, featurize,
 OUT = config.ROOT / "research"
 LRD_B9 = config.DATA_DIR / "lrd" / "bands9"
 ATL_B9 = config.ATLAS_DIR / "bands9"
-APER_PX = 10                 # aperture radius (px, ~0.25" — point-source scale)
+APER_PX = 10                 # aperture radius (px, ~0.25", point-source scale)
 N_CALIB = 48                 # known LRDs used for the per-band flux calibration
 SN_CAL = 3.0                 # calibration uses bands detected at this S/N
 
@@ -92,7 +92,7 @@ def validate(net, mu, sd) -> dict:
            "frac_p_gt4_above_half": round(float((p_hi > 0.5).mean()), 3),
            "median_z_kokorev": round(float(np.median(z_cat[ok])), 2),
            "median_z_net": round(float(np.median(pe["z_peak"])), 2)}
-    print("A. validation — M4 net on Kokorev catalogue photometry "
+    print("A. validation: M4 net on Kokorev catalogue photometry "
           f"(n={out['n']} in-field LRDs):")
     print(f"   sigma_NMAD vs catalogue z_phot = {out['sigma_nmad_vs_kokorev']}"
           f"   outliers(|dz|>0.15(1+z)) = {out['outlier_frac_0p15']*100:.0f}%")

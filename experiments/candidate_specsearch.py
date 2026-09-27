@@ -2,21 +2,21 @@
 
 The Q3b cross-match checked the *LRD selections* (photometric samples + the
 RUBIES LRD-flagged subset). This step asks the more direct question: does any
-of our 10 veto survivors already have a **public reduced NIRSpec spectrum** —
+of our 10 veto survivors already have a **public reduced NIRSpec spectrum**,
 regardless of whether anyone flagged it as an LRD? If one exists, the candidate
 can be confirmed or rejected today, for free (the literal answer to "only a
 spectrum confirms an LRD").
 
 The DAWN JWST Archive spectroscopic database (DJA-Spec) is the *union* of all
-public NIRSpec programs reduced with msaexp — RUBIES, JADES, CEERS, UNCOVER,
-CAPERS, PRIMER, ... — so a single cone-search against its master emission-line
+public NIRSpec programs reduced with msaexp (RUBIES, JADES, CEERS, UNCOVER,
+CAPERS, PRIMER, ...), so a single cone-search against its master emission-line
 table covers every archive the roadmap named. We pull the whole 80k-row table
 once (``dja_msaexp_emission_lines_v4.4.csv.gz``, position-searchable) and match
 each candidate by RA/Dec.
 
 For every match we report separation, grating/filter, ``z_best`` and its DJA
-``grade`` (3 = secure, 2 = uncertain, 1/0 = bad/artefact), and — because the
-LRD signature is a broad Hα on a V-shaped continuum — the Hα/Hβ line fluxes and
+``grade`` (3 = secure, 2 = uncertain, 1/0 = bad/artefact), and, because the
+LRD signature is a broad Hα on a V-shaped continuum, the Hα/Hβ line fluxes and
 the fitted UV slope ``beta`` where present.
 
     python -m experiments.candidate_specsearch [--radius 1.0]
@@ -98,7 +98,7 @@ def fmt(v, nd=3) -> str:
 def validate(recs, ra_arr, dec_arr, radius: float) -> None:
     """Self-check: the 216 known Kokorev LRDs *should* have DJA-Spec matches.
 
-    Same guard the Q3b cross-match uses — if the machinery recovers a sensible
+    Same guard the Q3b cross-match uses: if the machinery recovers a sensible
     fraction of known LRDs (RUBIES/JADES/... spectra live in DJA-Spec), then a
     *non*-match for our candidates is a real absence, not a coordinate bug.
     """
@@ -181,7 +181,7 @@ def main() -> None:
     if n_hit == 0:
         nearest = min(rr["spec_sep_arcsec"] for rr in out_rows)
         print(f"Nearest public spectrum to any candidate: {nearest:.1f}\" "
-              f"(> {args.radius}\" match radius) — all 10 remain "
+              f"(> {args.radius}\" match radius); all 10 remain "
               f"spectroscopically unobserved. They stay a follow-up target list.")
     print(f"wrote {OUT / 'candidates_specsearch.csv'}")
 

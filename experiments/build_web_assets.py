@@ -19,7 +19,7 @@ from core.models import build_model, AttentionRollout
 GALLERY_DIR = config.WEB_MORPH_DIR / "gallery"
 GALLERY_PX = 224   # display size for gallery PNGs. The stored cutouts are
                    # native-resolution JWST (0.04"/px), so this is a LANCZOS
-                   # upscale — no new detail, but far cleaner on retina than
+                   # upscale: no new detail, but far cleaner on retina than
                    # letting the browser stretch a 120 px image ~3x. Matches
                    # the ViT input size; classification still uses the npy.
 
@@ -48,7 +48,7 @@ def main() -> None:
     rows = load_manifest()
     ckpt = config.MODELS_DIR / "vit.pt"
     if not ckpt.exists():
-        raise SystemExit("No models/vit.pt — run experiments.train_vit first.")
+        raise SystemExit("No models/vit.pt; run experiments.train_vit first.")
 
     model = build_model(pretrained=False).eval()
     model.load_state_dict(torch.load(ckpt, map_location="cpu"))

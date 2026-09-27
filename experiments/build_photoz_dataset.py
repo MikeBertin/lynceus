@@ -7,7 +7,7 @@ never has to reopen the 375 MB FITS.
 
 Split philosophy (kept honest):
   * objects WITH a spectroscopic redshift (z_spec > 0) are reserved entirely for
-    VALIDATION against the truth — they are never trained on;
+    VALIDATION against the truth; they are never trained on;
   * everything else with a good template photo-z (z_phot) is TRAINING data.
 
     python -m experiments.build_photoz_dataset

@@ -81,7 +81,7 @@ def main() -> None:
     d.rectangle((x, 428, x + 96, 432), fill=CYAN)
     d.text((x, 452), "morphology  ·  self-supervised atlas  ·  anomaly hunt  ·  photo-z",
            font=font("mono", 23), fill=INK)
-    d.text((x, 520), "mikebertin.github.io/lynceus  —  live, in your browser, no build step",
+    d.text((x, 520), "mikebertin.github.io/lynceus  ·  live, in your browser, no build step",
            font=font("mono", 20), fill=MUTED)
 
     img.save(OUT, "PNG", optimize=True)

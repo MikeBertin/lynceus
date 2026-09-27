@@ -1,14 +1,14 @@
 """Star veto for the M3b LRD-like candidate list (RESEARCH.md, M3b next-step 1).
 
 The M3b retrieval returns point sources: compact red dots (candidate-shaped)
-*and* stars — the same contaminant class photometric LRD searches fight. This
+*and* stars, the same contaminant class photometric LRD searches fight. This
 script separates them with three independent, fully-disclosed tests, each
 computed from data we already have (plus one cheap Gaia query per candidate):
 
 1. **PSF halo + diffraction spikes** (pixels, cached raw cubes). Stars bright
    enough to matter carry an extended PSF halo and the six-fold JWST spike
    pattern. Features: ``mu_halo`` (mean SNR-stretched intensity in a 5-26 px
-   annulus — LRDs are point sources on dark sky, so theirs is ~0) and
+   annulus; LRDs are point sources on dark sky, so theirs is ~0) and
    ``m6sig`` (the m=6 azimuthal Fourier mode + its first harmonic vs the
    median of the other modes).
 2. **Colour** (pixels). LRDs are red by selection: F444W/F200W aperture-flux
@@ -19,7 +19,7 @@ computed from data we already have (plus one cheap Gaia query per candidate):
 
 Thresholds are calibrated against the 216 known LRDs (they must survive their
 own veto) and printed alongside the results. Residual risk, disclosed: faint
-M/L/T dwarfs below Gaia's limit with no visible spikes can pass the veto —
+M/L/T dwarfs below Gaia's limit with no visible spikes can pass the veto,
 same as every photometric LRD sample.
 
     python -m experiments.star_veto            # full run (Gaia queries ~2 min)
@@ -181,7 +181,7 @@ def main() -> None:
                    and not (f["m6sig"] > THR_M6 and f["mu_halo"] > THR_MU_FOR_M6)
                    and np.isfinite(f["r44_20"]) and f["r44_20"] >= THR_RED)
     print(f"  known LRDs surviving the pixel veto: {lrd_pass}/216 "
-          f"({lrd_pass/216*100:.0f}% — the veto's completeness cost)\n")
+          f"({lrd_pass/216*100:.0f}%: the veto's completeness cost)\n")
 
     # --- the candidates -------------------------------------------------------
     rows = [r for r in csv.DictReader(open(OUT / "candidates_m3b.csv"))

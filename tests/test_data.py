@@ -26,7 +26,7 @@ def test_asinh_colour_stretch_preserves_band_ratios():
     src = out[:, 9, 9]
     assert np.allclose(src / src[0], [1.0, 2.0, 4.0], rtol=1e-3)
 
-    # the old per-channel stretch normalises each band independently — exactly
+    # the old per-channel stretch normalises each band independently, exactly
     # the wash-out that had hidden the Little Red Dots' redness
     flat = data.asinh_stretch(img, colour=False)[:, 9, 9]
     assert not np.allclose(flat / flat[0], [1.0, 2.0, 4.0], rtol=0.1)
@@ -53,7 +53,7 @@ def test_snr_stretch_keeps_empty_sky_dark():
 
 
 def test_snr_stretch_faint_point_source_survives():
-    # A faint compact source (peak ~8 sigma — the faint-LRD regime) must stay
+    # A faint compact source (peak ~8 sigma, the faint-LRD regime) must stay
     # clearly above the floored sky, not vanish with it.
     rng = np.random.default_rng(1)
     img = _sky_field(rng, sigma=0.01)
@@ -67,7 +67,7 @@ def test_snr_stretch_faint_point_source_survives():
 def test_snr_stretch_preserves_band_ratios():
     # Same Lupton property as the colour stretch: one shared linear scale per
     # pixel, so a red source stays red in exactly its raw flux ratios. (Only
-    # below the cap_snr saturation — a saturated band clips at 1, as it must.)
+    # below the cap_snr saturation; a saturated band clips at 1, as it must.)
     rng = np.random.default_rng(2)
     img = _sky_field(rng, sigma=0.001)
     img[:, 20:24, 20:24] += np.array([0.016, 0.008, 0.004], np.float32)[:, None, None]
@@ -79,7 +79,7 @@ def test_snr_stretch_preserves_band_ratios():
 
 def test_centre_anchor_crop_snaps_to_central_source_not_neighbour():
     # The anchor must lock onto the (catalogue-centred) target even when a much
-    # brighter neighbour sits elsewhere in the frame — the Q3 failure where
+    # brighter neighbour sits elsewhere in the frame: the Q3 failure where
     # "LRD matches" embedded the bright galaxy next door.
     rng = np.random.default_rng(3)
     img = _sky_field(rng, size=120)

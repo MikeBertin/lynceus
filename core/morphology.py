@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
 
 # Three visual-morphology classes from real human Galaxy Zoo: CANDELS votes
-# (Simmons et al. 2017) — the canonical top-level split. Cross-matched to real
+# (Simmons et al. 2017), the canonical top-level split. Cross-matched to real
 # JWST NIRCam cutouts. Labels and order are fixed here so the data layer,
 # training, export and the browser demo agree. (The synthetic Sersic generator
 # renders these same three classes for tests / the no-download fallback.)

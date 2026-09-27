@@ -3,13 +3,13 @@
 Two ways to fill the cutout cache, both producing identical on-disk artefacts
 (a ``manifest.csv`` plus one ``.npy`` float array and one ``.png`` per object):
 
-* :func:`generate_synthetic_dataset` — physically-motivated Sersic-profile
+* :func:`generate_synthetic_dataset`: physically-motivated Sersic-profile
   galaxies (n~1 disks, n~4 spheroids, clumpy irregulars, PSF point sources,
   two-body mergers), with wavelength-dependent PSF and noise. This is the
   default M1 dataset: it needs no multi-GB downloads, so the whole pipeline and
   browser demo are reproducible from a clean checkout.
 
-* :func:`extract_real_cutouts` — the genuine article: given a CEERS/JADES NIRCam
+* :func:`extract_real_cutouts`: the genuine article: given a CEERS/JADES NIRCam
   mosaic per band (dropped in ``data/mosaics/``) and a catalogue of RA/Dec +
   morphology labels, it cuts thumbnails with :class:`astropy.nddata.Cutout2D`.
   Same normalisation, same manifest, so training and the demo are agnostic to
@@ -29,10 +29,10 @@ import numpy as np
 from . import config
 from .morphology import CLASSES, CLASS_TO_IDX
 
-# DJA grizli cutout service — real JWST NIRCam cutouts by RA/Dec, no mosaic
+# DJA grizli cutout service: real JWST NIRCam cutouts by RA/Dec, no mosaic
 # download. One request returns a multi-extension FITS, one HDU per filter.
 CUTOUT_SERVICE = "https://grizli-cutout.herokuapp.com/thumb"
-SERVICE_FILTERS = "f444w-clear,f356w-clear,f200w-clear"   # (R, G, B) — match config.BANDS
+SERVICE_FILTERS = "f444w-clear,f356w-clear,f200w-clear"   # (R, G, B); match config.BANDS
 
 MANIFEST = config.CUTOUTS_DIR / "manifest.csv"
 _FIELDS = ("id", "label", "label_idx", "source", "ra", "dec", "redshift", "npy", "png")
@@ -64,15 +64,15 @@ def asinh_stretch(img: np.ndarray, lo_pct: float = 45.0, hi_pct: float = 99.8,
 
     Two modes:
 
-    * ``colour=True`` (default) — a Lupton et al. (2004) style stretch that
+    * ``colour=True`` (default): a Lupton et al. (2004) style stretch that
       **preserves colour**. A per-channel black point (sky) is subtracted, but a
       *single shared* intensity is stretched and each band is then scaled
       linearly by the same factor. Because the scaling is shared and linear, the
-      flux *ratios* between bands survive — a genuinely red source (bright in
+      flux *ratios* between bands survive, so a genuinely red source (bright in
       F444W, faint in F200W) stays red. This is what M2/M3 want: the encoder can
       see colour, not just shape.
 
-    * ``colour=False`` — the original per-channel normalisation, where each band
+    * ``colour=False``: the original per-channel normalisation, where each band
       is independently stretched to fill [0, 1]. This maximises per-channel
       contrast but **discards absolute colour**. Retained for the M1 morphology
       model, which was trained and shipped on it.
@@ -116,7 +116,7 @@ def asinh_stretch_snr(img: np.ndarray, soft_snr: float = 2.0,
     """M3b: noise-aware, colour-preserving asinh stretch into [0, 1].
 
     The per-cutout *percentile* stretch (``asinh_stretch``) normalises every
-    cutout to fill [0, 1] — so a near-empty field has its sky noise amplified to
+    cutout to fill [0, 1], so a near-empty field has its sky noise amplified to
     full-range colour static, and tiny sources (the faint Little Red Dots,
     r_eff < 1 px) embed as that noise texture rather than as red dots
     (RESEARCH.md Q3). Here the scale is physical instead: everything is in
@@ -147,11 +147,11 @@ def asinh_stretch_snr(img: np.ndarray, soft_snr: float = 2.0,
 
 def centre_anchor_crop(raw: np.ndarray, out_px: int = 64,
                        search_px: int = 8, smooth: float = 1.5) -> tuple[int, int]:
-    """M3b: detection anchor — (cy, cx) of the source at the cutout centre.
+    """M3b: detection anchor, the (cy, cx) of the source at the cutout centre.
 
     Cutouts are fetched at catalogue RA/Dec, so the target sits within a couple
     of pixels of the centre; the anchor just snaps onto its smoothed intensity
-    peak. The search window is deliberately tiny (``+-search_px``) — a wider
+    peak. The search window is deliberately tiny (``+-search_px``); a wider
     window latches onto bright *neighbours*, which is exactly the failure mode
     the M3b crop exists to fix (the four Kokorev "matches" that embedded the
     galaxy next door, RESEARCH.md Q3).
@@ -314,7 +314,7 @@ def _render_galaxy(label: str, rng: np.random.Generator, px: int) -> np.ndarray:
                     rng.uniform(0, px), rng.uniform(0, px), 0.2, 0.0),
             1.3)[None] * rng.uniform(0.5, 1.0, size=(3, 1, 1))
     # Noise: a shared luminance component (correlated across bands) plus a
-    # small independent per-band part — avoids unrealistic rainbow static.
+    # small independent per-band part, which avoids unrealistic rainbow static.
     shared = rng.normal(0, 0.008, size=(px, px)).astype(np.float32)
     cube += shared[None]
     cube += rng.normal(0, 0.003, size=cube.shape).astype(np.float32)
@@ -350,7 +350,7 @@ def generate_synthetic_dataset(n_per_class: int = 170, seed: int = 7,
 
 
 # ---------------------------------------------------------------------------
-# Real CEERS/JADES cutouts (Cutout2D) — runs when mosaics are provided
+# Real CEERS/JADES cutouts (Cutout2D): runs when mosaics are provided
 # ---------------------------------------------------------------------------
 def extract_real_cutouts(catalog_rows: list[dict],
                          mosaic_paths: dict[str, str | Path],

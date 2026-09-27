@@ -3,7 +3,7 @@
 Catalogue: Kokorev et al. 2024, "A Census of Photometrically Selected Little Red
 Dots at 4<z<9 in JWST Blank Fields" (github.com/VasilyKokorev/lrd_phot). We keep
 the LRDs that fall in our atlas fields (GOODS-S, COSMOS, UDS), pull their real
-JWST cutouts from the DJA service, and embed them — so M3 can show whether these
+JWST cutouts from the DJA service, and embed them, so M3 can show whether these
 independently-discovered objects land in the anomalous part of our atlas.
 
     curl -L -o data/lrd_kokorev.fits \

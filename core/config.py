@@ -32,7 +32,7 @@ BANDS = ("F444W", "F356W", "F200W")   # (R, G, B)
 CUTOUT_PX = 96                        # stored cutout size (pixels)
 MODEL_PX = 224                        # ViT input size (cutouts resized up)
 
-# ImageNet stats — the pretrained ViT backbone expects these.
+# ImageNet stats: the pretrained ViT backbone expects these.
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 

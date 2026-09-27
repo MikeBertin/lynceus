@@ -1,10 +1,10 @@
 """Build the cutout cache.
 
-Default (synthetic) — no downloads, fully reproducible::
+Default (synthetic): no downloads, fully reproducible::
 
     python -m experiments.fetch_data --synthetic 170
 
-Real CEERS/JADES cutouts — once you have a label catalogue (CSV with
+Real CEERS/JADES cutouts, once you have a label catalogue (CSV with
 ra,dec,label[,redshift,id]) and per-band NIRCam mosaics in data/mosaics/::
 
     python -m experiments.fetch_data --real --catalog data/ceers_visual.csv \

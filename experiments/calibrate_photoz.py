@@ -1,4 +1,4 @@
-"""Calibrate the photo-z PDFs — the uncertainty check σ_NMAD never makes.
+"""Calibrate the photo-z PDFs: the uncertainty check σ_NMAD never makes.
 
 σ_NMAD says the *peak* is good; it says nothing about whether the **PDF widths**
 are trustworthy. The standard test is the Probability Integral Transform (PIT):
@@ -11,12 +11,12 @@ spectroscopic galaxies, and probe whether a single softmax **temperature** can
 calibrate them. The honest finding: it can't, and *why* is the interesting part.
 The PIT is a central hump (PDFs over-dispersed in the core), yet the high-level
 coverage is already good (a 90% interval contains the truth ~88% of the time).
-The two standard temperature objectives then disagree — NLL wants to *widen*
+The two standard temperature objectives then disagree. NLL wants to *widen*
 (T>1) to cover the catastrophic-outlier tails, while the PIT/coverage want to
 *sharpen* (T<1) to flatten the core. No global T fixes both, and sharpening would
 degrade exactly the high-credible-level coverage that matters (and crush the
 secondary interloper peaks the demo is about). So we deploy **T=1** and report
-the diagnostic — calibration is a property to disclose, not to fake away.
+the diagnostic, because calibration is a property to disclose, not to fake away.
 
     python -m experiments.calibrate_photoz
 
@@ -37,14 +37,14 @@ from core.photoz import (PhotoZNet, featurize, pdf_from_logits, point_estimates,
 
 LEVELS = np.array([0.5, 0.68, 0.90, 0.95])   # nominal credible levels for coverage
 PIT_BINS = 10
-DEPLOY_T = 1.0                                 # see module docstring — no scaling shipped
+DEPLOY_T = 1.0                                 # see module docstring; no scaling shipped
 
 
 def val_pdfs(with_eazy: bool = False):
     """Raw (T=1) PDFs and spec-z truths for the held-out spectroscopic set.
 
     With ``with_eazy=True`` also returns the EAZY template ``z_phot`` for the
-    same galaxies — the baseline our net distils (used by the Q2 interloper
+    same galaxies, the baseline our net distils (used by the Q2 interloper
     comparison in experiments/interlopers.py).
     """
     ckpt = torch.load(config.MODELS_DIR / "photoz.pt", map_location="cpu",
@@ -88,7 +88,7 @@ def main() -> None:
     T_nll = fit_temperature(pdf, y, objective="nll")   # widens to cover outliers
     T_pit = fit_temperature(pdf, y, objective="ks")    # sharpens to flatten core
     print(f"objective tension: NLL-optimal T={T_nll:.2f} (widen) vs "
-          f"PIT/KS-optimal T={T_pit:.2f} (sharpen) — no single T calibrates both.")
+          f"PIT/KS-optimal T={T_pit:.2f} (sharpen); no single T calibrates both.")
     cov_sharp = _coverage_dict(pit_values(temperature_scale(pdf, T_pit), y))
     print(f"  sharpening to T={T_pit:.2f} would push 90% coverage "
           f"{cov_raw['90']}->{cov_sharp['90']} (worse where it matters).")

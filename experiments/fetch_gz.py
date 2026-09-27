@@ -1,9 +1,9 @@
 """Build a REAL dataset with REAL human visual-morphology labels.
 
-Labels: Galaxy Zoo: CANDELS volunteer vote fractions (Simmons et al. 2017) — the
+Labels: Galaxy Zoo: CANDELS volunteer vote fractions (Simmons et al. 2017), the
 canonical smooth / featured / merger split. Imagery: real JWST/NIRCam cutouts
 from the DJA grizli cutout service. Galaxy Zoo classified HST/CANDELS imaging in
-GOODS-S, COSMOS and UDS — all three fields are now covered by deep JWST imaging,
+GOODS-S, COSMOS and UDS. All three fields are now covered by deep JWST imaging,
 so we cross-match by RA/Dec and pull the JWST cutout for each classified galaxy.
 
 1. Download the Galaxy Zoo: CANDELS table once (~52 MB, gitignored):
@@ -36,7 +36,7 @@ def select(per_class: int, seed: int) -> list[dict]:
     from astropy.io import fits
 
     if not CATALOG.exists():
-        raise SystemExit(f"Missing {CATALOG} — download it first (see module docstring).")
+        raise SystemExit(f"Missing {CATALOG}; download it first (see module docstring).")
     d = fits.open(CATALOG)[1].data
     ra = np.asarray(d["RA"], float)
     dec = np.asarray(d["Dec"], float)

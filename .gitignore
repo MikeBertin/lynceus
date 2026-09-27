@@ -4,7 +4,7 @@ __pycache__/
 *.pyc
 
 # Data: the 375MB DJA catalogue, raw mosaics, regenerable cutout cache,
-# label CSV and montages — all large or regenerable, none committed.
+# label CSV and montages: all large or regenerable, none committed.
 data/
 *.fits
 *.fits.gz

@@ -1,10 +1,10 @@
-"""Photometric redshift estimation for M4 — the dropout hunter.
+"""Photometric redshift estimation for M4: the dropout hunter.
 
 The physics: a galaxy's light is absorbed by intervening neutral hydrogen
 blueward of Lyman-alpha (1216 Angstrom rest-frame). As redshift grows that
 "Lyman break" sweeps through the filters, so a high-z galaxy *drops out* of the
 bluer bands and only appears in redder ones. The pattern of which bands a galaxy
-is bright/faint/absent in therefore encodes its redshift — that's what makes
+is bright/faint/absent in therefore encodes its redshift. That's what makes
 photometric redshifts possible, and what JWST used to push the frontier to z~14
 and turn up *too many, too bright* early galaxies (a real LambdaCDM tension).
 
@@ -15,7 +15,7 @@ template fitting at inference:
   (normalised to a robust red-band scale, asinh-compressed) plus a per-band
   detection mask and an overall brightness feature.
 * :class:`PhotoZNet` is a small MLP that outputs a **probability distribution
-  over redshift bins** (softmax), not a single number — so it naturally produces
+  over redshift bins** (softmax), not a single number, so it naturally produces
   a PDF and can express the classic low-z/high-z degeneracy (a z~12 dropout
   candidate that might instead be a dusty z~2 interloper).
 * Trained on tens of thousands of template-based redshifts (EAZY ``z_phot``) for
@@ -72,7 +72,7 @@ def featurize(flux: np.ndarray, err: np.ndarray) -> np.ndarray:
       * 1 brightness feature: log of the normalisation scale.
 
     Non-detections are set to 0 in the flux block and 0 in the mask, so the
-    network learns "this band is dark" — exactly the dropout signal.
+    network learns "this band is dark": exactly the dropout signal.
     """
     flux = np.asarray(flux, np.float64).copy()
     err = np.asarray(err, np.float64).copy()
@@ -183,7 +183,7 @@ def pit_values(pdf: np.ndarray, z_true: np.ndarray,
                edges: np.ndarray = Z_EDGES) -> np.ndarray:
     """Probability Integral Transform: the predicted CDF evaluated at the truth.
 
-    For a calibrated model the PITs are **uniform on [0,1]** — a U-shaped PIT
+    For a calibrated model the PITs are **uniform on [0,1]**. A U-shaped PIT
     histogram means over-confident (too-narrow) PDFs, a central hump means
     under-confident ones, a tilt means bias. Each bin's mass is treated as
     uniform within the bin so the CDF (and the PIT) is continuous.
@@ -239,7 +239,7 @@ def fit_temperature(pdf: np.ndarray, z_true: np.ndarray,
                     grid: np.ndarray | None = None) -> float:
     """Grid-search the single softmax temperature minimising ``objective``.
 
-    ``"nll"`` (default) is classical temperature scaling (Guo et al.) — the
+    ``"nll"`` (default) is classical temperature scaling (Guo et al.), the
     principled choice; ``"ks"`` minimises the PIT Kolmogorov distance to uniform.
     On a model with a good core but heavy catastrophic-outlier tails the two
     disagree (NLL widens to cover outliers, KS sharpens to flatten the core),

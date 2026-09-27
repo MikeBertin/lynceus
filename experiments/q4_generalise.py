@@ -1,6 +1,6 @@
 """Q4 (RESEARCH.md): does the M3b encoder generalise across fields?
 
-Our own probe says field is ~63% guessable from the embedding — a survey
+Our own probe says field is ~63% guessable from the embedding, a survey
 depth/PSF fingerprint. So the threat to the LRD-anomaly result is that it is
 partly a *depth* artefact. The test: retrain SimCLR with one field held out
 (``train_atlas --exclude-field``), then measure the LRD-anomaly signal on that
@@ -12,7 +12,7 @@ what's left is generalisation.
 For a held-out field F:
   * negatives = F's atlas galaxies, positives = F's known LRDs;
   * anomaly = mean cosine distance to the 20 nearest atlas galaxies *of F*
-    (so the reference cloud is also held-out — no leakage from the trained
+    (so the reference cloud is also held-out, so no leakage from the trained
     fields);
   * report AUC and top-10% enrichment, each with a bootstrap CI, for both
     encoders side by side; plus a within-field kNN-morphology probe.

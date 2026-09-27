@@ -1,13 +1,13 @@
-# Lynceus — Python core (training/export run offline; the web demo needs none of this).
+# Lynceus: Python core (training/export run offline; the web demo needs none of this).
 #
 # Pinned to the exact versions the published results were produced with.
 # Environment of record: Python 3.13 (3.14 has no torch wheels yet) on an
-# Apple M4 Mac mini — torch auto-selects MPS via core.config.get_device().
+# Apple M4 Mac mini; torch auto-selects MPS via core.config.get_device().
 #
 #   python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
 #
 numpy==2.4.6
-scipy==1.18.0            # numerics under sklearn/umap — pinned, it moves results
+scipy==1.18.0            # numerics under sklearn/umap; pinned, it moves results
 scikit-learn==1.9.0      # k-fold CV, kNN probes + anomaly scoring
 umap-learn==0.5.12       # M2: 512-D -> 2-D atlas layout
 torch==2.12.1

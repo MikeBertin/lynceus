@@ -4,7 +4,7 @@ The atlas .npy cache stores already-stretched images, and the old per-channel
 stretch discarded colour irreversibly. To make the atlas colour-aware we must
 re-pull the raw cubes from the DJA service and re-stretch with the new
 ``asinh_stretch(colour=True)``. This reads the *current* atlas_meta.csv so the
-galaxy set (and ids) stay identical — only the pixels change — keeping the
+galaxy set (and ids) stay identical (only the pixels change), keeping the
 embedding/UMAP comparable to before.
 
 Overwrites each <id>.npy / <id>.png in place; safe to re-run after an interrupt
@@ -67,7 +67,7 @@ def main() -> None:
                 print(f"  {done}/{len(rows)}  ok={ok} skip={skip} fail={fail}", flush=True)
     print(f"\nDone. converted={ok} skipped={skip} failed={fail}")
     if fail:
-        print(f"  ({fail} had no coverage / service errors — re-run to retry them)")
+        print(f"  ({fail} had no coverage / service errors; re-run to retry them)")
 
 
 if __name__ == "__main__":

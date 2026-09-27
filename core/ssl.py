@@ -1,7 +1,7 @@
 """Self-supervised contrastive learning (SimCLR) for the M2 atlas.
 
 A ResNet-18 backbone is trained with the NT-Xent contrastive loss on two
-augmented views of each unlabelled JWST cutout. No morphology labels are used —
+augmented views of each unlabelled JWST cutout. No morphology labels are used:
 the encoder learns to group galaxies that *look alike*, and the Galaxy Zoo votes
 are only used afterwards to colour the atlas.
 """
@@ -41,7 +41,7 @@ def _augment(arr: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     t = torch.from_numpy(a).float().unsqueeze(0)
     t = F.interpolate(t, size=(SSL_PX, SSL_PX), mode="bilinear", align_corners=False)[0]
     # photometric jitter: brightness + contrast (luminance) are jittered freely,
-    # but per-channel *colour* jitter is kept gentle (+-8%) — the cutouts now
+    # but per-channel *colour* jitter is kept gentle (+-8%) because the cutouts now
     # preserve real colour (asinh_stretch colour=True) and we want the encoder to
     # treat colour as signal, not nuisance. Too much colour jitter would teach it
     # to ignore the very redness that distinguishes Little Red Dots.

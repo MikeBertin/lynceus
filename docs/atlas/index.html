@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lynceus · The galaxy atlas</title>
 <meta name="description" content="Fly through a self-supervised embedding of thousands of real JWST galaxies. A SimCLR encoder learned what galaxies look like with no labels; colour the map by Galaxy Zoo morphology.">
-<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../badge.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mikebertin.github.io/lynceus/atlas/">
 <meta property="og:title" content="Lynceus · The galaxy atlas">
@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="Lynceus · The galaxy atlas">
 <meta name="twitter:description" content="Fly through a self-supervised embedding of ~10,000 real JWST galaxies; morphology and anomalies emerge with no labels.">
 <meta name="twitter:image" content="https://mikebertin.github.io/lynceus/card.png">
-<link rel="stylesheet" href="../shared/theme.css?v=2">
+<link rel="stylesheet" href="../shared/theme.css?v=3">
 <style>
   .barrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0 12px}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
@@ -69,6 +69,7 @@
     border-radius:14px;background:radial-gradient(circle at 50% 45%,#0c1124,#05060d 75%);cursor:grab;touch-action:none}
   .globe-wrap:active{cursor:grabbing}
   #globe{display:block;width:100%;height:100%}
+  button.spinbtn{margin-top:8px;font-size:11px;padding:4px 10px}
   .cap{font-family:var(--mono);font-size:11px;color:var(--faint);margin:8px 2px 0;line-height:1.5}
   .edge{min-width:0}
   .edge svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:14px}
@@ -224,6 +225,7 @@
   <div class="ctx-grid">
     <div>
       <div class="globe-wrap"><canvas id="globe"></canvas></div>
+      <button class="ghost spinbtn" id="globeSpin" type="button">❚❚ pause spin</button>
       <p class="cap">drag to rotate · gold = galactic plane · cyan = ecliptic · the three coloured dots = the deep fields (same colours as the atlas "sky region" mode) · the Sun's spot is for <span id="sundate">today</span></p>
     </div>
     <div class="edge">
@@ -275,11 +277,12 @@
   <footer>
     <b>Lynceus</b>, the keenest-sighted of the Argonauts.
     Self-supervised encoder (SimCLR / ResNet-18, PyTorch) · UMAP · static sprite atlas.
+    <br><span class="hub"><img src="../badge.svg" alt="" width="13" height="16"> <a href="https://mikebertin.github.io/">More builds by Mike Bertin</a></span>
   </footer>
 </div>
 <div id="pop"></div>
 <script src="app.js?v=17"></script>
-<script src="skymap.js?v=3"></script>
+<script src="skymap.js?v=4"></script>
 <script src="../shared/notice.js?v=1"></script>
 </body>
 </html>
